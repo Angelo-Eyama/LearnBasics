@@ -9,6 +9,10 @@ def get_testCase_by_id(session: Session, testCase_id: int):
     testCase = session.get(testCase, testCase_id)
     return testCase
 
+def get_testCases_by_problem_id(session: Session, problem_id: int):
+    testCases = session.exec(select(testCase).where(testCase.problem_id == problem_id)).all()
+    return testCases
+
 def create_testCase(session: Session, testCase: testCase):
     session.add(testCase)
     session.commit()

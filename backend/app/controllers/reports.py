@@ -5,6 +5,10 @@ def get_reports(session: Session):
     reports = session.exec(select(Report)).all()
     return reports
 
+def get_reports_by_problem_id(session: Session, problem_id: int):
+    reports = session.exec(select(Report).where(Report.problemID == problem_id)).all()
+    return reports
+
 def create_report(session: Session, report: Report):
     report.timePosted = datetime.now()
     session.add(report)

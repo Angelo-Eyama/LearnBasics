@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from .routers import users, submissions, problems, roles
+from .routers import users, submissions, problems, roles, coments, notifications, reports, test_cases
 from .database import create_db_and_tables, create_rows
 from sqlalchemy.exc import IntegrityError
 
@@ -21,6 +21,22 @@ tags_metadata = [
     {
         "name": "Roles",
         "description": "Operaciones relacionadas con la gestion de los roles (CRUD), asignar y revocar roles.",
+    },
+    {
+        "name": "Comentarios",
+        "description": "Operaciones relacionadas con la gestion de los comentarios (CRUD). También están las acciones de ver comentarios por usuario, etc.",
+    },
+    {
+        "name": "Notificaciones",
+        "description": "Conjunto de operaciones relacionadas con las notificaciones.",
+    },
+    {
+        "name": "Reportes",
+        "description": "Conjunto de operaciones relacionadas con los reportes. Los reportes son mensajes que los usuarios envian al administrador para reportar problemas, errores, etc.",
+    },
+    {
+        "name": "Casos de prueba",
+        "description": "Conjunto de operaciones relacionadas con los casos de prueba. Cada ejercicio tiene uno o varios casos de prueba que se utilizan para verificar la solucion del usuario.",
     }
 ]
 
@@ -28,12 +44,11 @@ tags_metadata = [
 async def lifespan(app: FastAPI):
     try:
         # Acciones a realizar al inicio de la aplicacion
-        print("La aplicación se está iniciando...")
         create_db_and_tables()
         yield
     finally:
         # Acciones a realizar al final de la aplicacion
-        print("La aplicación se está apagando...")
+        pass
 
 app = FastAPI(
     title="Learn Basics Backend",
@@ -64,3 +79,7 @@ app.include_router(users.router)
 app.include_router(submissions.router)
 app.include_router(problems.router)
 app.include_router(roles.router)
+app.include_router(coments.router)
+app.include_router(notifications.router)
+app.include_router(reports.router)
+app.include_router(test_cases.router)
