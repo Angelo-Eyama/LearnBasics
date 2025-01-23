@@ -14,6 +14,10 @@ def get_problem_by_id(session: Session, problem_id: int):
     problem = session.get(Problem, problem_id)
     return problem
 
+def get_problems_by_block(session: Session, block: str):
+    problems = session.exec(select(Problem).where(Problem.block == block)).all()
+    return problems
+
 def create_problem(session: Session, problem: Problem):
     session.add(problem)
     session.commit()

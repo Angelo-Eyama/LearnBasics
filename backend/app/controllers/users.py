@@ -1,9 +1,6 @@
 from sqlmodel import Session, select
 from ..models import User
-
-# # # # # # # # # # # # # #
-# OPERACIONES DE USUARIOS #
-# # # # # # # # # # # # # #
+from datetime import datetime
 
 # Funcion para obtener todos los usuarios
 def get_users(session: Session):
@@ -11,12 +8,12 @@ def get_users(session: Session):
     return users
 
 # Funcion para obtener un usuario por su id
-def get_user_by_id(session: Session, user_id: int):
+def get_user_by_id(session: Session, user_id: int) -> User:
     user = session.get(User, user_id)
     return user
 
 # Funcion para obtener un usuario por su nombre de usuario
-def get_user_by_username(session: Session, username: str):
+def get_user_by_username(session: Session, username: str) -> User:
     user = session.exec(select(User).where(User.username == username)).first()
     return user
 
@@ -43,8 +40,3 @@ def delete_user(session: Session, user_id: int):
     session.delete(user)
     session.commit()
     return user
-
-#Funcion para obtener un campo de un usuario usando el id y getattr
-def get_user_field(session: Session, user_id: int, field: str):
-    user = session.get(User, user_id)
-    return getattr(user, field)

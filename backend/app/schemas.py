@@ -10,6 +10,8 @@ class UserBase(BaseModel):
     email: str
     firstName: str
     lastName: str
+    creationDate: Optional[datetime] = None
+    
 
 class UserCreate(UserBase):
     password: str
@@ -17,7 +19,6 @@ class UserCreate(UserBase):
 class UserRead(UserBase):
     id: int
     score: Optional[int] = None
-    creationDate: Optional[datetime] = None
 
     class Config:
         orm_mode: True
@@ -37,6 +38,7 @@ class UserUpdate(BaseModel):
 
 class ProblemBase(BaseModel):
     title: str
+    block: str
     description: str
     difficulty: str
     score: int
@@ -84,3 +86,108 @@ class SubmissionUpdate(BaseModel):
     status: Optional[str] = None
     timeSubmitted: Optional[datetime] = None
     timeUpdated: Optional[datetime] = None
+    
+    
+## Role Schemas ##
+class RoleBase(BaseModel):
+    role: str
+    
+class RoleCreate(RoleBase):
+    id: int
+
+class RoleRead(RoleBase):
+    description: str
+
+    class Config:
+        orm_mode: True
+        
+class RoleUpdate(BaseModel):
+    role: Optional[str] = None
+    description: Optional[str] = None
+    
+class UserWithRoles(UserRead):
+    roles: list[RoleBase] | None = None
+    
+class RoleWithUsers(RoleRead):
+    users: list[UserRead] | None = None
+    
+## Comment Schemas ##
+class CommentBase(BaseModel):
+    content: str
+    
+class CommentCreate(CommentBase):
+    problemID: int
+    userID: int
+    
+class CommentRead(CommentBase):
+    id: int
+    timePosted: Optional[datetime] = None
+
+    class Config:
+        orm_mode: True
+        
+class CommentUpdate(BaseModel):
+    content: Optional[str] = None
+    timePosted: Optional[datetime] = None
+    
+## Notification Schemas ##
+class NotificationBase(BaseModel):
+    content: str
+    readed: bool
+    
+class NotificationCreate(NotificationBase):
+    userID: int
+    
+
+class NotificationRead(NotificationBase):
+    id: int
+    timePosted: Optional[datetime] = None
+
+    class Config:
+        orm_mode: True
+        
+class NotificationUpdate(BaseModel):
+    content: Optional[str] = None
+    readed: Optional[bool] = None
+    timePosted: Optional[datetime] = None
+    
+## Report Schemas ##
+
+class ReportBase(BaseModel):
+    content: str
+    readed: bool
+    
+class ReportCreate(ReportBase):
+    problemID: int
+    userID: int
+    
+class ReportRead(ReportBase):
+    id: int
+    timePosted: Optional[datetime] = None
+
+    class Config:
+        orm_mode: True
+        
+class ReportUpdate(BaseModel):
+    content: Optional[str] = None
+    readed: Optional[bool] = None
+    timePosted: Optional[datetime] = None
+
+## Test case Schemas ##
+class TestCaseBase(BaseModel):
+    input: str
+    output: str
+    
+class TestCaseCreate(TestCaseBase):
+    problemID: int
+    
+class TestCaseRead(TestCaseBase):
+    id: int
+
+    class Config:
+        orm_mode: True
+        
+class TestCaseUpdate(BaseModel):
+    input: Optional[str] = None
+    output: Optional[str] = None
+    
