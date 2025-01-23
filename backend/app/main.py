@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from .routers import users, submissions, problems, roles
 from .database import create_db_and_tables, create_rows
 from sqlalchemy.exc import IntegrityError
@@ -23,6 +24,16 @@ tags_metadata = [
     }
 ]
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    try:
+        # Acciones a realizar al inicio de la aplicacion
+        print("La aplicación se está iniciando...")
+        create_db_and_tables()
+        yield
+    finally:
+        # Acciones a realizar al final de la aplicacion
+        print("La aplicación se está apagando...")
 
 app = FastAPI(
     title="Learn Basics Backend",
@@ -41,12 +52,8 @@ app = FastAPI(
     },
     version="0.0.0",
     openapi_tags=tags_metadata,
+    lifespan=lifespan
 )
-
-@app.on_event("startup")
-def on_startup():
-    create_db_and_tables()
-
 
 @app.get("/")
 def read_root():

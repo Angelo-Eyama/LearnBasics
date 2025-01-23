@@ -1,5 +1,5 @@
 from typing import Optional
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from datetime import datetime
 
 # # # # # # #  #
@@ -20,8 +20,13 @@ class UserRead(UserBase):
     id: int
     score: Optional[int] = None
 
-    class Config:
-        orm_mode: True
+    # A partir de la version 2.0 de Pydantic, se puede usar ConfigDict para configurar el modelo
+    # Class config está obsoleto y se ha renombrado la propiedad a model_config
+    # orm_mode ha sido renombrado a from_orm
+    # https://docs.pydantic.dev/2.10/migration/#changes-to-config
+    model_config = ConfigDict(
+        from_attributes = True
+    )
 
 class UserUpdate(BaseModel):
     username: Optional[str] = None
@@ -50,8 +55,9 @@ class ProblemCreate(ProblemBase):
 class ProblemRead(ProblemBase):
     id: int
 
-    class Config:
-        orm_mode: True
+    model_config = ConfigDict(
+        from_attributes = True
+    )
 
 class ProblemUpdate(BaseModel):
     title: Optional[str] = None
@@ -77,8 +83,9 @@ class SubmissionRead(SubmissionBase):
     timeSubmitted: Optional[datetime] = None
     timeUpdated: Optional[datetime] = None
 
-    class Config:
-        orm_mode: True
+    model_config = ConfigDict(
+        from_attributes = True
+    )
 
 class SubmissionUpdate(BaseModel):
     code: Optional[str] = None
@@ -98,8 +105,9 @@ class RoleCreate(RoleBase):
 class RoleRead(RoleBase):
     description: str
 
-    class Config:
-        orm_mode: True
+    model_config = ConfigDict(
+        from_attributes = True
+    )
         
 class RoleUpdate(BaseModel):
     role: Optional[str] = None
@@ -123,8 +131,9 @@ class CommentRead(CommentBase):
     id: int
     timePosted: Optional[datetime] = None
 
-    class Config:
-        orm_mode: True
+    model_config = ConfigDict(
+        from_attributes = True
+    )
         
 class CommentUpdate(BaseModel):
     content: Optional[str] = None
@@ -143,8 +152,9 @@ class NotificationRead(NotificationBase):
     id: int
     timePosted: Optional[datetime] = None
 
-    class Config:
-        orm_mode: True
+    model_config = ConfigDict(
+        from_attributes = True
+    )
         
 class NotificationUpdate(BaseModel):
     content: Optional[str] = None
@@ -165,8 +175,9 @@ class ReportRead(ReportBase):
     id: int
     timePosted: Optional[datetime] = None
 
-    class Config:
-        orm_mode: True
+    model_config = ConfigDict(
+        from_attributes = True
+    )
         
 class ReportUpdate(BaseModel):
     content: Optional[str] = None
@@ -184,8 +195,9 @@ class TestCaseCreate(TestCaseBase):
 class TestCaseRead(TestCaseBase):
     id: int
 
-    class Config:
-        orm_mode: True
+    model_config = ConfigDict(
+        from_attributes = True
+    )
         
 class TestCaseUpdate(BaseModel):
     input: Optional[str] = None
