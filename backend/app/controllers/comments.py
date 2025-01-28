@@ -13,9 +13,8 @@ def get_comment_by_id(session: Session, comment_id: int):
 
 
 def get_comments_by_user_id(session: Session, user_id: int):
-    with session() as session:
-        comments = session.exec(select(Comment).where(
-        Comment.userID == user_id)).all()
+    comments = session.exec(select(Comment).where(
+    Comment.userID == user_id)).all()
     return comments
 
 
