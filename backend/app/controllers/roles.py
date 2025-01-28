@@ -56,10 +56,9 @@ def assign_role(session: Session, user_id: int, role_id: int) -> User:
 
 def revoke_role(session: Session, user_id: int, role_id: int) -> User:
     user = session.get(User, user_id)
-    role = session.get(Role, role_id)
-    
-    if not user or not role:
+    if not user:
         return None
+    
     try:
         user.roles.remove(role)
         session.commit()

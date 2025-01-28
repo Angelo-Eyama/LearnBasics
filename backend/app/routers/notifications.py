@@ -49,12 +49,11 @@ def delete_notification(notification_id: int, session: Session = Depends(get_ses
 @router.patch(
     "/notifications/{notification_id}", 
     response_model=NotificationRead, 
-    tags=["Notificaciones"], 
     summary="Cambia el estado de una notificación", 
     description="Cambia el estado de una notificación, de leido a no leido y viceversa. Utilizando el ID para identificarlo", 
     responses={
-        404: {"description": "Notificación no encontrada"},
         200: {"description": "Notificación actualizada"},
+        404: {"description": "Notificación no encontrada"},
     }
     )
 def change_state_notification(notification_id: int, session: Session = Depends(get_session)):

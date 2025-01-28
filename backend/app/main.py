@@ -67,7 +67,7 @@ app = FastAPI(
     },
     version="0.0.0",
     openapi_tags=tags_metadata,
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 @app.get("/")
