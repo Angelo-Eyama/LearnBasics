@@ -1,5 +1,5 @@
 from typing import List, Optional
-from sqlmodel import SQLModel, Field, Relationship, Session
+from sqlmodel import SQLModel, Field, Relationship, Session, Column, LargeBinary
 from datetime import datetime
 
 class UserRole(SQLModel, table=True):
@@ -13,7 +13,7 @@ class User(SQLModel, table=True):
     
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(sa_column_kwargs={"unique": True})
-    password: str
+    password: bytes = Field(sa_column=Column(LargeBinary))
     firstName: str
     lastName: str
     email: str
