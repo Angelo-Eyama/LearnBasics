@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from .routers import users, submissions, problems, roles, coments, notifications, reports, test_cases
 from .database import create_db_and_tables, create_rows
 from sqlalchemy.exc import IntegrityError
+from app.core.config import settings
 
 
 tags_metadata = [
@@ -51,23 +52,22 @@ async def lifespan(app: FastAPI):
         pass
 
 app = FastAPI(
-    title="Learn Basics Backend",
-    description='''
-    API para la aplicación de Learn Basics.
+    title=settings.PROJECT_NAME,
+    description='''API para la aplicación de Learn Basics.
     Esta parte de la aplicacion representa el backend y ha sido desarrollada con FastAPI.
     En esta parte de la aplicacion se gestionan los datos recibidos desde el frontend y se realizan las operaciones necesarias para almacenarlos en la base de datos.
     Se ha utilizado **SQLModel** para la gestion de la base de datos.
     Desde la validacion de los tokens, el inicio de sesion, el registro de usuarios, la creacion de problemas, la realizacion de entregas, la gestion de comentarios y notificaciones, hasta la gestion de roles y permisos, todo se realiza en esta parte de la aplicacion.
-    
     ''',
     contact={
         "name": "Learn Basics",
         "url": "https://sqlmodel.tiangolo.com",
         "email": "mail@mail.com  ",
     },
-    version="0.0.0",
+    version="0.1",
     openapi_tags=tags_metadata,
     lifespan=lifespan,
+    openapi_url=f"/{settings.API_VERSION}/openapi.json",
 )
 
 @app.get("/")

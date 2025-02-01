@@ -21,7 +21,13 @@ Con el entorno listo, instalamos las dependencias del proyecto con el siguiente 
 pip install -r requirements.txt
 ```
 
-Si todo ha salido bien, solo tenemos que correr el siguiente comando para iniciar el servidor:
+Si todo ha salido bien, debes tener ya instalada la libreria alembic, que se encargara de gestionar las migraciones de la base de datos. Para crear la base de datos y las tablas, solo tenemos que correr el siguiente comando:
+``` bash
+    (Asegurate de tener el motor de base de datos corriendo)
+    alembic upgrade head
+```
+
+Ahora solo tenemos que correr el siguiente comando para iniciar el servidor:
 
 ``` bash
 uvicorn app.main:app --reload

@@ -1,12 +1,13 @@
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship, Session, Column, LargeBinary
 from datetime import datetime
+from app.core.utils import RoleType
 
 class UserRole(SQLModel, table=True):
     __tablename__ = "user_roles"
     
     userID: int = Field(foreign_key="users.id", primary_key=True, ondelete="CASCADE")
-    roleID: int = Field(foreign_key="roles.id", primary_key=True, ondelete="CASCADE")
+    roleName: RoleType = Field(foreign_key="roles.name", primary_key=True, ondelete="CASCADE")
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
@@ -19,6 +20,7 @@ class User(SQLModel, table=True):
     email: str
     score: Optional[int] = 0
     creationDate: Optional[datetime] = Field(default=None, sa_column_kwargs={"nullable": True})
+    active: bool = Field(default=True, description='Indica si el usuario puede acceder o no.', sa_column_kwargs={"comment": 'Indica si el usuario puede acceder o no.'} )
     
     roles: List["Role"] = Relationship(back_populates="users",link_model=UserRole)
     comments: List["Comment"] = Relationship(back_populates="user")
@@ -53,9 +55,7 @@ class Submission(SQLModel, table=True):
     
 class Role(SQLModel, table=True):
     __tablename__ = "roles"
-    
-    id: Optional[int] = Field(default=None, primary_key=True)
-    role: str
+    name: Optional[RoleType] = Field(default=None, primary_key=True)
     description: str
     
     users: List[User] = Relationship(back_populates="roles", link_model=UserRole)

@@ -1,45 +1,68 @@
 from typing import Optional
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from datetime import datetime
 
 # # # # # # #  #
 # user Schemas #
 # # # # # # #  #
+
+class RoleBase(BaseModel):
+    name: str
+    description: str
+    
+    model_config = ConfigDict(
+        from_attributes=True
+    )
+
 class UserBase(BaseModel):
     username: str
-    email: str
+    email: EmailStr
     firstName: str
     lastName: str
-    creationDate: Optional[datetime] = None
-    
+    active: bool = True
 
+
+# Propiedades a recibir via la API para crear un usuario
 class UserCreate(UserBase):
-    password: str
+    password: str = Field(min_length=8, max_length=30)
+    creationDate: Optional[datetime] = datetime.now()
 
-class UserRead(UserBase):
+
+# Propiedades a recibir via API para editar un usuario (todos los campos son opcionales)
+class UserUpdate(BaseModel):
+    username: Optional[str] = None
+    email: Optional[EmailStr] = None
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    password: Optional[str] = None
+
+
+class UpdatePassword(BaseModel):
+    current_password: str = Field(min_length=8, max_length=30)
+    new_password: str = Field(min_length=8, max_length=30)
+
+# Propiedades a devolver via API, el id es un campo obligatorio
+class UserPublic(UserBase):
     id: int
-    score: Optional[int] = None
+    roles: list[RoleBase]
 
     # A partir de la version 2.0 de Pydantic, se puede usar ConfigDict para configurar el modelo
     # Class config está obsoleto y se ha renombrado la propiedad a model_config
     # orm_mode ha sido renombrado a from_orm
     # https://docs.pydantic.dev/2.10/migration/#changes-to-config
     model_config = ConfigDict(
-        from_attributes = True
+        from_attributes=True
     )
 
-class UserUpdate(BaseModel):
-    username: Optional[str] = None
-    email: Optional[str] = None
-    firstName: Optional[str] = None
-    lastName: Optional[str] = None
-    password: Optional[str] = None
-    score: Optional[int] = None
-    creationDate: Optional[datetime] = None
+
+class UsersPublic(UserBase):
+    users: list[UserPublic]
+    count: int
 
 # # # # # # # # # #
 # Problem Schemas #
 # # # # # # # # # #
+
 
 class ProblemBase(BaseModel):
     title: str
@@ -49,15 +72,18 @@ class ProblemBase(BaseModel):
     score: int
     expectedOutput: str
 
+
 class ProblemCreate(ProblemBase):
     authorID: int
+
 
 class ProblemRead(ProblemBase):
     id: int
 
     model_config = ConfigDict(
-        from_attributes = True
+        from_attributes=True
     )
+
 
 class ProblemUpdate(BaseModel):
     title: Optional[str] = None
@@ -75,8 +101,10 @@ class SubmissionBase(BaseModel):
     language: str
     status: str
 
+
 class SubmissionCreate(SubmissionBase):
     pass
+
 
 class SubmissionRead(SubmissionBase):
     id: int
@@ -84,8 +112,9 @@ class SubmissionRead(SubmissionBase):
     timeUpdated: Optional[datetime] = None
 
     model_config = ConfigDict(
-        from_attributes = True
+        from_attributes=True
     )
+
 
 class SubmissionUpdate(BaseModel):
     code: Optional[str] = None
@@ -93,113 +122,116 @@ class SubmissionUpdate(BaseModel):
     status: Optional[str] = None
     timeSubmitted: Optional[datetime] = None
     timeUpdated: Optional[datetime] = None
-    
-    
+
+
 ## Role Schemas ##
-class RoleBase(BaseModel):
-    role: str
-    
-class RoleCreate(RoleBase):
-    id: int
 
-class RoleRead(RoleBase):
-    description: str
-
-    model_config = ConfigDict(
-        from_attributes = True
-    )
-        
 class RoleUpdate(BaseModel):
-    role: Optional[str] = None
+    name: Optional[str] = None
     description: Optional[str] = None
-    
-class UserWithRoles(UserRead):
-    roles: list[RoleBase] | None = None
-    
-class RoleWithUsers(RoleRead):
-    users: list[UserRead] | None = None
-    
+
+
+class RoleWithUsers(RoleBase):
+    users: list[UserPublic] | None = None
+
 ## Comment Schemas ##
+
+
 class CommentBase(BaseModel):
     content: str
-    
+
+
 class CommentCreate(CommentBase):
     problemID: int
     userID: int
-    
+
+
 class CommentRead(CommentBase):
     id: int
     timePosted: Optional[datetime] = None
 
     model_config = ConfigDict(
-        from_attributes = True
+        from_attributes=True
     )
-        
+
+
 class CommentUpdate(BaseModel):
     content: Optional[str] = None
     timePosted: Optional[datetime] = None
-    
+
 ## Notification Schemas ##
+
+
 class NotificationBase(BaseModel):
     content: str
     readed: bool
-    
+
+
 class NotificationCreate(NotificationBase):
     userID: int
-    
+
 
 class NotificationRead(NotificationBase):
     id: int
     timePosted: Optional[datetime] = None
 
     model_config = ConfigDict(
-        from_attributes = True
+        from_attributes=True
     )
-        
+
+
 class NotificationUpdate(BaseModel):
     content: Optional[str] = None
     readed: Optional[bool] = None
     timePosted: Optional[datetime] = None
-    
+
 ## Report Schemas ##
+
 
 class ReportBase(BaseModel):
     content: str
     readed: bool
-    
+
+
 class ReportCreate(ReportBase):
     problemID: int
     userID: int
-    
+
+
 class ReportRead(ReportBase):
     id: int
     timePosted: Optional[datetime] = None
 
     model_config = ConfigDict(
-        from_attributes = True
+        from_attributes=True
     )
-        
+
+
 class ReportUpdate(BaseModel):
     content: Optional[str] = None
     readed: Optional[bool] = None
     timePosted: Optional[datetime] = None
 
 ## Test case Schemas ##
+
+
 class TestCaseBase(BaseModel):
     input: str
     output: str
-    
+
+
 class TestCaseCreate(TestCaseBase):
     problemID: int
-    
+
+
 class TestCaseRead(TestCaseBase):
     id: int
 
     model_config = ConfigDict(
-        from_attributes = True
+        from_attributes=True
     )
-        
+
+
 class TestCaseUpdate(BaseModel):
     input: Optional[str] = None
     output: Optional[str] = None
-    

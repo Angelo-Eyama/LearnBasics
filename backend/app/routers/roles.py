@@ -4,14 +4,14 @@ from typing import List
 from ..database import get_session
 from ..models import Role
 from ..controllers import roles as roles_controller
-from ..schemas import RoleCreate, RoleRead, RoleUpdate, UserWithRoles, RoleWithUsers
+from ..schemas import RoleBase, RoleBase, RoleUpdate, UserPublic, RoleWithUsers
 from sqlalchemy.exc import IntegrityError
 
 router = APIRouter(tags=["Roles"])
 
 @router.get(
     "/roles/", 
-    response_model=List[RoleRead], 
+    response_model=List[RoleBase], 
     summary="Obtener todos los roles", 
     description="Obtiene todos los roles del sistema.",
     response_description="Lista de roles.",
@@ -26,7 +26,7 @@ def get_roles(session: Session = Depends(get_session)):
 
 @router.get(
     "/roles/{role_id}",
-    response_model=RoleRead,
+    response_model=RoleBase,
     summary="Obtener un rol por su ID",
     description="Obtiene un rol del sistema utilizando su ID.",
     response_description="El rol obtenido.",
@@ -43,7 +43,7 @@ def get_role_by_id(role_id: int, session: Session = Depends(get_session)):
 
 @router.post(
     "/roles/", 
-    response_model=RoleCreate, 
+    response_model=RoleBase, 
     summary="Crear un rol", 
     description="Crea un nuevo rol en el sistema.",
     response_description="Rol creado.",
@@ -52,7 +52,7 @@ def get_role_by_id(role_id: int, session: Session = Depends(get_session)):
         400: {"description": "Error en los datos enviados"},
     }
     )
-def create_role(role: RoleCreate, session: Session = Depends(get_session)):
+def create_role(role: RoleBase, session: Session = Depends(get_session)):
     db_role = roles_controller.get_role_by_name(session, role.name)
     if db_role:
         raise HTTPException(status_code=400, detail="Nombre de rol ya existente")
@@ -79,7 +79,7 @@ def update_role(role_id: int, role_update: RoleUpdate, session: Session = Depend
 
 @router.delete(
     "/roles/{role_id}", 
-    response_model=RoleRead, 
+    response_model=RoleBase, 
     summary="Eliminar un rol", 
     description="Elimina un rol del sistema utilizando su ID.", 
     response_description="El rol eliminado.",
@@ -97,7 +97,7 @@ def delete_role(role_id: int, session: Session = Depends(get_session)):
 
 @router.post(
     "/roles/{role_id}/assign/{user_id}", 
-    response_model=UserWithRoles, 
+    response_model=UserPublic, 
     summary="Asignar un rol a un usuario", 
     description="Asigna un rol a un usuario.",
     response_description="Usuario con el nuevo rol asignado.",
@@ -122,7 +122,7 @@ def assign_role(role_id: int, user_id: int, session: Session = Depends(get_sessi
 
 @router.post(
     "/roles/{role_id}/revoke/{user_id}", 
-    response_model=UserWithRoles, 
+    response_model=UserPublic, 
     summary="Revocar un rol a un usuario", 
     description="Revoca un rol a un usuario.",
     response_description="Usuario con el rol revocado.",
@@ -165,7 +165,7 @@ def get_user_roles(user_id: int, session: Session = Depends(get_session)):
 
 @router.get(
     "/roles/{role_id}/users",
-    response_model=List[UserWithRoles],
+    response_model=List[UserPublic],
     summary="Obtener todos los usuarios de un rol",
     description="Obtiene todos los usuarios de un rol.",
     response_description="Listado de usuarios del rol identificado.",

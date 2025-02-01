@@ -4,14 +4,14 @@ from typing import List
 from ..database import get_session
 from ..models import User
 from ..controllers import users as users_controller
-from ..schemas import UserCreate, UserRead, UserUpdate, UserWithRoles
+from ..schemas import UserCreate, UserUpdate, UserPublic, UserPublic
 
 router = APIRouter(tags=["Usuarios"])
 
 
 @router.get(
     "/users/",
-    response_model=List[UserRead],
+    response_model=List[UserPublic],
     summary="Obtener todos los usuarios",
     description="Obtiene una lista con todos los usuarios registrados en el sistema.",
     response_description="Lista de usuarios.",
@@ -27,7 +27,7 @@ def get_users(session: Session = Depends(get_session)):
 
 @router.get(
     "/users/id:{user_id}",
-    response_model=UserWithRoles,
+    response_model=UserPublic,
     summary="Obtener un usuario por su ID",
     description="Obtiene un usuario del sistema utilizando su ID como clave.",
     response_description="El usuario obtenido.",
@@ -45,7 +45,7 @@ def get_user_by_id(user_id: int, session: Session = Depends(get_session)):
 
 @router.get(
     "/users/{username}",
-    response_model=UserWithRoles,
+    response_model=UserPublic,
     summary="Obtener un usuario por su nombre de usuario",
     description="Obtiene un usuario del sistema utilizando su nombre de usuario como clave.",
     response_description="El usuario obtenido.",
@@ -103,7 +103,7 @@ def update_user(user_id: int, user_update: UserUpdate, session: Session = Depend
 
 @router.delete(
     "/users/{user_id}",
-    response_model=UserRead,
+    response_model=UserPublic,
     summary="Eliminar un usuario",
     description="Elimina un usuario del sistema utilizando su ID como clave.",
     response_description="El usuario eliminado.",
@@ -122,7 +122,7 @@ def delete_user(user_id: int, session: Session = Depends(get_session)):
 
 @router.post(
     "/users/login",
-    response_model=UserWithRoles,
+    response_model=UserPublic,
     summary="Iniciar sesión",
     description="Inicia sesión en el sistema.",
     response_description="Usuario logueado.",
