@@ -1,0 +1,17 @@
+from datetime import datetime
+from typing import Optional
+from pydantic import BaseModel, ConfigDict
+
+class CommentBase(BaseModel):
+    content: str
+
+class CommentCreate(CommentBase):
+    problemID: int
+    userID: int
+
+class CommentRead(CommentBase):
+    id: int
+    timePosted: Optional[datetime]
+    model_config = ConfigDict(
+        from_attributes=True
+    )

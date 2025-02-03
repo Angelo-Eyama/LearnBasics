@@ -164,7 +164,7 @@ class CommentUpdate(BaseModel):
 
 class NotificationBase(BaseModel):
     content: str
-    readed: bool
+    read: bool
 
 
 class NotificationCreate(NotificationBase):
@@ -182,7 +182,7 @@ class NotificationRead(NotificationBase):
 
 class NotificationUpdate(BaseModel):
     content: Optional[str] = None
-    readed: Optional[bool] = None
+    read: Optional[bool] = None
     timePosted: Optional[datetime] = None
 
 ## Report Schemas ##
@@ -190,7 +190,7 @@ class NotificationUpdate(BaseModel):
 
 class ReportBase(BaseModel):
     content: str
-    readed: bool
+    read: bool
 
 
 class ReportCreate(ReportBase):
@@ -209,7 +209,7 @@ class ReportRead(ReportBase):
 
 class ReportUpdate(BaseModel):
     content: Optional[str] = None
-    readed: Optional[bool] = None
+    read: Optional[bool] = None
     timePosted: Optional[datetime] = None
 
 ## Test case Schemas ##

@@ -1,42 +1,32 @@
 from sqlmodel import Session, select
-from ..models import Role, User
+from app.models import Role, User
+from app.core.utils import RoleType
+from app.schemas.role import RoleCreate, RoleUpdate
 from sqlalchemy.exc import IntegrityError
 
 
-def get_roles(session: Session) -> list[Role]:
-    roles = session.exec(select(Role)).all()
-    return roles
-
-def get_role_by_id(session: Session, role_id: int) -> Role:
-    role = session.get(Role, role_id)
+def get_role_by_name(session: Session, name: RoleType) -> Role:
+    role = session.exec(select(Role).where(Role.name == name)).first()
     return role
 
-def get_role_by_name(session: Session, role_name: str) -> Role:
-    role = session.exec(select(Role).where(Role.role == role_name)).first()
-    return role
-
-def create_role(session: Session, role: Role) -> Role:
-    session.add(role)
+def create_role(*, session: Session, new_role: RoleCreate) -> Role:
+    role_db = Role.model_validate(new_role)
+    session.add(role_db)
     session.commit()
-    session.refresh(role)
-    return role
+    session.refresh(role_db)
+    return role_db
 
-def update_role(session: Session, role_id: int, role_data) -> Role:
-    role = session.get(Role, role_id)
-    for key, value in role_data.items():
-        setattr(role, key, value)
+def update_role(*, session: Session, db_role: Role, role_in: RoleUpdate) -> Role:
+    role_data = role_in.model_dump(exclude_unset=True)
+    db_role.sqlmodel_update(role_data)
+    session.add(db_role)
     session.commit()
-    session.refresh(role)
-    return role
+    session.refresh(db_role)
+    return db_role
 
-def delete_role(session: Session, role_id: int) -> Role:
-    role = session.get(Role, role_id)
-    session.delete(role)
-    session.commit()
-    return role
 
-## USER_ROLE CONTROLLER
-
+## USER_ROLE CONTROLLER ACTIONS
+#TODO: Probar estas funciones
 def assign_role(session: Session, user_id: int, role_id: int) -> User:
     user = session.get(User, user_id)
     role = session.get(Role, role_id)

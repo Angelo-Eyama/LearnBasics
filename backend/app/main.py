@@ -1,85 +1,26 @@
 from fastapi import FastAPI
-from contextlib import asynccontextmanager
-from .routers import users, submissions, problems, roles, coments, notifications, reports, test_cases
-from .database import create_db_and_tables, create_rows
-from sqlalchemy.exc import IntegrityError
 from app.core.config import settings
+from app.core.utils import tags_metadata
+from app.api.main import api_router
 
-
-tags_metadata = [
-    {
-        "name": "Usuarios",
-        "description": "Operaciones relacionadas con la gestion de los usuarios (CRUD). También están las acciones de iniciar, cerrar sesion, cambiar contraseña, etc.",
-    },
-    {
-        "name": "Problemas",
-        "description": "Operaciones relacionadas con la gestion de los problemas (CRUD). También están las acciones de ver problemas por bloque, ver problemas por usuario, etc.",
-    },
-    {
-        "name": "Entregas",
-        "description": "Conjunto de operaciones relacionadas con las entregas de los problemas.",
-    },
-    {
-        "name": "Roles",
-        "description": "Operaciones relacionadas con la gestion de los roles (CRUD), asignar y revocar roles.",
-    },
-    {
-        "name": "Comentarios",
-        "description": "Operaciones relacionadas con la gestion de los comentarios (CRUD). También están las acciones de ver comentarios por usuario, etc.",
-    },
-    {
-        "name": "Notificaciones",
-        "description": "Conjunto de operaciones relacionadas con las notificaciones.",
-    },
-    {
-        "name": "Reportes",
-        "description": "Conjunto de operaciones relacionadas con los reportes. Los reportes son mensajes que los usuarios envian al administrador para reportar problemas, errores, etc.",
-    },
-    {
-        "name": "Casos de prueba",
-        "description": "Conjunto de operaciones relacionadas con los casos de prueba. Cada ejercicio tiene uno o varios casos de prueba que se utilizan para verificar la solucion del usuario.",
-    }
-]
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    try:
-        # Acciones a realizar al inicio de la aplicacion
-        create_db_and_tables()
-        yield
-    finally:
-        # Acciones a realizar al final de la aplicacion
-        pass
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
-    description='''API para la aplicación de Learn Basics.
-    Esta parte de la aplicacion representa el backend y ha sido desarrollada con FastAPI.
-    En esta parte de la aplicacion se gestionan los datos recibidos desde el frontend y se realizan las operaciones necesarias para almacenarlos en la base de datos.
-    Se ha utilizado **SQLModel** para la gestion de la base de datos.
-    Desde la validacion de los tokens, el inicio de sesion, el registro de usuarios, la creacion de problemas, la realizacion de entregas, la gestion de comentarios y notificaciones, hasta la gestion de roles y permisos, todo se realiza en esta parte de la aplicacion.
-    ''',
+    title= settings.PROJECT_NAME,
+    description= settings.DESCRIPTION,
     contact={
         "name": "Learn Basics",
         "url": "https://sqlmodel.tiangolo.com",
-        "email": "mail@mail.com  ",
+        "email": " ",
     },
     version="0.1",
     openapi_tags=tags_metadata,
-    lifespan=lifespan,
     openapi_url=f"/{settings.API_VERSION}/openapi.json",
 )
+
+# TODO: Configurar CORS
 
 @app.get("/")
 def read_root():
     return {"message": "Bienvenido a la aplicación de FastAPI"}
 
-
-app.include_router(users.router)
-app.include_router(submissions.router)
-app.include_router(problems.router)
-app.include_router(roles.router)
-app.include_router(coments.router)
-app.include_router(notifications.router)
-app.include_router(reports.router)
-app.include_router(test_cases.router)
+app.include_router(api_router, prefix=f"/{settings.API_VERSION}")

@@ -47,6 +47,12 @@ class Settings(BaseSettings):
         ]
         
     PROJECT_NAME: str = "Learn Basics Backend"
+    DESCRIPTION: str = '''API para la aplicación de Learn Basics.
+    Esta parte de la aplicacion representa el backend y ha sido desarrollada con FastAPI.
+    En esta parte de la aplicacion se gestionan los datos recibidos desde el frontend y se realizan las operaciones necesarias para almacenarlos en la base de datos.
+    Se ha utilizado **SQLModel** para la gestion de la base de datos.
+    Desde la validacion de los tokens, el inicio de sesion, el registro de usuarios, la creacion de problemas, la realizacion de entregas, la gestion de comentarios y notificaciones, hasta la gestion de roles y permisos, todo se realiza en esta parte de la aplicacion.
+    '''
     DATABASE_SCHEME: str # "postgresql+psycopg" or "mysql+mysqlconnector"
     DATABASE_USER : str
     DATABASE_PASSWORD : str = ""

@@ -1,17 +1,19 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
-from typing import List
-from ..database import get_session
-from ..models import Problem
-from ..controllers import problems as problems_controller
-from ..schemas import ProblemCreate, ProblemRead, ProblemUpdate
+from sqlmodel import func, select
+from typing import Any, List
+
+from app.api.deps import CurrentUser, SessionDep
+from app.models import Problem
+from app.schemas import ProblemCreate, ProblemRead, ProblemUpdate
+from app.controllers import problems as problems_controller
 
 router = APIRouter(
+    prefix="/problems",
     tags=["Problemas"]
     )
 
 @router.get(
-    "/problems/",
+    "/",
     response_model=List[ProblemRead],
     summary="Obtener todos los problemas",
     description="Obtiene una lista con todos los problemas registrados en el sistema.",
@@ -21,12 +23,12 @@ router = APIRouter(
         404: {"description": "No se encontraron problemas"},
     }
     )
-def get_problems(session: Session = Depends(get_session)):
+def get_problems(session: SessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 10):
     problems = problems_controller.get_problems(session)
     return problems
 
 @router.get(
-    "/problems/id:{problem_id}", 
+    "/id:{problem_id}", 
     response_model=ProblemRead,
     summary="Obtener un problema por su ID",
     description="Obtiene un problema del sistema utilizando su ID como clave.",
@@ -43,7 +45,7 @@ def get_problem_by_id(problem_id: int, session: Session = Depends(get_session)):
     return problem
 
 @router.get(
-    "/problems/{block}",
+    "/{block}",
     response_model=List[ProblemRead],
     summary="Obtener problemas por bloque",
     description="Obtiene una lista con todos los problemas registrados en el sistema de un bloque específico.",
@@ -60,7 +62,7 @@ def get_problems_by_block(block: str, session: Session = Depends(get_session)):
     return problems
 
 @router.post(
-    "/problems/",
+    "/",
     response_model=ProblemCreate,
     summary="Crear un problema",
     description="Crea un nuevo problema en el sistema.",
@@ -75,7 +77,7 @@ def create_problem(problem: ProblemCreate, session: Session = Depends(get_sessio
     return new_problem
 
 @router.patch(
-    "/problems/{problem_id}", 
+    "/{problem_id}", 
     response_model=ProblemUpdate,
     summary="Actualizar un problema",
     description="Actualiza un problema del sistema utilizando su ID como clave.",
@@ -92,7 +94,7 @@ def update_problem(problem_id: int, problem_update: ProblemUpdate, session: Sess
     return updated_problem
 
 @router.delete(
-    "/problems/{problem_id}",
+    "/{problem_id}",
     response_model=ProblemRead,
     summary="Eliminar un problema",
     description="Elimina un problema del sistema utilizando su ID.",

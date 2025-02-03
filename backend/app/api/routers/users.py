@@ -6,7 +6,10 @@ from ..models import User
 from ..controllers import users as users_controller
 from ..schemas import UserCreate, UserUpdate, UserPublic, UserPublic
 
-router = APIRouter(tags=["Usuarios"])
+router = APIRouter(
+    tags=["Usuarios"], 
+    prefix="/users"
+    )
 
 
 @router.get(
