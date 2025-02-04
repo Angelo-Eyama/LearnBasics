@@ -1,19 +1,20 @@
-from fastapi import APIRouter, Depends, HTTPException
 from typing import List
-from app.api.deps import SessionDep, CurrentUser
+from fastapi import APIRouter, Depends, HTTPException
+from app.api.deps import SessionDep, CurrentUser, verify_admin
 
 from app.models import User
 from app.api.controllers import users as users_controller
 from app.schemas.user import UserCreate, UserUpdate, UserPublic, UserRead
+from app.core.utils import RoleType
 
 router = APIRouter(
-    tags=["Usuarios"], 
+    tags=["Usuarios"],
     prefix="/users"
-    )
+)
 
 
 @router.get(
-    "/users/",
+    "/",
     response_model=List[UserRead],
     summary="Obtener todos los usuarios",
     description="Obtiene una lista con todos los usuarios registrados en el sistema.",
@@ -21,7 +22,15 @@ router = APIRouter(
     responses={
         200: {"description": "Lista de usuarios obtenida"},
         404: {"description": "No se encontraron usuarios"},
-    }
+        401: {"description": "No autorizado"},
+        403: {
+            "description": "No tiene permisos para realizar esta acción",
+            "content": {
+                "application/json": {"example": {"detail": "No tiene permisos para realizar esta acción"}}
+            }
+        },
+    },
+    dependencies=[Depends(verify_admin)]
 )
 def get_users(session: SessionDep):
     users = users_controller.get_users(session)
@@ -29,7 +38,22 @@ def get_users(session: SessionDep):
 
 
 @router.get(
-    "/users/id:{user_id}",
+    "/me",
+    response_model=UserPublic,
+    summary="Obtener el usuario actual",
+    description="Obtiene el usuario que ha iniciado sesión en el sistema.",
+    response_description="El usuario actual.",
+    responses={
+        200: {"description": "Usuario actual obtenido"},
+        404: {"description": "Usuario no encontrado"},
+    }
+)
+def get_current_user(current_user: CurrentUser):
+    return current_user
+
+
+@router.get(
+    "/id:{user_id}",
     response_model=UserPublic,
     summary="Obtener un usuario por su ID",
     description="Obtiene un usuario del sistema utilizando su ID como clave.",
@@ -38,8 +62,9 @@ def get_users(session: SessionDep):
         200: {"description": "Usuario encontrado"},
         404: {"description": "Usuario no encontrado"},
     },
+    dependencies=[Depends(verify_admin)]
 )
-def get_user_by_id(user_id: int, session: SessionDep):
+def get_user_by_id(user_id: int, session: SessionDep, current_user: CurrentUser):
     user = users_controller.get_user_by_id(session, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -47,7 +72,7 @@ def get_user_by_id(user_id: int, session: SessionDep):
 
 
 @router.get(
-    "/users/{username}",
+    "/{username}",
     response_model=UserPublic,
     summary="Obtener un usuario por su nombre de usuario",
     description="Obtiene un usuario del sistema utilizando su nombre de usuario como clave.",
@@ -56,8 +81,9 @@ def get_user_by_id(user_id: int, session: SessionDep):
         200: {"description": "Usuario encontrado"},
         404: {"description": "Usuario no encontrado"},
     },
+    dependencies=[Depends(verify_admin)]
 )
-def get_user_by_username(username: str, session: SessionDep):
+def get_user_by_username(username: str, session: SessionDep, current_user: CurrentUser):
     user = users_controller.get_user_by_username(session, username)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -65,7 +91,7 @@ def get_user_by_username(username: str, session: SessionDep):
 
 
 @router.post(
-    "/users/",
+    "/",
     response_model=UserCreate,
     summary="Crear un usuario",
     description="Crea un nuevo usuario en el sistema.",
@@ -73,9 +99,10 @@ def get_user_by_username(username: str, session: SessionDep):
     responses={
         200: {"description": "Usuario creado"},
         400: {"description": "Nombre de usuario ya existente"},
-    }
+    },
+    dependencies=[Depends(verify_admin)]
 )
-def create_user(user: UserCreate, session: SessionDep):    
+def create_user(user: UserCreate, session: SessionDep):
     db_user = users_controller.get_user_by_username(session, user.username)
     if db_user:
         raise HTTPException(
@@ -85,7 +112,7 @@ def create_user(user: UserCreate, session: SessionDep):
 
 
 @router.patch(
-    "/users/{user_id}",
+    "/{user_id}",
     response_model=UserUpdate,
     summary="Actualizar un usuario",
     description="Actualiza uno o varios campos de un usuario en el sistema utilizando su ID como clave.",
@@ -93,19 +120,32 @@ def create_user(user: UserCreate, session: SessionDep):
     responses={
         200: {"description": "Usuario actualizado"},
         404: {"description": "Usuario no encontrado"},
-    }
+    },
+    dependencies=[Depends(verify_admin)]
 )
-def update_user(user_id: int, user_update: UserUpdate, session: SessionDep):
+def update_user(user_id: int, user_update: UserUpdate, session: SessionDep, current_user: CurrentUser):
     user = users_controller.get_user_by_id(session, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    
     updated_user = users_controller.update_user(
         session=session, db_user=user, user_in=user_update)
     return updated_user
 
+@router.patch(
+    "/me",
+    response_model=UserUpdate,
+    summary="Actualizar el usuario actual",
+    description="Actualiza uno o varios campos del usuario que ha iniciado sesión en el sistema.",
+    response_description="El usuario actualizado.",
+    )
+def update_current_user(user_update: UserUpdate, session: SessionDep, current_user: CurrentUser):
+    updated_user = users_controller.update_user(
+        session=session, db_user=current_user, user_in=user_update)
+    return updated_user
 
 @router.delete(
-    "/users/{user_id}",
+    "/{user_id}",
     response_model=UserPublic,
     summary="Eliminar un usuario",
     description="Elimina un usuario del sistema utilizando su ID como clave.",
@@ -113,11 +153,34 @@ def update_user(user_id: int, user_update: UserUpdate, session: SessionDep):
     responses={
         200: {"description": "Usuario eliminado"},
         404: {"description": "Usuario no encontrado"},
-    }
+    },
+    dependencies=[Depends(verify_admin)]
 )
 def delete_user(user_id: int, session: SessionDep):
     user = users_controller.get_user_by_id(session, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     deleted_user = users_controller.delete_user(session, user_id)
+    return deleted_user
+
+# Eliminar mi propio usuario
+@router.delete(
+    "/me",
+    response_model=UserPublic,
+    summary="Eliminar el usuario actual",
+    description="Elimina el usuario que ha iniciado sesión en el sistema.",
+    response_description="El usuario eliminado.",
+    responses={
+        200: {"description": "Usuario eliminado"},
+        404: {"description": "Usuario no encontrado"},
+        400: {"description": "Operacion no permitida"},
+    }
+)
+def delete_current_user(session: SessionDep, current_user: CurrentUser):
+    if RoleType.ADMIN in [role.name for role in current_user.roles]:
+        raise HTTPException(
+            status_code=400, detail="un administrador no puede eliminarse a si mismo"
+        )
+    
+    deleted_user = users_controller.delete_user(session, current_user.id)
     return deleted_user

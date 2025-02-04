@@ -1,6 +1,6 @@
 from enum import Enum
 
-class RoleType(str, Enum):
+class RoleType():
     ADMIN = "administrador"
     EDITOR = "moderador"
     USER = "estudiante"

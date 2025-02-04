@@ -4,7 +4,6 @@ from app.core.security import hash_password, verify_password
 from app.models import User
 from app.schemas.user import UserCreate, UserRead, UserUpdate, UserRegister, UserPublic, UsersPublic
 
-
 def get_users(session: Session) -> list[User]:
     users = session.exec(select(User)).all()
     return users

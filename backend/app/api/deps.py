@@ -1,5 +1,5 @@
 from collections.abc import Generator
-from typing import Annotated
+from typing import Union, Annotated, List
 
 import jwt
 from jwt.exceptions import PyJWTError, InvalidTokenError
@@ -13,8 +13,9 @@ from app.core.config import settings
 from app.core.db import engine
 from app.schemas.utils import TokenPayload
 from app.models import User
+from app.core.utils import RoleType
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"/login/access-token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/access-token")
 
 def get_db() -> Generator:
     with Session(engine) as session:
@@ -52,13 +53,31 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
 
 CurrentUser = Annotated[User, Depends(get_current_user)]
 
-def verify_role(user: CurrentUser, role: str) -> None:
+def verify_role(user: CurrentUser, roles: Union[str, List[str]]) -> bool:
     '''
     Verifica si el usuario tiene el rol especificado.
     '''
-    if role not in user.roles:
+    if isinstance(roles, str):
+        roles = [roles]
+    
+    # Repasamos los roles del usuario y comparamos con el rol especificado
+    for user_role in user.roles:
+        if user_role.name in roles:
+            return True
+    
+    # Si no se encuentra el rol especificado, se lanza una excepcion
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="No tiene permisos para realizar esta acción",
+    )
+
+def verify_admin(user: CurrentUser) -> bool:
+    '''
+    Verifica si el usuario tiene el rol de administrador.
+    '''
+    if RoleType.ADMIN not in [user_role.name for user_role in user.roles]:
         raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
-            detail="No tiene permisos suficientes para ejecutar esta accion"
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="No tiene permisos para realizar esta acción",
         )
-    return user
+    return True

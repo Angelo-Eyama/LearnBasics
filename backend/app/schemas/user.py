@@ -42,6 +42,7 @@ class UserRegister(SQLModel):
 # Propiedades a devolver en la respuesta de la autenticación
 class UserPublic(UserBase):
     id: int
+    roles: List[RoleNameBase]
     
     model_config = ConfigDict(
         from_attributes=True
