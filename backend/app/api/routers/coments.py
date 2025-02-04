@@ -1,10 +1,12 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
 from typing import List
-from ..database import get_session
-from ..models import Comment
-from ..controllers import comments as comments_controller
-from ..schemas import CommentCreate, CommentRead, CommentUpdate
+from fastapi import APIRouter, HTTPException
+from sqlmodel import select
+
+from app.api.deps import CurrentUser, SessionDep
+from app.api.controllers import comments as comments_controller
+
+from app.models import User
+from app.schemas.comment import CommentCreate, CommentRead, CommentUpdate
 
 router = APIRouter(tags=["Comentarios"])
 
@@ -20,7 +22,7 @@ router = APIRouter(tags=["Comentarios"])
         404: {"description": "No se encontraron comentarios"},
     }
 )
-def get_comments(session: Session = Depends(get_session)):
+def get_comments(session: SessionDep):
     comments = comments_controller.get_comments(session)
     return comments
 
@@ -36,7 +38,7 @@ def get_comments(session: Session = Depends(get_session)):
         404: {"description": "Comentario no encontrado"},
     }
 )
-def get_comment_by_id(comment_id: int, session: Session = Depends(get_session)):
+def get_comment_by_id(comment_id: int, session: SessionDep):
     comment = comments_controller.get_comment_by_id(session, comment_id)
     if not comment:
         raise HTTPException(status_code=404, detail="Comentario no encontrado")
@@ -54,7 +56,7 @@ def get_comment_by_id(comment_id: int, session: Session = Depends(get_session)):
         404: {"description": "No se encontraron comentarios"},
     }
 )
-def get_comments_by_user_id(user_id: int, session: Session = Depends(get_session)):
+def get_comments_by_user_id(user_id: int, session: SessionDep):
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -75,7 +77,7 @@ def get_comments_by_user_id(user_id: int, session: Session = Depends(get_session
         404: {"description": "No se pudo crear el comentario"},
     }
 )
-def create_comment(comment: CommentCreate, session: Session = Depends(get_session)):
+def create_comment(comment: CommentCreate, session: SessionDep):
     comment = comments_controller.create_comment(session, comment)
     return comment
 
@@ -91,7 +93,7 @@ def create_comment(comment: CommentCreate, session: Session = Depends(get_sessio
         404: {"description": "Comentario no encontrado"},
     }
 )
-def update_comment(comment_id: int, comment_update: CommentUpdate, session: Session = Depends(get_session)):
+def update_comment(comment_id: int, comment_update: CommentUpdate, session: SessionDep):
     comment = comments_controller.get_comment_by_id(session, comment_id)
     if not comment:
         raise HTTPException(status_code=404, detail="Comentario no encontrado")
@@ -106,7 +108,7 @@ def update_comment(comment_id: int, comment_update: CommentUpdate, session: Sess
     description="Elimina un comentario del sistema utilizando su ID.",
     response_description="El comentario eliminado."
 )
-def delete_comment(comment_id: int, session: Session = Depends(get_session)):
+def delete_comment(comment_id: int, session: SessionDep):
     comment = comments_controller.get_comment_by_id(session, comment_id)
     if not comment:
         raise HTTPException(status_code=404, detail="Comentario no encontrado")

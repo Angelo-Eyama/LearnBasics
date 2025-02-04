@@ -10,7 +10,7 @@ app = FastAPI(
     contact={
         "name": "Learn Basics",
         "url": "https://sqlmodel.tiangolo.com",
-        "email": " ",
+        "email": " mymail@mail.com",
     },
     version="0.1",
     openapi_tags=tags_metadata,
@@ -23,4 +23,4 @@ app = FastAPI(
 def read_root():
     return {"message": "Bienvenido a la aplicación de FastAPI"}
 
-app.include_router(api_router, prefix=f"/{settings.API_VERSION}")
+app.include_router(api_router)

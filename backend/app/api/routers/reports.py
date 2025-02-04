@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
 from typing import List
-from ..database import get_session
-from ..models import Report
-from ..controllers import reports as reports_controller
-from ..schemas import ReportCreate, ReportRead
+from app.api.deps import SessionDep, CurrentUser
+
+from app.models import Report
+from app.api.controllers import reports as reports_controller
+from app.schemas.report import ReportCreate, ReportRead, ReportUpdate
 
 router = APIRouter(
     tags=["Reportes"]
@@ -21,7 +21,7 @@ router = APIRouter(
         404: {"description": "No se encontraron reportes"},
     }
 )
-def get_reports(session: Session = Depends(get_session)):
+def get_reports(session: SessionDep):
     reports = reports_controller.get_reports(session)
     return reports
 
@@ -34,7 +34,7 @@ def get_reports(session: Session = Depends(get_session)):
                 404: {"description": "No se encontraron reportes"},
             }
             )
-def get_reports_by_problem_id(problem_id: int, session: Session = Depends(get_session)):
+def get_reports_by_problem_id(problem_id: int, session: SessionDep):
     reports = reports_controller.get_reports_by_problem_id(session, problem_id)
     return reports
 
@@ -49,7 +49,7 @@ def get_reports_by_problem_id(problem_id: int, session: Session = Depends(get_se
         400: {"description": "Error en los datos enviados"},
     }
 )
-def create_report(report: ReportCreate, session: Session = Depends(get_session)):
+def create_report(report: ReportCreate, session: SessionDep):
     report = reports_controller.create_report(session, report)
     return report
 
@@ -64,7 +64,7 @@ def create_report(report: ReportCreate, session: Session = Depends(get_session))
         404: {"description": "Reporte no encontrado"},
     }
     )
-def delete_report(report_id: int, session: Session = Depends(get_session)):
+def delete_report(report_id: int, session: SessionDep):
     report = reports_controller.get_report_by_id(session, report_id)
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
@@ -81,7 +81,7 @@ def delete_report(report_id: int, session: Session = Depends(get_session)):
         404: {"description": "Reporte no encontrado"},
     }
     )
-def change_state_report(report_id: int, session: Session = Depends(get_session)):
+def change_state_report(report_id: int, session: SessionDep):
     report = reports_controller.get_report_by_id(session, report_id)
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")

@@ -9,6 +9,9 @@ class CommentCreate(CommentBase):
     problemID: int
     userID: int
 
+class CommentUpdate(BaseModel):
+    content: Optional[str] = None
+
 class CommentRead(CommentBase):
     id: int
     timePosted: Optional[datetime]

@@ -1,10 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
 from typing import List
-from ..database import get_session
-from ..models import testCase, Problem
-from ..controllers import test_cases as test_cases_controller
-from ..schemas import TestCaseCreate, TestCaseRead, TestCaseUpdate
+from app.api.deps import SessionDep, CurrentUser
+
+from app.models import TestCase, Problem
+from app.api.controllers import test_cases as test_cases_controller
+from app.schemas.testCase import TestCaseCreate, TestCaseRead, TestCaseUpdate
+
+
 
 router = APIRouter(tags=["Casos de prueba"])
 
@@ -19,8 +21,8 @@ router = APIRouter(tags=["Casos de prueba"])
         200: {"description": "Lista de casos de prueba obtenida"},
     }
 )
-def get_testCases(session: Session = Depends(get_session)):
-    testCases = test_cases_controller.get_testCases(session)
+def get_testCases(session: SessionDep):
+    testCases = test_cases_controller.get_test_cases(session)
     return testCases
 
 
@@ -35,8 +37,8 @@ def get_testCases(session: Session = Depends(get_session)):
         404: {"description": "Caso de prueba no encontrado"},
     }
 )
-def get_testCase_by_id(testCase_id: int, session: Session = Depends(get_session)):
-    testCase = test_cases_controller.get_testCase_by_id(session, testCase_id)
+def get_testCase_by_id(testCase_id: int, session: SessionDep):
+    testCase = test_cases_controller.get_test_case_by_id(session, testCase_id)
     if not testCase:
         raise HTTPException(
             status_code=404, detail="Caso de prueba no encontrado")
@@ -54,12 +56,12 @@ def get_testCase_by_id(testCase_id: int, session: Session = Depends(get_session)
         404: {"description": "No se encontraron casos de prueba o no existe el problema solicitado."},
     }
 )
-def get_testCases_by_problem_id(problem_id: int, session: Session = Depends(get_session)):
+def get_testCases_by_problem_id(problem_id: int, session: SessionDep):
     problem = session.get(Problem, problem_id)
     if not problem:
         raise HTTPException(status_code=404, detail="Problema no encontrado")
     
-    testCases = test_cases_controller.get_testCases_by_problem_id(session, problem_id)
+    testCases = test_cases_controller.get_test_cases_by_problem_id(session, problem_id)
     return testCases
 
 
@@ -73,8 +75,8 @@ def get_testCases_by_problem_id(problem_id: int, session: Session = Depends(get_
         200: {"description": "Caso de prueba creado"},
     }
 )
-def create_testCase(testCase: TestCaseCreate, session: Session = Depends(get_session)):
-    testCase = test_cases_controller.create_testCase(session, testCase)
+def create_testCase(testCase: TestCaseCreate, session: SessionDep):
+    testCase = test_cases_controller.create_test_case(session, testCase)
     return testCase
 
 
@@ -89,12 +91,12 @@ def create_testCase(testCase: TestCaseCreate, session: Session = Depends(get_ses
         404: {"description": "Caso de prueba no encontrado"},
     }
 )
-def update_testCase(testCase_id: int, testCase_update: TestCaseUpdate, session: Session = Depends(get_session)):
-    testCase = test_cases_controller.get_testCase_by_id(session, testCase_id)
+def update_testCase(testCase_id: int, testCase_update: TestCaseUpdate, session: SessionDep):
+    testCase = test_cases_controller.get_test_case_by_id(session, testCase_id)
     if not testCase:
         raise HTTPException(status_code=404, detail="Caso de prueba no encontrado")
     
-    updated_testCase = test_cases_controller.update_testCase(
+    updated_testCase = test_cases_controller.update_test_case(
         session, testCase_id, testCase_update.dict(exclude_unset=True))
     return updated_testCase
 
@@ -110,11 +112,11 @@ def update_testCase(testCase_id: int, testCase_update: TestCaseUpdate, session: 
         404: {"description": "Caso de prueba no encontrado"},
     }
 )
-def delete_testCase(testCase_id: int, session: Session = Depends(get_session)):
-    testCase = test_cases_controller.get_testCase_by_id(session, testCase_id)
+def delete_testCase(testCase_id: int, session: SessionDep):
+    testCase = test_cases_controller.get_test_case_by_id(session, testCase_id)
     if not testCase:
         raise HTTPException(
             status_code=404, detail="Caso de prueba no encontrado")
-    deleted_testCase = test_cases_controller.delete_testCase(
+    deleted_testCase = test_cases_controller.delete_test_case(
         session, testCase_id)
     return deleted_testCase

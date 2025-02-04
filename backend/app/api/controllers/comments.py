@@ -3,14 +3,24 @@ from app.models import Comment
 from app.schemas.comment import CommentCreate, CommentUpdate
 
 
-def get_comments_by_user_id(*, session: Session, user_id: int):
+def get_comments_by_user_id(session: Session, user_id: int):
     comments = session.exec(
         select(Comment).where(Comment.userID == user_id)
-        ).all()
+    ).all()
     return comments
 
 
-def create_comment(*, session: Session, new_comment: CommentCreate):
+def get_comments(session: Session):
+    comments = session.exec(select(Comment)).all()
+    return comments
+
+
+def get_comment_by_id(session: Session, comment_id: int):
+    comment = session.get(Comment, comment_id)
+    return comment
+
+
+def create_comment(session: Session, new_comment: CommentCreate):
     comment_db = Comment.model_validate(new_comment)
     session.add(comment_db)
     session.commit()
@@ -18,8 +28,7 @@ def create_comment(*, session: Session, new_comment: CommentCreate):
     return comment_db
 
 
-
-def update_comment(*, session: Session, db_comment: Comment, comment_in: CommentUpdate):
+def update_comment(session: Session, db_comment: Comment, comment_in: CommentUpdate):
     comment_data = comment_in.model_dump(exclude_unset=True)
     db_comment.sqlmodel_update(comment_data)
     session.add(db_comment)
@@ -27,3 +36,8 @@ def update_comment(*, session: Session, db_comment: Comment, comment_in: Comment
     session.refresh(db_comment)
     return db_comment
 
+def delete_comment(session: Session, comment_id: int):
+    comment = session.get(Comment, comment_id)
+    session.delete(comment)
+    session.commit()
+    return comment

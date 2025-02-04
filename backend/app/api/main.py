@@ -1,7 +1,9 @@
 from fastapi import APIRouter
-from app.api.routers import users, submissions, problems, roles, coments, notifications, reports, test_cases
+from app.api.routers import users, submissions, problems, roles, coments, notifications, reports
+from app.api.routers import login, test_cases
 
 api_router = APIRouter()
+api_router.include_router(login.router)
 api_router.include_router(users.router)
 api_router.include_router(submissions.router)
 api_router.include_router(problems.router)

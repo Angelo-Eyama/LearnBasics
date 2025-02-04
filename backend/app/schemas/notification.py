@@ -9,6 +9,10 @@ class NotificationBase(BaseModel):
 class NotificationCreate(NotificationBase):
     userID: int
 
+class NotificationUpdate(NotificationBase):
+    content: Optional[str]
+    read: Optional[bool] = False
+
 class NotificationRead(NotificationBase):
     id: int
     timePosted: Optional[datetime]

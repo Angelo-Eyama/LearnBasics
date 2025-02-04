@@ -1,12 +1,12 @@
 from collections.abc import Generator
-from typing import Annotaded
+from typing import Annotated
 
 import jwt
 from jwt.exceptions import PyJWTError, InvalidTokenError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import ValidationError
-from sqlmodel import Session
+from sqlmodel import Session, select
 
 from app.core import security
 from app.core.config import settings
@@ -14,7 +14,7 @@ from app.core.db import engine
 from app.schemas.utils import TokenPayload
 from app.models import User
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_VERSION}/login/access-token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"/login/access-token")
 
 def get_db() -> Generator:
     with Session(engine) as session:
@@ -31,12 +31,18 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
         # La llamada TokenPayload(**payload) pasa como parametros cada par clave-valor del diccionario payload
         token_data = TokenPayload(**payload)
-    except (PyJWTError, ValidationError, InvalidTokenError):
+    except (PyJWTError, ValidationError, InvalidTokenError) as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="No se ha posido validar las credenciales",
-        )
-    
+            detail="No se han posido validar las credenciales",
+        ) from Exception
+
+    # Estructura del token decodificado
+    # sub: id del usuario
+    # username: nombre de usuario
+    # roles: roles del usuario (lista de strings)
+    # exp: fecha de expiracion del token
     user = session.exec(select(User).where(User.id == token_data.sub)).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")

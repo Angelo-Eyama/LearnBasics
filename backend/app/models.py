@@ -1,5 +1,5 @@
 from typing import List, Optional
-from sqlmodel import SQLModel, Field, Relationship, Session, Column, LargeBinary
+from sqlmodel import SQLModel, Field, Relationship, Column, LargeBinary
 from datetime import datetime
 from app.core.utils import RoleType
 
@@ -19,7 +19,7 @@ class User(SQLModel, table=True):
     lastName: str
     email: str
     score: Optional[int] = 0
-    creationDate: Optional[datetime] = Field(default=None, default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
+    creationDate: Optional[datetime] = Field(default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
     active: bool = Field(default=True, description='Indica si el usuario puede acceder o no.', sa_column_kwargs={"comment": 'Indica si el usuario puede acceder o no.'} )
     
     roles: List["Role"] = Relationship(back_populates="users",link_model=UserRole)
@@ -38,7 +38,7 @@ class Problem(SQLModel, table=True):
     expectedOutput: str
     authorID: int = Field(foreign_key="users.id")
     
-    testCases: List["testCase"] = Relationship(back_populates="problem")
+    testCases: List["TestCase"] = Relationship(back_populates="problem", cascade_delete=True)
     
 class Submission(SQLModel, table=True):
     __tablename__ = "submissions"
@@ -47,8 +47,8 @@ class Submission(SQLModel, table=True):
     code: str
     language: str
     status: str
-    timeSubmitted: Optional[datetime] = Field(default=None, default_factory=datetime.utcnow , sa_column_kwargs={"nullable": True})
-    timeUpdated: Optional[datetime] = Field(default=None, default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
+    timeSubmitted: Optional[datetime] = Field(default_factory=datetime.utcnow , sa_column_kwargs={"nullable": True})
+    timeUpdated: Optional[datetime] = Field(default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
     suggestions: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
     userID: int = Field(foreign_key="users.id")
@@ -65,7 +65,7 @@ class Comment(SQLModel, table=True):
     
     id: Optional[int] = Field(default=None, primary_key=True)
     content: str
-    timePosted: Optional[datetime] = Field(default=None, default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
+    timePosted: Optional[datetime] = Field(default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
     problemID: int = Field(foreign_key="problems.id")
     userID: int = Field(foreign_key="users.id")
     
@@ -87,7 +87,7 @@ class Report(SQLModel, table=True):
     
     id: Optional[int] = Field(default=None, primary_key=True)
     content: str
-    timePosted: Optional[datetime] = Field(default=None, default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
+    timePosted: Optional[datetime] = Field(default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
     read: bool = Field(default=False)
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
     userID: int = Field(foreign_key="users.id")
@@ -100,4 +100,4 @@ class TestCase(SQLModel, table=True):
     input: str
     output: str
     
-    problem: Optional[Problem] = Relationship(back_populates="testCases", cascade="all, delete-orphan")
+    problem: Optional[Problem] = Relationship(back_populates="testCases")

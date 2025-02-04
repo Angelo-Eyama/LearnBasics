@@ -1,22 +1,22 @@
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
 from typing import List
-from ..database import get_session
-from ..models import Notification, User
-from ..controllers import notifications as notifications_controller
-from ..schemas import NotificationCreate, NotificationRead, NotificationUpdate
+from fastapi import APIRouter, Depends, HTTPException
+from app.api.deps import SessionDep, CurrentUser
+
+from app.api.controllers import notifications as notifications_controller
+from app.models import User, Notification
+from app.schemas.notification import NotificationCreate, NotificationRead, NotificationUpdate
 
 router = APIRouter(tags=["Notificaciones"])
 
 
 @router.get("/notifications/", response_model=List[NotificationRead])
-def get_notifications(session: Session = Depends(get_session)):
+def get_notifications(session: SessionDep):
     notifications = notifications_controller.get_notifications(session)
     return notifications
 
 
 @router.get("/notifications/{notification_id}", response_model=NotificationRead)
-def get_notification_by_id(notification_id: int, session: Session = Depends(get_session)):
+def get_notification_by_id(notification_id: int, session: SessionDep):
     notification = notifications_controller.get_notification_by_id(
         session, notification_id)
     if not notification:
@@ -25,7 +25,7 @@ def get_notification_by_id(notification_id: int, session: Session = Depends(get_
     return notification
 
 @router.get("/notifications/user/{user_id}", response_model=List[NotificationRead])
-def get_notifications_by_user_id(user_id: int, session: Session = Depends(get_session)):
+def get_notifications_by_user_id(user_id: int, session: SessionDep):
     user = session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -34,12 +34,12 @@ def get_notifications_by_user_id(user_id: int, session: Session = Depends(get_se
     return notifications
 
 @router.post("/notifications/", response_model=NotificationRead)
-def create_notification(notification: NotificationCreate, session: Session = Depends(get_session)):
+def create_notification(notification: NotificationCreate, session: SessionDep):
     notification = notifications_controller.create_notification(session, notification)
     return notification
 
 @router.delete("/notifications/{notification_id}", response_model=NotificationRead, summary="Eliminar una notificación", description="Elimina una notificación del sistema utilizando su ID.", response_description="La notificación eliminada.")
-def delete_notification(notification_id: int, session: Session = Depends(get_session)):
+def delete_notification(notification_id: int, session: SessionDep):
     notification = notifications_controller.get_notification_by_id(session, notification_id)
     if not notification:
         raise HTTPException(status_code=404, detail="Notificación no encontrada")
@@ -56,7 +56,7 @@ def delete_notification(notification_id: int, session: Session = Depends(get_ses
         404: {"description": "Notificación no encontrada"},
     }
     )
-def change_state_notification(notification_id: int, session: Session = Depends(get_session)):
+def change_state_notification(notification_id: int, session: SessionDep):
     notification = notifications_controller.get_notification_by_id(session, notification_id)
     if not notification:
         raise HTTPException(status_code=404, detail="Notificación no encontrada")

@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import Session
 from typing import List
-from ..database import get_session
-from ..models import Submission
-from ..controllers import submissions as submissions_controller
-from ..schemas import SubmissionCreate, SubmissionRead, SubmissionUpdate
+from app.api.deps import SessionDep, CurrentUser
+
+from app.models import Submission
+from app.api.controllers import submissions as submissions_controller
+from app.schemas.submission import SubmissionCreate, SubmissionRead, SubmissionUpdate
+
 
 router = APIRouter(tags=["Entregas"])
 
@@ -18,8 +19,22 @@ router = APIRouter(tags=["Entregas"])
         200: {"description": "Lista de entregas obtenida"},
     }
     )
-def get_submissions(session: Session = Depends(get_session)):
+def get_submissions(session: SessionDep):
     submissions = submissions_controller.get_submissions(session)
+    return submissions
+
+@router.get(
+    "/submissions/user/{user_id}",
+    response_model=List[SubmissionRead],
+    summary="Obtener entregas por ID de usuario",
+    description="Obtiene una lista con todas las entregas registradas en el sistema realizadas por un usuario.",
+    response_description="Lista de entregas.",
+    responses={
+        200: {"description": "Lista de entregas obtenida"},
+    }
+    )
+def get_submissions_by_user_id(user_id: int, session: SessionDep):
+    submissions = submissions_controller.get_submissions_by_user_id(session, user_id)
     return submissions
 
 @router.get(
@@ -33,7 +48,7 @@ def get_submissions(session: Session = Depends(get_session)):
         404: {"description": "Entrega no encontrada"},
     }
     )
-def get_submission_by_id(submission_id: int, session: Session = Depends(get_session)):
+def get_submission_by_id(submission_id: int, session: SessionDep):
     submission = submissions_controller.get_submission_by_id(session, submission_id)
     if not submission:
         raise HTTPException(status_code=404, detail="Entrega no encontrada")
@@ -49,7 +64,7 @@ def get_submission_by_id(submission_id: int, session: Session = Depends(get_sess
         200: {"description": "Entrega creada"}
     }
     )
-def create_submission(submission: SubmissionCreate, session: Session = Depends(get_session)):
+def create_submission(submission: SubmissionCreate, session: SessionDep):
     new_submission = submissions_controller.create_submission(session, Submission.from_orm(submission))
     return new_submission
 
@@ -64,7 +79,7 @@ def create_submission(submission: SubmissionCreate, session: Session = Depends(g
         404: {"description": "Entrega no encontrada"},
     }
     )
-def update_submission(submission_id: int, submission_update: SubmissionUpdate, session: Session = Depends(get_session)):
+def update_submission(submission_id: int, submission_update: SubmissionUpdate, session: SessionDep):
     submission = submissions_controller.get_submission_by_id(session, submission_id)
     if not submission:
         raise HTTPException(status_code=404, detail="Entrega no encontrada")

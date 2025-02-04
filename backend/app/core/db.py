@@ -1,9 +1,9 @@
 from sqlmodel import Session, create_engine, select
-from app.controllers import users
+from app.api.controllers import users
 from app.core.config import settings
 from app.core.utils import RoleType
-from app.models import User, Role, UserRole
-from app.schemas import UserCreate
+from app.models import User, Role
+from app.schemas.user import UserCreate
 
 DATABASE_URL = f"{settings.DATABASE_SCHEME}://{settings.DATABASE_USER}:{settings.DATABASE_PASSWORD}@{settings.DATABASE_SERVER}:{settings.DATABASE_PORT}/{settings.DATABASE_NAME}"
 engine = create_engine(DATABASE_URL, pool_pre_ping=True)

@@ -1,11 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import func, select
-from typing import Any, List
+from typing import List
 
 from app.api.deps import CurrentUser, SessionDep
 from app.models import Problem
-from app.schemas import ProblemCreate, ProblemRead, ProblemUpdate
-from app.controllers import problems as problems_controller
+from app.schemas.problem import ProblemCreate, ProblemRead, ProblemUpdate
+from app.api.controllers import problems as problems_controller
 
 router = APIRouter(
     prefix="/problems",
@@ -38,7 +37,7 @@ def get_problems(session: SessionDep, current_user: CurrentUser, skip: int = 0, 
         404: {"description": "Problema no encontrado"},
     }
     )
-def get_problem_by_id(problem_id: int, session: Session = Depends(get_session)):
+def get_problem_by_id(problem_id: int, session: SessionDep):
     problem = problems_controller.get_problem_by_id(session, problem_id)
     if not problem:
         raise HTTPException(status_code=404, detail="Problema no encontrado")
@@ -55,7 +54,7 @@ def get_problem_by_id(problem_id: int, session: Session = Depends(get_session)):
         404: {"description": "No se encontraron problemas o no existe el bloque solicitado."},
     }
     )
-def get_problems_by_block(block: str, session: Session = Depends(get_session)):
+def get_problems_by_block(block: str, session: SessionDep):
     problems = problems_controller.get_problems_by_block(session, block)
     if not problems:
         raise HTTPException(status_code=404, detail="No se encontraron problemas o no existe el bloque solicitado.")
@@ -72,7 +71,7 @@ def get_problems_by_block(block: str, session: Session = Depends(get_session)):
         404: {"description": "Problema no creado"},
     }
     )
-def create_problem(problem: ProblemCreate, session: Session = Depends(get_session)):
+def create_problem(problem: ProblemCreate, session: SessionDep):
     new_problem = problems_controller.create_problem(session, Problem.from_orm(problem))
     return new_problem
 
@@ -86,7 +85,7 @@ def create_problem(problem: ProblemCreate, session: Session = Depends(get_sessio
         404: {"description": "Problema no encontrado"},
     }
     )
-def update_problem(problem_id: int, problem_update: ProblemUpdate, session: Session = Depends(get_session)):
+def update_problem(problem_id: int, problem_update: ProblemUpdate, session: SessionDep):
     problem = problems_controller.get_problem_by_id(session, problem_id)
     if not problem:
         raise HTTPException(status_code=404, detail="Problema no encontrado")
@@ -104,7 +103,7 @@ def update_problem(problem_id: int, problem_update: ProblemUpdate, session: Sess
         404: {"description": "Problema no encontrado"},
     }
     )
-def delete_problem(problem_id: int, session: Session = Depends(get_session)):
+def delete_problem(problem_id: int, session: SessionDep):
     problem = problems_controller.get_problem_by_id(session, problem_id)
     if not problem:
         raise HTTPException(status_code=404, detail="Problema no encontrado")

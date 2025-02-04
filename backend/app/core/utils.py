@@ -7,6 +7,11 @@ class RoleType(str, Enum):
 
 tags_metadata = [
     {
+        "name": "Login",
+        "description": "Operaciones relacionadas con la autenticación y autorización de los usuarios.",
+    }
+    ,
+    {
         "name": "Usuarios",
         "description": "Operaciones relacionadas con la gestion de los usuarios (CRUD). También están las acciones de iniciar, cerrar sesion, cambiar contraseña, etc.",
     },
