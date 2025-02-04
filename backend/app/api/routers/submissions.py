@@ -83,5 +83,5 @@ def update_submission(submission_id: int, submission_update: SubmissionUpdate, s
     submission = submissions_controller.get_submission_by_id(session, submission_id)
     if not submission:
         raise HTTPException(status_code=404, detail="Entrega no encontrada")
-    updated_submission = submissions_controller.update_submission(session, submission_id, submission_update.dict(exclude_unset=True))
+    updated_submission = submissions_controller.update_submission(session=session, db_submission=submission, submission_in=submission_update)
     return updated_submission

@@ -30,7 +30,7 @@ def create_submission(session: Session, new_submission: SubmissionCreate):
     session.refresh(submission_db)
     return submission_db
 
-def update_submission(*ession: Session, db_submission: Submission, submission_in: SubmissionUpdate):
+def update_submission(*, session: Session, db_submission: Submission, submission_in: SubmissionUpdate):
     submission_data = submission_in.model_dump(exclude_unset=True)
     db_submission.sqlmodel_update(submission_data)
     session.add(db_submission)

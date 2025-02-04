@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, EmailStr, ConfigDict
 from sqlmodel import SQLModel
-from app.core.utils import RoleType
+from app.schemas.role import RoleNameBase
 
 # User schemas
 class UserBase(BaseModel):
@@ -19,7 +19,7 @@ class UserCreate(UserBase):
 class UserRead(UserBase):
     id: int
     creationDate: Optional[datetime]
-    roles: List[RoleType]
+    roles: List[RoleNameBase]
     
     model_config = ConfigDict(
         from_attributes=True

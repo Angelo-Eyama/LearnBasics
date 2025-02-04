@@ -32,6 +32,12 @@ def update_report(session: Session, db_report: Report, report_in: ReportUpdate):
     session.refresh(db_report)
     return db_report
 
+def delete_report(session: Session, report_id: int):
+    report = session.get(Report, report_id)
+    session.delete(report)
+    session.commit()
+    return report
+
 
 def change_state_report(session: Session, report_id: int):
     report = session.get(Report, report_id)

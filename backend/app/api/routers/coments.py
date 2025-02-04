@@ -98,7 +98,7 @@ def update_comment(comment_id: int, comment_update: CommentUpdate, session: Sess
     if not comment:
         raise HTTPException(status_code=404, detail="Comentario no encontrado")
     updated_comment = comments_controller.update_comment(
-        session, comment_id, comment_update.dict(exclude_unset=True))
+        session=session, db_comment=comment, comment_in=comment_update)
     return updated_comment
 
 

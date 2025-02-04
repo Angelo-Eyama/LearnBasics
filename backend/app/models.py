@@ -1,13 +1,12 @@
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship, Column, LargeBinary
 from datetime import datetime
-from app.core.utils import RoleType
 
 class UserRole(SQLModel, table=True):
     __tablename__ = "user_roles"
     
     userID: int = Field(foreign_key="users.id", primary_key=True, ondelete="CASCADE")
-    roleName: RoleType = Field(foreign_key="roles.name", primary_key=True, ondelete="CASCADE")
+    roleName: str = Field(foreign_key="roles.name", primary_key=True, ondelete="CASCADE")
 
 class User(SQLModel, table=True):
     __tablename__ = "users"
@@ -55,7 +54,7 @@ class Submission(SQLModel, table=True):
     
 class Role(SQLModel, table=True):
     __tablename__ = "roles"
-    name: Optional[RoleType] = Field(default=None, primary_key=True)
+    name: Optional[str] = Field(default=None, primary_key=True)
     description: str
     
     users: List[User] = Relationship(back_populates="roles", link_model=UserRole)

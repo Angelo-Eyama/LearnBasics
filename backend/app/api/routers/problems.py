@@ -89,7 +89,7 @@ def update_problem(problem_id: int, problem_update: ProblemUpdate, session: Sess
     problem = problems_controller.get_problem_by_id(session, problem_id)
     if not problem:
         raise HTTPException(status_code=404, detail="Problema no encontrado")
-    updated_problem = problems_controller.update_problem(session, problem_id, problem_update.dict(exclude_unset=True))
+    updated_problem = problems_controller.update_problem(session=session, db_problem=problem, problem_in=problem_update)
     return updated_problem
 
 @router.delete(

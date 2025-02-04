@@ -1,10 +1,12 @@
-from typing import List, Optional
+from typing import Optional
 from pydantic import BaseModel, ConfigDict
-from app.core.utils import RoleType
 
 # Esquema Base
+class RoleNameBase(BaseModel):
+    name: str
+
 class RoleBase(BaseModel):
-    name: RoleType
+    name: str
     description: str
 
 # Esquema de Creación

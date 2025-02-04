@@ -26,7 +26,7 @@ def create_user(session: Session, new_user: UserCreate) -> User:
     return user_db
 
 
-def update_user(session: Session, db_user: User, user_in: UserUpdate) -> User:
+def update_user(*, session: Session, db_user: User, user_in: UserUpdate) -> User:
     user_data = user_in.model_dump(exclude_unset=True)
     if "password" in user_data:
         password = user_data["password"]

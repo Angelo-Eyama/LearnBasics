@@ -83,7 +83,7 @@ def update_role(role_id: int, role_update: RoleUpdate, session: SessionDep):
     if not role:
         raise HTTPException(status_code=404, detail="Rol no encontrado")
     updated_role = roles_controller.update_role(
-        session, role_id, role_update.dict(exclude_unset=True))
+        session=session, db_role=role, role_in=role_update)
     return updated_role
 
 

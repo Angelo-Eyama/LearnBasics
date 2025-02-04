@@ -4,7 +4,7 @@ from app.api.deps import SessionDep, CurrentUser
 
 from app.models import User
 from app.api.controllers import users as users_controller
-from app.schemas.user import UserCreate, UserUpdate, UserPublic
+from app.schemas.user import UserCreate, UserUpdate, UserPublic, UserRead
 
 router = APIRouter(
     tags=["Usuarios"], 
@@ -14,7 +14,7 @@ router = APIRouter(
 
 @router.get(
     "/users/",
-    response_model=List[UserPublic],
+    response_model=List[UserRead],
     summary="Obtener todos los usuarios",
     description="Obtiene una lista con todos los usuarios registrados en el sistema.",
     response_description="Lista de usuarios.",
@@ -100,7 +100,7 @@ def update_user(user_id: int, user_update: UserUpdate, session: SessionDep):
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     updated_user = users_controller.update_user(
-        session, user_id, user_update.dict(exclude_unset=True))
+        session=session, db_user=user, user_in=user_update)
     return updated_user
 
 

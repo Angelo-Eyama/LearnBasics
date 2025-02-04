@@ -1,6 +1,5 @@
 from sqlmodel import Session, select
 from app.models import Role, User
-from app.core.utils import RoleType
 from app.schemas.role import RoleCreate, RoleUpdate
 from sqlalchemy.exc import IntegrityError
 
@@ -15,7 +14,7 @@ def get_role_by_id(session: Session, role_id: int) -> Role:
     return role
 
 
-def get_role_by_name(session: Session, name: RoleType) -> Role:
+def get_role_by_name(session: Session, name: str) -> Role:
     role = session.exec(select(Role).where(Role.name == name)).first()
     return role
 

@@ -53,6 +53,24 @@ def create_report(report: ReportCreate, session: SessionDep):
     report = reports_controller.create_report(session, report)
     return report
 
+@router.patch(
+    "/reports/{report_id}",
+    response_model=ReportRead,
+    summary="Actualizar un reporte",
+    description="Actualiza un reporte en el sistema utilizando su ID.",
+    response_description="Reporte actualizado.",
+    responses={
+        200: {"description": "Reporte actualizado"},
+        404: {"description": "Reporte no encontrado"},
+    }
+)
+def update_report(report_id: int, report_update: ReportUpdate, session: SessionDep):
+    report = reports_controller.get_report_by_id(session, report_id)
+    if not report:
+        raise HTTPException(status_code=404, detail="Reporte no encontrado")
+    updated_report = reports_controller.update_report(session=session, db_report=report, report_in=report_update)
+    return updated_report
+
 @router.delete(
     "/reports/{report_id}", 
     response_model=ReportRead, 
