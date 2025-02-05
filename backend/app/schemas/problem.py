@@ -12,7 +12,7 @@ class ProblemBase(BaseModel):
 
 # Esquema de Creación
 class ProblemCreate(ProblemBase):
-    authorID: int
+    pass
 
 # Esquema de Actualización
 class ProblemUpdate(BaseModel):
@@ -26,6 +26,7 @@ class ProblemUpdate(BaseModel):
 # Esquema de Lectura
 class ProblemRead(ProblemBase):
     id: int
+    authorID: int
 
     model_config = ConfigDict(
         from_attributes=True

@@ -6,7 +6,7 @@ from app.api.controllers import roles as roles_controller
 
 from app.models import Role
 from app.schemas.role import RoleBase, RoleUpdate
-from app.schemas.user import UserRead, UserPublic
+from app.schemas.user import UserPublic
 
 
 router = APIRouter(
