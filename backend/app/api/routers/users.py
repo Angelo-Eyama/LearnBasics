@@ -4,7 +4,7 @@ from app.api.deps import SessionDep, CurrentUser, verify_admin
 
 from app.models import User
 from app.api.controllers import users as users_controller
-from app.schemas.user import UserCreate, UserUpdate, UserPublic, UserRead
+from app.schemas.user import UserCreate, UserUpdate, UserPublic, UserRead, UserRegister
 from app.core.utils import RoleType
 
 router = APIRouter(
@@ -64,7 +64,7 @@ def get_current_user(current_user: CurrentUser):
     },
     dependencies=[Depends(verify_admin)]
 )
-def get_user_by_id(user_id: int, session: SessionDep, current_user: CurrentUser):
+def get_user_by_id(user_id: int, session: SessionDep):
     user = users_controller.get_user_by_id(session, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
@@ -83,12 +83,26 @@ def get_user_by_id(user_id: int, session: SessionDep, current_user: CurrentUser)
     },
     dependencies=[Depends(verify_admin)]
 )
-def get_user_by_username(username: str, session: SessionDep, current_user: CurrentUser):
+def get_user_by_username(username: str, session: SessionDep):
     user = users_controller.get_user_by_username(session, username)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     return user
 
+@router.post(
+    "/register",
+    response_model=UserPublic,
+    summary="Registrar un usuario",
+    description="Registra un nuevo usuario en el sistema con datos minimos.",
+    response_description="El usuario registrado.",
+)
+def register_user(user: UserRegister, session: SessionDep):
+    db_user = users_controller.get_user_by_username(session, user.username)
+    if db_user:
+        raise HTTPException(
+            status_code=400, detail="Nombre de usuario ya existente")
+    new_user = users_controller.create_user(session, User.from_orm(user))
+    return new_user
 
 @router.post(
     "/",

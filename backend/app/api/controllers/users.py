@@ -1,8 +1,10 @@
 from typing import Any
 from sqlmodel import Session, select
 from app.core.security import hash_password, verify_password
-from app.models import User
+from app.models import User, Role
 from app.schemas.user import UserCreate, UserRead, UserUpdate, UserRegister, UserPublic, UsersPublic
+from app.core.utils import RoleType
+
 
 def get_users(session: Session) -> list[User]:
     users = session.exec(select(User)).all()
@@ -19,6 +21,10 @@ def create_user(session: Session, new_user: UserCreate) -> User:
         new_user,
         update={"password": hash_password(new_user.password)}
     )
+    # Por defecto, le añadimos el rol de usuario
+    role = session.get(Role, RoleType.USER)
+    user_db.roles.append(role)
+    
     session.add(user_db)
     session.commit()
     session.refresh(user_db)

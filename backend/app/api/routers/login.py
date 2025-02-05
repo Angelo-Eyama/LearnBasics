@@ -10,7 +10,7 @@ from app.core import security
 from app.core.config import settings
 from app.core.security import hash_password
 from app.schemas.utils import Token
-from app.schemas.user import UserPublic
+from app.schemas.user import UserPublic, UserBase
 
 router = APIRouter(
     prefix="/login",
@@ -48,6 +48,7 @@ def login_for_access_token(session: SessionDep, form_data: OAuth2PasswordRequest
         expires_delta=access_token_expires
         )
     return {"access_token": access_token, "token_type": "bearer"}
+
 
 ''' 
     FUNCIONES A IMPLEMENTAR EN UN FUTURO:
