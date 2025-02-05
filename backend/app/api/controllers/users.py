@@ -1,8 +1,8 @@
-from typing import Any
 from sqlmodel import Session, select
 from app.core.security import hash_password, verify_password
+
 from app.models import User, Role
-from app.schemas.user import UserCreate, UserRead, UserUpdate, UserRegister, UserPublic, UsersPublic
+from app.schemas.user import UserCreate, UserUpdate
 from app.core.utils import RoleType
 
 
@@ -21,7 +21,7 @@ def create_user(session: Session, new_user: UserCreate) -> User:
         new_user,
         update={"password": hash_password(new_user.password)}
     )
-    # Por defecto, le añadimos el rol de usuario
+    # Por defecto, le añadimos el rol de estudiante por defecto
     role = session.get(Role, RoleType.USER)
     user_db.roles.append(role)
     

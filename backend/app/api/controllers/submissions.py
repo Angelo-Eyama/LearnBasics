@@ -1,6 +1,5 @@
 from sqlmodel import Session, select
 from app.models import Submission
-from datetime import datetime
 from app.schemas.submission import SubmissionCreate, SubmissionUpdate
 
 def get_submissions(session: Session):

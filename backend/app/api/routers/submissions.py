@@ -1,13 +1,16 @@
-from fastapi import APIRouter, Depends, HTTPException
 from typing import List
-from app.api.deps import SessionDep, CurrentUser
+from fastapi import APIRouter, Depends, HTTPException
+from app.api.deps import CurrentUser, SessionDep, get_current_user, verify_admin
 
 from app.models import Submission
 from app.api.controllers import submissions as submissions_controller
 from app.schemas.submission import SubmissionCreate, SubmissionRead, SubmissionUpdate
 
 
-router = APIRouter(tags=["Entregas"])
+router = APIRouter(
+    tags=["Entregas"],
+    dependencies=[Depends(get_current_user)]
+    )
 
 @router.get(
     "/submissions/", 
@@ -17,7 +20,8 @@ router = APIRouter(tags=["Entregas"])
     response_description="Lista de entregas.",
     responses={
         200: {"description": "Lista de entregas obtenida"},
-    }
+    },
+    dependencies=[Depends(verify_admin)]
     )
 def get_submissions(session: SessionDep):
     submissions = submissions_controller.get_submissions(session)
@@ -31,9 +35,12 @@ def get_submissions(session: SessionDep):
     response_description="Lista de entregas.",
     responses={
         200: {"description": "Lista de entregas obtenida"},
+        403: {"description": "No se puede acceder a las entregas de otro usuario"}
     }
     )
-def get_submissions_by_user_id(user_id: int, session: SessionDep):
+def get_submissions_by_user_id(user_id: int, session: SessionDep, current_user: CurrentUser):
+    if current_user.id != user_id:
+        raise HTTPException(status_code=403, detail="No tienes permiso para acceder a este recurso")
     submissions = submissions_controller.get_submissions_by_user_id(session, user_id)
     return submissions
 
@@ -48,10 +55,12 @@ def get_submissions_by_user_id(user_id: int, session: SessionDep):
         404: {"description": "Entrega no encontrada"},
     }
     )
-def get_submission_by_id(submission_id: int, session: SessionDep):
+def get_submission_by_id(submission_id: int, session: SessionDep, current_user: CurrentUser):
     submission = submissions_controller.get_submission_by_id(session, submission_id)
     if not submission:
         raise HTTPException(status_code=404, detail="Entrega no encontrada")
+    if submission.userID != current_user.id and not verify_admin(current_user):
+        raise HTTPException(status_code=403, detail="No tienes permiso para acceder a este recurso")
     return submission
 
 @router.post(
@@ -79,9 +88,11 @@ def create_submission(submission: SubmissionCreate, session: SessionDep):
         404: {"description": "Entrega no encontrada"},
     }
     )
-def update_submission(submission_id: int, submission_update: SubmissionUpdate, session: SessionDep):
+def update_submission(submission_id: int, submission_update: SubmissionUpdate, session: SessionDep, current_user: CurrentUser):
     submission = submissions_controller.get_submission_by_id(session, submission_id)
     if not submission:
         raise HTTPException(status_code=404, detail="Entrega no encontrada")
+    if submission.userID != current_user.id and not verify_admin(current_user):
+        raise HTTPException(status_code=403, detail="No tienes permiso para acceder a este recurso")
     updated_submission = submissions_controller.update_submission(session=session, db_submission=submission, submission_in=submission_update)
     return updated_submission
