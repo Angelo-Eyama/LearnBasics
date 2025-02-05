@@ -1,8 +1,7 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from typing import List
-from sqlalchemy.exc import IntegrityError
 
-from app.api.deps import CurrentUser, SessionDep
+from app.api.deps import SessionDep, verify_admin, get_current_user
 from app.api.controllers import roles as roles_controller
 
 from app.models import Role
@@ -10,7 +9,10 @@ from app.schemas.role import RoleBase, RoleUpdate
 from app.schemas.user import UserRead, UserPublic
 
 
-router = APIRouter( tags=["Roles"])
+router = APIRouter(
+                    tags=["Roles"],
+                    dependencies=[Depends(get_current_user), Depends(verify_admin)]
+    )
 
 
 @router.get(
@@ -30,7 +32,7 @@ def get_roles(session: SessionDep):
 
 
 @router.get(
-    "/roles/{role_id}",
+    "/roles/{role_name}",
     response_model=RoleBase,
     summary="Obtener un rol por su ID",
     description="Obtiene un rol del sistema utilizando su ID.",
@@ -40,8 +42,8 @@ def get_roles(session: SessionDep):
         404: {"description": "Rol no encontrado"},
     }
 )
-def get_role_by_id(role_id: int, session: SessionDep):
-    role = roles_controller.get_role_by_id(session, role_id)
+def get_role_by_name(role_name: str, session: SessionDep):
+    role = roles_controller.get_role_by_name(session, role_name)
     if not role:
         raise HTTPException(status_code=404, detail="Rol no encontrado")
     return role
@@ -64,11 +66,13 @@ def create_role(role: RoleBase, session: SessionDep):
         raise HTTPException(
             status_code=400, detail="Nombre de rol ya existente")
     new_role = roles_controller.create_role(session, Role.from_orm(role))
+    if not new_role:
+        raise HTTPException(status_code=400, detail="Error en la creacion del rol")
     return new_role
 
 
 @router.patch(
-    "/roles/{role_id}",
+    "/roles/{role_name}",
     response_model=RoleUpdate,
     summary="Actualizar un rol",
     description="Actualiza un rol del sistema utilizando su ID.",
@@ -78,17 +82,20 @@ def create_role(role: RoleBase, session: SessionDep):
         404: {"description": "Rol no encontrado"},
     }
 )
-def update_role(role_id: int, role_update: RoleUpdate, session: SessionDep):
-    role = roles_controller.get_role_by_id(session, role_id)
+def update_role(role_name: str, role_update: RoleUpdate, session: SessionDep):
+    role = roles_controller.get_role_by_name(session, role_name)
     if not role:
         raise HTTPException(status_code=404, detail="Rol no encontrado")
     updated_role = roles_controller.update_role(
         session=session, db_role=role, role_in=role_update)
+    if not updated_role:
+        raise HTTPException(
+            status_code=400, detail="Error en la actualizacion del rol")
     return updated_role
 
 
 @router.delete(
-    "/roles/{role_id}",
+    "/roles/{role_name}",
     response_model=RoleBase,
     summary="Eliminar un rol",
     description="Elimina un rol del sistema utilizando su ID.",
@@ -98,16 +105,19 @@ def update_role(role_id: int, role_update: RoleUpdate, session: SessionDep):
         404: {"description": "Rol no encontrado"},
     }
 )
-def delete_role(role_id: int, session: SessionDep):
-    role = roles_controller.get_role_by_id(session, role_id)
+def delete_role(role_name: str, session: SessionDep):
+    role = roles_controller.get_role_by_name(session, role_name)
     if not role:
         raise HTTPException(status_code=404, detail="Rol no encontrado")
-    deleted_role = roles_controller.delete_role(session, role_id)
+    deleted_role = roles_controller.delete_role(session, role_name)
+    if not deleted_role:
+        raise HTTPException(
+            status_code=400, detail="Error en la eliminacion del rol")
     return deleted_role
 
 
 @router.post(
-    "/roles/{role_id}/assign/{user_id}",
+    "/roles/{role_name}/assign/{user_id}",
     response_model=UserPublic,
     summary="Asignar un rol a un usuario",
     description="Asigna un rol a un usuario.",
@@ -118,24 +128,16 @@ def delete_role(role_id: int, session: SessionDep):
         400: {"description": "El usuario ya tiene asignado el rol"},
     }
 )
-def assign_role(role_id: int, user_id: int, session: SessionDep):
-    role = roles_controller.get_role_by_id(session, role_id)
+def assign_role(role_name: str, user_id: int, session: SessionDep):
+    role = roles_controller.get_role_by_name(session, role_name)
     if not role:
         raise HTTPException(status_code=404, detail="Rol no encontrado")
-    try:
-        user = roles_controller.assign_role(session, user_id, role_id)
-        if not user:
-            raise HTTPException(
-                status_code=404, detail="Usuario no encontrado")
-    except IntegrityError as e:
-        raise HTTPException(
-            status_code=400, detail="El usuario ya tiene asignado el rol")
-
+    user = roles_controller.assign_role(session, user_id, role_name)
     return user
 
 
 @router.post(
-    "/roles/{role_id}/revoke/{user_id}",
+    "/roles/{role_name}/revoke/{user_id}",
     response_model=UserPublic,
     summary="Revocar un rol a un usuario",
     description="Revoca un rol a un usuario.",
@@ -146,20 +148,13 @@ def assign_role(role_id: int, user_id: int, session: SessionDep):
         400: {"description": "El usuario no tiene asignado el rol"},
     }
 )
-def revoke_role(role_id: int, user_id: int, session: SessionDep):
-    role = roles_controller.get_role_by_id(session, role_id)
+def revoke_role(role_name: str, user_id: int, session: SessionDep):
+    role = roles_controller.get_role_by_name(session, role_name)
     if not role:
         raise HTTPException(status_code=404, detail="Rol no encontrado")
-
-    try:
-        user = roles_controller.revoke_role(session, user_id, role_id)
-        if not user:
-            raise HTTPException(
-                status_code=404, detail="Usuario no encontrado")
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
+    user = roles_controller.revoke_role(session, user_id, role_name)
     return user
+
 
 
 @router.get(
@@ -181,7 +176,7 @@ def get_user_roles(user_id: int, session: SessionDep):
 
 
 @router.get(
-    "/roles/{role_id}/users",
+    "/roles/{role_name}/users",
     response_model=List[UserPublic],
     summary="Obtener todos los usuarios de un rol",
     description="Obtiene todos los usuarios de un rol.",
@@ -191,8 +186,8 @@ def get_user_roles(user_id: int, session: SessionDep):
         404: {"description": "Rol no encontrado"},
     }
 )
-def get_role_users(role_id: int, session: SessionDep):
-    users = roles_controller.get_role_users(session, role_id)
+def get_role_users(role_name: str, session: SessionDep):
+    users = roles_controller.get_role_users(session, role_name)
     if not users:
         raise HTTPException(status_code=404, detail="Rol no encontrado")
     return users

@@ -137,7 +137,7 @@ def create_user(user: UserCreate, session: SessionDep):
     },
     dependencies=[Depends(verify_admin)]
 )
-def update_user(user_id: int, user_update: UserUpdate, session: SessionDep, current_user: CurrentUser):
+def update_user(user_id: int, user_update: UserUpdate, session: SessionDep):
     user = users_controller.get_user_by_id(session, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
