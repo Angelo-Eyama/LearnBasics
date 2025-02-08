@@ -1,35 +1,22 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { readRoot } from './client'
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [message, setMessage] = useState('Sin mensaje')
 
+  const handleReadRoot = async () => {
+    const response = await readRoot()
+    const data = (response.data as { message: string }).message
+    setMessage(data)
+  }
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+    <div className='flex flex-col items-center justify-center h-screen'>
+      <h1>React App</h1>
+      <button onClick={handleReadRoot} className="inline-flex h-12 items-center justify-center rounded-md bg-neutral-950 px-6 font-medium text-neutral-50 shadow-lg shadow-neutral-500/20 transition active:scale-95">Click me</button>
 
+      <h2 className='bg-amber-600 w-1/4 p-2 m-4 text-center' >{message}</h2>
+    </div>
+  )
+
+}
 export default App

@@ -1,14 +1,17 @@
 from typing import List
-from fastapi import APIRouter, HTTPException
-from sqlmodel import select
+from fastapi import APIRouter, HTTPException, Depends
 
-from app.api.deps import CurrentUser, SessionDep
+from app.api.deps import CurrentUser, SessionDep, get_current_user, verify_role
 from app.api.controllers import comments as comments_controller
 
 from app.models import User
 from app.schemas.comment import CommentCreate, CommentRead, CommentUpdate
+from app.core.utils import RoleType
 
-router = APIRouter(tags=["Comentarios"])
+router = APIRouter(
+    tags=["Comentarios"],
+    dependencies=[Depends(get_current_user)]
+    )
 
 
 @router.get(
@@ -93,12 +96,13 @@ def create_comment(comment: CommentCreate, session: SessionDep):
         404: {"description": "Comentario no encontrado"},
     }
 )
-def update_comment(comment_id: int, comment_update: CommentUpdate, session: SessionDep):
+def update_comment(comment_id: int, comment_update: CommentUpdate, session: SessionDep, current_user: CurrentUser):
     comment = comments_controller.get_comment_by_id(session, comment_id)
     if not comment:
         raise HTTPException(status_code=404, detail="Comentario no encontrado")
-    updated_comment = comments_controller.update_comment(
-        session=session, db_comment=comment, comment_in=comment_update)
+    if comment.userID != current_user.id and not verify_role(current_user, [RoleType.ADMIN, RoleType.EDITOR]):
+        raise HTTPException(status_code=403, detail="No tienes permiso para acceder a este recurso")    
+    updated_comment = comments_controller.update_comment(session=session, db_comment=comment, comment_in=comment_update)
     return updated_comment
 
 
@@ -108,9 +112,11 @@ def update_comment(comment_id: int, comment_update: CommentUpdate, session: Sess
     description="Elimina un comentario del sistema utilizando su ID.",
     response_description="El comentario eliminado."
 )
-def delete_comment(comment_id: int, session: SessionDep):
+def delete_comment(comment_id: int, session: SessionDep, current_user: CurrentUser):
     comment = comments_controller.get_comment_by_id(session, comment_id)
     if not comment:
         raise HTTPException(status_code=404, detail="Comentario no encontrado")
+    if comment.userID != current_user.id and not verify_role(current_user, [RoleType.ADMIN, RoleType.EDITOR]):
+        raise HTTPException(status_code=403, detail="No tienes permiso para acceder a este recurso")
     deleted_comment = comments_controller.delete_comment(session, comment_id)
     return deleted_comment

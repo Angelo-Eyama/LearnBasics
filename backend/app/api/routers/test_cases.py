@@ -1,14 +1,29 @@
 from typing import List
-from fastapi import APIRouter, HTTPException
-from app.api.deps import SessionDep, CurrentUser
+from fastapi import APIRouter, HTTPException, Depends
+from app.api.deps import SessionDep, CurrentUser, get_current_user, verify_role
 
 from app.models import Problem
 from app.api.controllers import test_cases as test_cases_controller
 from app.schemas.testCase import TestCaseCreate, TestCaseRead, TestCaseUpdate
+from app.core.utils import RoleType
 
+def valid_role(user: CurrentUser):
+    '''
+    Verifica si el usuario tiene uno de los roles permitidos para realizar una acción.
+    En este caso, los roles permitidos son ADMIN y EDITOR.
+    '''
+    roles = [RoleType.ADMIN, RoleType.EDITOR]
+    if not verify_role(user, roles):
+        raise HTTPException(
+            status_code=403,
+            detail="No tiene permisos para realizar esta acción",
+        )
+    return True
 
-
-router = APIRouter(tags=["Casos de prueba"])
+router = APIRouter(
+    tags=["Casos de prueba"],
+    dependencies=[Depends(get_current_user), Depends(valid_role)]
+    )
 
 
 @router.get(
