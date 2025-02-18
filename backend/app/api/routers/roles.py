@@ -7,6 +7,7 @@ from app.api.controllers import roles as roles_controller
 from app.models import Role
 from app.schemas.role import RoleBase, RoleUpdate
 from app.schemas.user import UserPublic
+from app.schemas.utils import ErrorResponse
 
 
 router = APIRouter(
@@ -23,7 +24,7 @@ router = APIRouter(
     response_description="Lista de roles.",
     responses={
         200: {"description": "Lista de roles obtenida"},
-        404: {"description": "No se encontraron roles"},
+        404: {"model": ErrorResponse, "description": "No se encontraron roles"},
     }
 )
 def get_roles(session: SessionDep):
@@ -39,7 +40,7 @@ def get_roles(session: SessionDep):
     response_description="El rol obtenido.",
     responses={
         200: {"description": "Rol encontrado"},
-        404: {"description": "Rol no encontrado"},
+        404: {"model": ErrorResponse, "description": "Rol no encontrado"},
     }
 )
 def get_role_by_name(role_name: str, session: SessionDep):
@@ -57,7 +58,7 @@ def get_role_by_name(role_name: str, session: SessionDep):
     response_description="Rol creado.",
     responses={
         200: {"description": "Rol creado"},
-        400: {"description": "Error en los datos enviados"},
+        400: {"model": ErrorResponse, "description": "Error en los datos enviados"},
     }
 )
 def create_role(role: RoleBase, session: SessionDep):
@@ -79,7 +80,7 @@ def create_role(role: RoleBase, session: SessionDep):
     response_description="Rol actualizado.",
     responses={
         200: {"description": "Rol actualizado"},
-        404: {"description": "Rol no encontrado"},
+        404: {"model": ErrorResponse, "description": "Rol no encontrado"},
     }
 )
 def update_role(role_name: str, role_update: RoleUpdate, session: SessionDep):
@@ -102,7 +103,7 @@ def update_role(role_name: str, role_update: RoleUpdate, session: SessionDep):
     response_description="El rol eliminado.",
     responses={
         200: {"description": "Rol eliminado"},
-        404: {"description": "Rol no encontrado"},
+        404: {"model": ErrorResponse, "description": "Rol no encontrado"},
     }
 )
 def delete_role(role_name: str, session: SessionDep):
@@ -124,8 +125,8 @@ def delete_role(role_name: str, session: SessionDep):
     response_description="Usuario con el nuevo rol asignado.",
     responses={
         200: {"description": "Rol asignado"},
-        404: {"description": "Usuario no encontrado"},
-        400: {"description": "El usuario ya tiene asignado el rol"},
+        404: {"model": ErrorResponse, "description": "Usuario no encontrado"},
+        400: {"model": ErrorResponse, "description": "El usuario ya tiene asignado el rol"},
     }
 )
 def assign_role(role_name: str, user_id: int, session: SessionDep):
@@ -144,8 +145,8 @@ def assign_role(role_name: str, user_id: int, session: SessionDep):
     response_description="Usuario con el rol revocado.",
     responses={
         200: {"description": "Rol revocado"},
-        404: {"description": "Usuario no encontrado"},
-        400: {"description": "El usuario no tiene asignado el rol"},
+        404: {"model": ErrorResponse, "description": "Usuario no encontrado"},
+        400: {"model": ErrorResponse, "description": "El usuario no tiene asignado el rol"},
     }
 )
 def revoke_role(role_name: str, user_id: int, session: SessionDep):
@@ -165,7 +166,7 @@ def revoke_role(role_name: str, user_id: int, session: SessionDep):
     response_description="Lista de roles del usuario identificado.",
     responses={
         200: {"description": "Lista de roles obtenida"},
-        404: {"description": "Usuario no encontrado"},
+        404: {"model": ErrorResponse, "description": "Usuario no encontrado"},
     }
 )
 def get_user_roles(user_id: int, session: SessionDep):
@@ -183,7 +184,7 @@ def get_user_roles(user_id: int, session: SessionDep):
     response_description="Listado de usuarios del rol identificado.",
     responses={
         200: {"description": "Lista de usuarios obtenida"},
-        404: {"description": "Rol no encontrado"},
+        404: {"model": ErrorResponse, "description": "Rol no encontrado"},
     }
 )
 def get_role_users(role_name: str, session: SessionDep):

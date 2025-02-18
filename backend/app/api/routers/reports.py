@@ -1,9 +1,10 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException
-from typing import List, Annotated
 from app.api.deps import SessionDep, CurrentUser, get_current_user, verify_role
 
 from app.api.controllers import reports as reports_controller
 from app.schemas.report import ReportCreate, ReportRead, ReportUpdate
+from app.schemas.utils import ErrorResponse
 from app.core.utils import RoleType
 
 def valid_role(user: CurrentUser):
@@ -35,7 +36,7 @@ router = APIRouter(
     response_description="Listado de reportes.",
     responses={
         200: {"description": "Listado de reportes"},
-        404: {"description": "No se encontraron reportes"},
+        404: {"model": ErrorResponse, "description": "No se encontraron reportes"},
     },
     dependencies=[Depends(valid_role)]
 )
@@ -50,8 +51,8 @@ def get_reports(session: SessionDep):
             response_description="Listado de reportes.",
             responses={
                 200: {"description": "Listado de reportes"},
-                404: {"description": "No se encontraron reportes"},
-},
+                404: {"model": ErrorResponse, "description": "No se encontraron reportes"},
+                },
     dependencies=[Depends(valid_role)]
 )
 def get_reports_by_problem_id(problem_id: int, session: SessionDep):
@@ -67,7 +68,7 @@ def get_reports_by_problem_id(problem_id: int, session: SessionDep):
     response_description="Reporte creado.",
     responses={
         200: {"description": "Reporte creado"},
-        400: {"description": "Error en los datos enviados"},
+        400: {"model": ErrorResponse, "description": "Error en los datos enviados"},
     }
 )
 def create_report(report: ReportCreate, session: SessionDep):
@@ -83,7 +84,7 @@ def create_report(report: ReportCreate, session: SessionDep):
     response_description="Reporte actualizado.",
     responses={
         200: {"description": "Reporte actualizado"},
-        404: {"description": "Reporte no encontrado"},
+        404: {"model": ErrorResponse, "description": "Reporte no encontrado"},
     }
 )
 def update_report(report_id: int, report_update: ReportUpdate, session: SessionDep):
@@ -103,7 +104,7 @@ def update_report(report_id: int, report_update: ReportUpdate, session: SessionD
     response_description="El reporte eliminado.",
     responses={
         200: {"description": "Reporte eliminado"},
-        404: {"description": "Reporte no encontrado"},
+        404: {"model": ErrorResponse, "description": "Reporte no encontrado"},
     },
     dependencies=[Depends(valid_role)]
 )
@@ -122,7 +123,7 @@ def delete_report(report_id: int, session: SessionDep):
     description="Cambia el estado de un reporte, de pendiente a resuelto y viceversa. Utilizando el ID para identificarlo.",
     responses={
         200: {"description": "Reporte actualizado"},
-        404: {"description": "Reporte no encontrado"},
+        404: {"model": ErrorResponse, "description": "Reporte no encontrado"},
     },
     dependencies=[Depends(valid_role)]
 )

@@ -25,8 +25,16 @@ export type CommentUpdate = {
     content?: string | null;
 };
 
+export type ErrorResponse = {
+    detail: string;
+};
+
 export type HttpValidationError = {
     detail?: Array<ValidationError>;
+};
+
+export type Message = {
+    message: string;
 };
 
 export type NotificationCreate = {
@@ -195,6 +203,10 @@ export type UserRegister = {
     password: string;
 };
 
+export type UserResponse = {
+    users: Array<UserRead>;
+};
+
 export type UserUpdate = {
     firstName: string | null;
     lastName: string | null;
@@ -216,12 +228,23 @@ export type ReadRootData = {
     url: '/';
 };
 
+export type ReadRootErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorResponse;
+};
+
+export type ReadRootError = ReadRootErrors[keyof ReadRootErrors];
+
 export type ReadRootResponses = {
     /**
      * Successful Response
      */
-    200: unknown;
+    200: Message;
 };
+
+export type ReadRootResponse = ReadRootResponses[keyof ReadRootResponses];
 
 export type OpenapiData = {
     body?: never;
@@ -230,12 +253,25 @@ export type OpenapiData = {
     url: '/openapi.json';
 };
 
+export type OpenapiErrors = {
+    /**
+     * Not Found
+     */
+    404: ErrorResponse;
+};
+
+export type OpenapiError = OpenapiErrors[keyof OpenapiErrors];
+
 export type OpenapiResponses = {
     /**
      * Successful Response
      */
-    200: unknown;
+    200: {
+        [key: string]: unknown;
+    };
 };
+
+export type OpenapiResponse = OpenapiResponses[keyof OpenapiResponses];
 
 export type LoginForAccessTokenData = {
     body: BodyLoginLoginForAccessToken;
@@ -273,22 +309,24 @@ export type GetUsersErrors = {
     /**
      * No autorizado
      */
-    401: unknown;
+    401: ErrorResponse;
     /**
      * No tiene permisos para realizar esta acción
      */
-    403: unknown;
+    403: ErrorResponse;
     /**
      * No se encontraron usuarios
      */
-    404: unknown;
+    404: ErrorResponse;
 };
+
+export type GetUsersError = GetUsersErrors[keyof GetUsersErrors];
 
 export type GetUsersResponses = {
     /**
      * Lista de usuarios obtenida
      */
-    200: Array<UserRead>;
+    200: UserResponse;
 };
 
 export type GetUsersResponse = GetUsersResponses[keyof GetUsersResponses];
@@ -304,7 +342,7 @@ export type CreateUserErrors = {
     /**
      * Nombre de usuario ya existente
      */
-    400: unknown;
+    400: ErrorResponse;
     /**
      * Validation Error
      */
@@ -331,14 +369,12 @@ export type DeleteCurrentUserData = {
 
 export type DeleteCurrentUserErrors = {
     /**
-     * Operacion no permitida
+     * No autorizado
      */
-    400: unknown;
-    /**
-     * Usuario no encontrado
-     */
-    404: unknown;
+    403: ErrorResponse;
 };
+
+export type DeleteCurrentUserError = DeleteCurrentUserErrors[keyof DeleteCurrentUserErrors];
 
 export type DeleteCurrentUserResponses = {
     /**
@@ -358,10 +394,12 @@ export type GetCurrentUserData = {
 
 export type GetCurrentUserErrors = {
     /**
-     * Usuario no encontrado
+     * No autorizado
      */
-    404: unknown;
+    403: ErrorResponse;
 };
+
+export type GetCurrentUserError = GetCurrentUserErrors[keyof GetCurrentUserErrors];
 
 export type GetCurrentUserResponses = {
     /**
@@ -381,6 +419,10 @@ export type UpdateCurrentUserData = {
 
 export type UpdateCurrentUserErrors = {
     /**
+     * No autorizado
+     */
+    403: ErrorResponse;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -390,7 +432,7 @@ export type UpdateCurrentUserError = UpdateCurrentUserErrors[keyof UpdateCurrent
 
 export type UpdateCurrentUserResponses = {
     /**
-     * El usuario actualizado.
+     * Usuario actualizado
      */
     200: UserUpdate;
 };
@@ -410,7 +452,7 @@ export type GetUserByIdErrors = {
     /**
      * Usuario no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -441,7 +483,7 @@ export type GetUserByUsernameErrors = {
     /**
      * Usuario no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -468,6 +510,10 @@ export type RegisterUserData = {
 
 export type RegisterUserErrors = {
     /**
+     * Nombre de usuario ya existente
+     */
+    400: ErrorResponse;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -477,7 +523,7 @@ export type RegisterUserError = RegisterUserErrors[keyof RegisterUserErrors];
 
 export type RegisterUserResponses = {
     /**
-     * El usuario registrado.
+     * Usuario registrado
      */
     200: UserPublic;
 };
@@ -497,7 +543,7 @@ export type DeleteUserErrors = {
     /**
      * Usuario no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -528,7 +574,7 @@ export type UpdateUserErrors = {
     /**
      * Usuario no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -553,6 +599,15 @@ export type GetSubmissionsData = {
     url: '/submissions/';
 };
 
+export type GetSubmissionsErrors = {
+    /**
+     * No se encontraron entregas
+     */
+    400: ErrorResponse;
+};
+
+export type GetSubmissionsError = GetSubmissionsErrors[keyof GetSubmissionsErrors];
+
 export type GetSubmissionsResponses = {
     /**
      * Lista de entregas obtenida
@@ -570,6 +625,10 @@ export type CreateSubmissionData = {
 };
 
 export type CreateSubmissionErrors = {
+    /**
+     * Error en los datos enviados
+     */
+    400: ErrorResponse;
     /**
      * Validation Error
      */
@@ -600,7 +659,7 @@ export type GetSubmissionsByUserIdErrors = {
     /**
      * No se puede acceder a las entregas de otro usuario
      */
-    403: unknown;
+    403: ErrorResponse;
     /**
      * Validation Error
      */
@@ -629,9 +688,13 @@ export type GetSubmissionByIdData = {
 
 export type GetSubmissionByIdErrors = {
     /**
+     * No tienes permiso para acceder a este recurso
+     */
+    403: ErrorResponse;
+    /**
      * Entrega no encontrada
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -662,7 +725,7 @@ export type UpdateSubmissionErrors = {
     /**
      * Entrega no encontrada
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -694,7 +757,7 @@ export type GetProblemsErrors = {
     /**
      * No se encontraron problemas
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -723,7 +786,7 @@ export type CreateProblemErrors = {
     /**
      * Problema no creado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -754,7 +817,7 @@ export type GetProblemByIdErrors = {
     /**
      * Problema no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -785,7 +848,7 @@ export type GetProblemsByBlockErrors = {
     /**
      * No se encontraron problemas o no existe el bloque solicitado.
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -814,8 +877,10 @@ export type GetProblemsBlocksErrors = {
     /**
      * No se encontraron bloques de problemas
      */
-    404: unknown;
+    404: ErrorResponse;
 };
+
+export type GetProblemsBlocksError = GetProblemsBlocksErrors[keyof GetProblemsBlocksErrors];
 
 export type GetProblemsBlocksResponses = {
     /**
@@ -839,7 +904,7 @@ export type ListProblemsByDifficultyErrors = {
     /**
      * No se encontraron problemas con la dificultad especificada
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -870,7 +935,7 @@ export type DeleteProblemErrors = {
     /**
      * Problema no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -901,7 +966,7 @@ export type UpdateProblemErrors = {
     /**
      * Problema no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -930,8 +995,10 @@ export type GetRolesErrors = {
     /**
      * No se encontraron roles
      */
-    404: unknown;
+    404: ErrorResponse;
 };
+
+export type GetRolesError = GetRolesErrors[keyof GetRolesErrors];
 
 export type GetRolesResponses = {
     /**
@@ -953,7 +1020,7 @@ export type CreateRoleErrors = {
     /**
      * Error en los datos enviados
      */
-    400: unknown;
+    400: ErrorResponse;
     /**
      * Validation Error
      */
@@ -984,7 +1051,7 @@ export type DeleteRoleErrors = {
     /**
      * Rol no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1015,7 +1082,7 @@ export type GetRoleByNameErrors = {
     /**
      * Rol no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1046,7 +1113,7 @@ export type UpdateRoleErrors = {
     /**
      * Rol no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1078,11 +1145,11 @@ export type AssignRoleErrors = {
     /**
      * El usuario ya tiene asignado el rol
      */
-    400: unknown;
+    400: ErrorResponse;
     /**
      * Usuario no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1114,11 +1181,11 @@ export type RevokeRoleErrors = {
     /**
      * El usuario no tiene asignado el rol
      */
-    400: unknown;
+    400: ErrorResponse;
     /**
      * Usuario no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1149,7 +1216,7 @@ export type GetUserRolesErrors = {
     /**
      * Usuario no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1180,7 +1247,7 @@ export type GetRoleUsersErrors = {
     /**
      * Rol no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1209,8 +1276,10 @@ export type GetCommentsErrors = {
     /**
      * No se encontraron comentarios
      */
-    404: unknown;
+    404: ErrorResponse;
 };
+
+export type GetCommentsError = GetCommentsErrors[keyof GetCommentsErrors];
 
 export type GetCommentsResponses = {
     /**
@@ -1232,7 +1301,7 @@ export type CreateCommentErrors = {
     /**
      * No se pudo crear el comentario
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1261,6 +1330,14 @@ export type DeleteCommentData = {
 
 export type DeleteCommentErrors = {
     /**
+     * El usuario no tiene permisos para acceder a este recurso
+     */
+    403: ErrorResponse;
+    /**
+     * Comentario no encontrado
+     */
+    404: ErrorResponse;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -1270,7 +1347,7 @@ export type DeleteCommentError = DeleteCommentErrors[keyof DeleteCommentErrors];
 
 export type DeleteCommentResponses = {
     /**
-     * El comentario eliminado.
+     * Comentario eliminado
      */
     200: CommentRead;
 };
@@ -1288,9 +1365,9 @@ export type GetCommentByIdData = {
 
 export type GetCommentByIdErrors = {
     /**
-     * Comentario no encontrado
+     * El comentario no existe
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1321,7 +1398,7 @@ export type UpdateCommentErrors = {
     /**
      * Comentario no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1352,7 +1429,7 @@ export type GetCommentsByUserIdErrors = {
     /**
      * No se encontraron comentarios
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1377,9 +1454,18 @@ export type GetNotificationsData = {
     url: '/notifications/';
 };
 
+export type GetNotificationsErrors = {
+    /**
+     * No se encontraron notificaciones
+     */
+    404: ErrorResponse;
+};
+
+export type GetNotificationsError = GetNotificationsErrors[keyof GetNotificationsErrors];
+
 export type GetNotificationsResponses = {
     /**
-     * Successful Response
+     * Lista de notificaciones obtenida
      */
     200: Array<NotificationRead>;
 };
@@ -1395,6 +1481,10 @@ export type CreateNotificationData = {
 
 export type CreateNotificationErrors = {
     /**
+     * Error al crear la notificación
+     */
+    404: ErrorResponse;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -1404,7 +1494,7 @@ export type CreateNotificationError = CreateNotificationErrors[keyof CreateNotif
 
 export type CreateNotificationResponses = {
     /**
-     * Successful Response
+     * Notificación creada
      */
     200: NotificationRead;
 };
@@ -1424,7 +1514,7 @@ export type DeleteNotificationErrors = {
     /**
      * Notificación no encontrada
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1453,6 +1543,10 @@ export type GetNotificationByIdData = {
 
 export type GetNotificationByIdErrors = {
     /**
+     * Notificación no encontrada
+     */
+    404: ErrorResponse;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -1462,7 +1556,7 @@ export type GetNotificationByIdError = GetNotificationByIdErrors[keyof GetNotifi
 
 export type GetNotificationByIdResponses = {
     /**
-     * Successful Response
+     * Notificación encontrada
      */
     200: NotificationRead;
 };
@@ -1482,7 +1576,7 @@ export type ChangeStateNotificationErrors = {
     /**
      * Notificación no encontrada
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1511,6 +1605,10 @@ export type GetNotificationsByUserIdData = {
 
 export type GetNotificationsByUserIdErrors = {
     /**
+     * No se encontraron notificaciones
+     */
+    404: ErrorResponse;
+    /**
      * Validation Error
      */
     422: HttpValidationError;
@@ -1520,7 +1618,7 @@ export type GetNotificationsByUserIdError = GetNotificationsByUserIdErrors[keyof
 
 export type GetNotificationsByUserIdResponses = {
     /**
-     * Successful Response
+     * Lista de notificaciones obtenida
      */
     200: Array<NotificationRead>;
 };
@@ -1534,9 +1632,18 @@ export type GetMyNotificationsData = {
     url: '/notifications/user/me';
 };
 
+export type GetMyNotificationsErrors = {
+    /**
+     * No se encontraron notificaciones
+     */
+    404: ErrorResponse;
+};
+
+export type GetMyNotificationsError = GetMyNotificationsErrors[keyof GetMyNotificationsErrors];
+
 export type GetMyNotificationsResponses = {
     /**
-     * Successful Response
+     * Lista de notificaciones obtenida
      */
     200: Array<NotificationRead>;
 };
@@ -1554,8 +1661,10 @@ export type GetReportsErrors = {
     /**
      * No se encontraron reportes
      */
-    404: unknown;
+    404: ErrorResponse;
 };
+
+export type GetReportsError = GetReportsErrors[keyof GetReportsErrors];
 
 export type GetReportsResponses = {
     /**
@@ -1577,7 +1686,7 @@ export type CreateReportErrors = {
     /**
      * Error en los datos enviados
      */
-    400: unknown;
+    400: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1608,7 +1717,7 @@ export type GetReportsByProblemIdErrors = {
     /**
      * No se encontraron reportes
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1639,7 +1748,7 @@ export type DeleteReportErrors = {
     /**
      * Reporte no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1670,7 +1779,7 @@ export type ChangeStateReportErrors = {
     /**
      * Reporte no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1694,6 +1803,15 @@ export type GetTestCasesData = {
     query?: never;
     url: '/testCases/';
 };
+
+export type GetTestCasesErrors = {
+    /**
+     * No se encontraron casos de prueba
+     */
+    400: ErrorResponse;
+};
+
+export type GetTestCasesError = GetTestCasesErrors[keyof GetTestCasesErrors];
 
 export type GetTestCasesResponses = {
     /**
@@ -1742,7 +1860,7 @@ export type DeleteTestCaseErrors = {
     /**
      * Caso de prueba no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1773,7 +1891,7 @@ export type GetTestCaseByIdErrors = {
     /**
      * Caso de prueba no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1804,7 +1922,7 @@ export type UpdateTestCaseErrors = {
     /**
      * Caso de prueba no encontrado
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */
@@ -1835,7 +1953,7 @@ export type GetTestCasesByProblemIdErrors = {
     /**
      * No se encontraron casos de prueba o no existe el problema solicitado.
      */
-    404: unknown;
+    404: ErrorResponse;
     /**
      * Validation Error
      */

@@ -6,6 +6,7 @@ from app.api.controllers import comments as comments_controller
 
 from app.models import User
 from app.schemas.comment import CommentCreate, CommentRead, CommentUpdate
+from app.schemas.utils import ErrorResponse
 from app.core.utils import RoleType
 
 router = APIRouter(
@@ -22,7 +23,7 @@ router = APIRouter(
     response_description="Lista de comentarios.",
     responses={
         200: {"description": "Lista de comentarios obtenida"},
-        404: {"description": "No se encontraron comentarios"},
+        404: {"model": ErrorResponse, "description": "No se encontraron comentarios"},
     }
 )
 def get_comments(session: SessionDep):
@@ -38,7 +39,7 @@ def get_comments(session: SessionDep):
     response_description="El comentario obtenido.",
     responses={
         200: {"description": "Comentario encontrado"},
-        404: {"description": "Comentario no encontrado"},
+        404: {"model": ErrorResponse, "description": "El comentario no existe"},
     }
 )
 def get_comment_by_id(comment_id: int, session: SessionDep):
@@ -56,7 +57,7 @@ def get_comment_by_id(comment_id: int, session: SessionDep):
     response_description="Lista de comentarios.",
     responses={
         200: {"description": "Lista de comentarios obtenida"},
-        404: {"description": "No se encontraron comentarios"},
+        404: {"model": ErrorResponse, "description": "No se encontraron comentarios"},
     }
 )
 def get_comments_by_user_id(user_id: int, session: SessionDep):
@@ -77,7 +78,7 @@ def get_comments_by_user_id(user_id: int, session: SessionDep):
     response_description="El comentario creado.",
     responses={
         200: {"description": "Comentario creado"},
-        404: {"description": "No se pudo crear el comentario"},
+        404: {"model": ErrorResponse, "description": "No se pudo crear el comentario"},
     }
 )
 def create_comment(comment: CommentCreate, session: SessionDep):
@@ -93,7 +94,7 @@ def create_comment(comment: CommentCreate, session: SessionDep):
     response_description="El comentario actualizado.",
     responses={
         200: {"description": "Comentario actualizado"},
-        404: {"description": "Comentario no encontrado"},
+        404: {"model": ErrorResponse, "description": "Comentario no encontrado"},
     }
 )
 def update_comment(comment_id: int, comment_update: CommentUpdate, session: SessionDep, current_user: CurrentUser):
@@ -110,7 +111,12 @@ def update_comment(comment_id: int, comment_update: CommentUpdate, session: Sess
     "/comments/{comment_id}",
     response_model=CommentRead, summary="Eliminar un comentario",
     description="Elimina un comentario del sistema utilizando su ID.",
-    response_description="El comentario eliminado."
+    response_description="El comentario eliminado.",
+    responses={
+        200: {"description": "Comentario eliminado"},
+        403: {"model": ErrorResponse, "description": "El usuario no tiene permisos para acceder a este recurso"},
+        404: {"model": ErrorResponse, "description": "Comentario no encontrado"},
+    }
 )
 def delete_comment(comment_id: int, session: SessionDep, current_user: CurrentUser):
     comment = comments_controller.get_comment_by_id(session, comment_id)

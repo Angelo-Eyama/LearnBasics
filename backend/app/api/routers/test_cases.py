@@ -5,6 +5,7 @@ from app.api.deps import SessionDep, CurrentUser, get_current_user, verify_role
 from app.models import Problem
 from app.api.controllers import test_cases as test_cases_controller
 from app.schemas.testCase import TestCaseCreate, TestCaseRead, TestCaseUpdate
+from app.schemas.utils import ErrorResponse
 from app.core.utils import RoleType
 
 def valid_role(user: CurrentUser):
@@ -34,6 +35,7 @@ router = APIRouter(
     response_description="Lista de casos de prueba.",
     responses={
         200: {"description": "Lista de casos de prueba obtenida"},
+        400: {"model": ErrorResponse, "description": "No se encontraron casos de prueba"},
     }
 )
 def get_test_cases(session: SessionDep):
@@ -49,7 +51,7 @@ def get_test_cases(session: SessionDep):
     response_description="El caso de prueba obtenido.",
     responses={
         200: {"description": "Caso de prueba encontrado"},
-        404: {"description": "Caso de prueba no encontrado"},
+        404: {"model": ErrorResponse, "description": "Caso de prueba no encontrado"},
     }
 )
 def get_test_case_by_id(test_case_id: int, session: SessionDep):
@@ -68,7 +70,7 @@ def get_test_case_by_id(test_case_id: int, session: SessionDep):
     response_description="Lista de casos de prueba de ese problema.",
     responses={
         200: {"description": "Lista de casos de prueba obtenida"},
-        404: {"description": "No se encontraron casos de prueba o no existe el problema solicitado."},
+        404: {"model": ErrorResponse, "description": "No se encontraron casos de prueba o no existe el problema solicitado."},
     }
 )
 def get_test_cases_by_problem_id(problem_id: int, session: SessionDep):
@@ -103,7 +105,7 @@ def create_test_case(test_case: TestCaseCreate, session: SessionDep):
     response_description="Caso de prueba actualizado.",
     responses={
         200: {"description": "Caso de prueba actualizado"},
-        404: {"description": "Caso de prueba no encontrado"},
+        404: {"model": ErrorResponse, "description": "Caso de prueba no encontrado"},
     }
 )
 def update_test_case(test_case_id: int, test_case_update: TestCaseUpdate, session: SessionDep):
@@ -124,7 +126,7 @@ def update_test_case(test_case_id: int, test_case_update: TestCaseUpdate, sessio
     response_description="El caso de prueba eliminado.",
     responses={
         200: {"description": "Caso de prueba eliminado"},
-        404: {"description": "Caso de prueba no encontrado"},
+        404: {"model": ErrorResponse, "description": "Caso de prueba no encontrado"},
     }
 )
 def delete_test_case(test_case_id: int, session: SessionDep):

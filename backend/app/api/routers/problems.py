@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.api.deps import CurrentUser, SessionDep, get_current_user, verify_admin, verify_role
 from app.models import Problem
 from app.schemas.problem import ProblemCreate, ProblemRead, ProblemUpdate
+from app.schemas.utils import ErrorResponse
 from app.api.controllers import problems as problems_controller
 from app.core.utils import RoleType
 
@@ -21,7 +22,7 @@ router = APIRouter(
     response_description="Lista de problemas.",
     responses={
         200: {"description": "Lista de problemas obtenida"},
-        404: {"description": "No se encontraron problemas"},
+        404: {"model": ErrorResponse, "description": "No se encontraron problemas"},
     }
     )
 def get_problems(session: SessionDep, skip: int = 0, limit: int = 10):
@@ -36,7 +37,7 @@ def get_problems(session: SessionDep, skip: int = 0, limit: int = 10):
     response_description="El problema obtenido.",
     responses={
         200: {"description": "Problema encontrado"},
-        404: {"description": "Problema no encontrado"},
+        404: {"model": ErrorResponse, "description": "Problema no encontrado"},
     }
     )
 def get_problem_by_id(problem_id: int, session: SessionDep):
@@ -53,7 +54,7 @@ def get_problem_by_id(problem_id: int, session: SessionDep):
     response_description="Lista de problemas en ese bloque.",
     responses={
         200: {"description": "Lista de problemas obtenida"},
-        404: {"description": "No se encontraron problemas o no existe el bloque solicitado."},
+        404: {"model": ErrorResponse, "description": "No se encontraron problemas o no existe el bloque solicitado."},
     }
     )
 def get_problems_by_block(block: str, session: SessionDep):
@@ -70,7 +71,7 @@ def get_problems_by_block(block: str, session: SessionDep):
     response_description="Lista de bloques de problemas.",
     responses={
         200: {"description": "Lista de bloques obtenida"},
-        404: {"description": "No se encontraron bloques de problemas"},
+        404: {"model": ErrorResponse, "description": "No se encontraron bloques de problemas"},
     }
     )
 def get_problems_blocks(session: SessionDep):
@@ -85,7 +86,7 @@ def get_problems_blocks(session: SessionDep):
     response_description="Lista de problemas por dificultad.",
     responses={
         200: {"description": "Lista de problemas obtenida"},
-        404: {"description": "No se encontraron problemas con la dificultad especificada"},
+        404: {"model": ErrorResponse, "description": "No se encontraron problemas con la dificultad especificada"},
     }
 )
 def list_problems_by_difficulty(difficulty: str, session: SessionDep):
@@ -102,7 +103,7 @@ def list_problems_by_difficulty(difficulty: str, session: SessionDep):
     response_description="El problema creado.",
     responses={
         200: {"description": "Problema creado"},
-        404: {"description": "Problema no creado"},
+        404: {"model": ErrorResponse, "description": "Problema no creado"},
     },
     dependencies=[Depends(verify_admin)]
     )
@@ -121,7 +122,7 @@ def create_problem(problem: ProblemCreate, session: SessionDep, current_user: Cu
     description="Actualiza un problema del sistema utilizando su ID como clave.",
     responses={
         200: {"description": "Problema actualizado"},
-        404: {"description": "Problema no encontrado"},
+        404: {"model": ErrorResponse, "description": "Problema no encontrado"},
     }
     )
 def update_problem(
@@ -146,7 +147,7 @@ def update_problem(
     response_description="El problema eliminado.",
     responses={
         200: {"description": "Problema eliminado"},
-        404: {"description": "Problema no encontrado"},
+        404: {"model": ErrorResponse, "description": "Problema no encontrado"},
     },
     dependencies=[Depends(verify_admin)]
     )

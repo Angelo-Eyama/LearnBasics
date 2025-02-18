@@ -1,5 +1,8 @@
+from pydantic import BaseModel
 from sqlmodel import Field, SQLModel
 
+class ErrorResponse(BaseModel):
+    detail: str
 class Message(SQLModel):
     message: str
 

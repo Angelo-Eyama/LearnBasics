@@ -25,6 +25,9 @@ class UserRead(UserBase):
         from_attributes=True
     )
 
+class UserResponse(BaseModel):
+    users: List[UserRead]
+
 class UserUpdate(BaseModel):
     firstName: Optional[str]
     lastName: Optional[str]

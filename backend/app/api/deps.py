@@ -80,4 +80,5 @@ def verify_admin(user: CurrentUser) -> bool:
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No tiene permisos para realizar esta acción",
         )
-    return True
+    else:
+        return True

@@ -4,22 +4,20 @@ from typing import Annotated, Any
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.api.controllers.users import authenticate, get_user_by_email, get_user_by_username
-from app.api.deps import CurrentUser, SessionDep, verify_role
+from app.api.controllers.users import authenticate
 from app.core import security
 from app.core.config import settings
-from app.core.security import hash_password
-from app.schemas.utils import Token
-from app.schemas.user import UserPublic, UserBase
+from app.schemas.utils import Token, ErrorResponse
+from app.api.deps import SessionDep
 
 router = APIRouter(
     prefix="/login",
     tags=["Login"]
     )
 
-@router.post("/access-token", 
-            response_model=Token, 
-            summary="Generar token de acceso", 
+@router.post("/access-token",
+            response_model=Token,
+            summary="Generar token de acceso",
             description="Solicita datos de inicio de sesion y genera un token de acceso para el usuario.",
             )
 def login_for_access_token(session: SessionDep, form_data: OAuth2PasswordRequestForm = Depends()):

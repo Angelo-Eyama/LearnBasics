@@ -5,7 +5,7 @@ from app.api.deps import CurrentUser, SessionDep, get_current_user, verify_admin
 from app.models import Submission
 from app.api.controllers import submissions as submissions_controller
 from app.schemas.submission import SubmissionCreate, SubmissionRead, SubmissionUpdate
-
+from app.schemas.utils import ErrorResponse
 
 router = APIRouter(
     tags=["Entregas"],
@@ -20,6 +20,7 @@ router = APIRouter(
     response_description="Lista de entregas.",
     responses={
         200: {"description": "Lista de entregas obtenida"},
+        400: {"model": ErrorResponse, "description": "No se encontraron entregas"}
     },
     dependencies=[Depends(verify_admin)]
     )
@@ -35,7 +36,7 @@ def get_submissions(session: SessionDep):
     response_description="Lista de entregas.",
     responses={
         200: {"description": "Lista de entregas obtenida"},
-        403: {"description": "No se puede acceder a las entregas de otro usuario"}
+        403: {"model": ErrorResponse, "description": "No se puede acceder a las entregas de otro usuario"}
     }
     )
 def get_submissions_by_user_id(user_id: int, session: SessionDep, current_user: CurrentUser):
@@ -52,7 +53,8 @@ def get_submissions_by_user_id(user_id: int, session: SessionDep, current_user: 
     response_description="Entrega obtenida.",
     responses={
         200: {"description": "Entrega encontrada"},
-        404: {"description": "Entrega no encontrada"},
+        403: {"model": ErrorResponse, "description": "No tienes permiso para acceder a este recurso"},
+        404: {"model": ErrorResponse, "description": "Entrega no encontrada"},
     }
     )
 def get_submission_by_id(submission_id: int, session: SessionDep, current_user: CurrentUser):
@@ -70,7 +72,8 @@ def get_submission_by_id(submission_id: int, session: SessionDep, current_user: 
     description="Crea una nueva entrega en el sistema.",
     response_description="Entrega creada.",
     responses={
-        200: {"description": "Entrega creada"}
+        200: {"description": "Entrega creada"},
+        400: {"model": ErrorResponse, "description": "Error en los datos enviados"},
     }
     )
 def create_submission(submission: SubmissionCreate, session: SessionDep):
@@ -85,7 +88,7 @@ def create_submission(submission: SubmissionCreate, session: SessionDep):
     response_description="Entrega actualizada.",
     responses={
         200: {"description": "Entrega actualizada"},
-        404: {"description": "Entrega no encontrada"},
+        404: {"model": ErrorResponse, "description": "Entrega no encontrada"},
     }
     )
 def update_submission(submission_id: int, submission_update: SubmissionUpdate, session: SessionDep, current_user: CurrentUser):

@@ -1,10 +1,10 @@
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from app.api.deps import SessionDep, CurrentUser, verify_admin
 
 from app.models import User
 from app.api.controllers import users as users_controller
-from app.schemas.user import UserCreate, UserUpdate, UserPublic, UserRead, UserRegister
+from app.schemas.user import UserCreate, UserUpdate, UserPublic, UserRegister, UserResponse
+from app.schemas.utils import ErrorResponse
 from app.core.utils import RoleType
 
 router = APIRouter(
@@ -15,25 +15,22 @@ router = APIRouter(
 
 @router.get(
     "/",
-    response_model=List[UserRead],
+    response_model=UserResponse,
     summary="Obtener todos los usuarios",
     description="Obtiene una lista con todos los usuarios registrados en el sistema.",
     response_description="Lista de usuarios.",
     responses={
-        200: {"description": "Lista de usuarios obtenida"},
-        404: {"description": "No se encontraron usuarios"},
-        401: {"description": "No autorizado"},
-        403: {
-            "description": "No tiene permisos para realizar esta acción",
-            "content": {
-                "application/json": {"example": {"detail": "No tiene permisos para realizar esta acción"}}
-            }
-        },
+        200: {"description": "Lista de usuarios obtenida", "model": UserResponse},
+        404: {"description": "No se encontraron usuarios", "model": ErrorResponse},
+        401: {"description": "No autorizado", "model": ErrorResponse},
+        403: {"description": "No tiene permisos para realizar esta acción","model": ErrorResponse},
     },
     dependencies=[Depends(verify_admin)]
 )
 def get_users(session: SessionDep):
     users = users_controller.get_users(session)
+    if not users:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontraron usuarios")
     return users
 
 
@@ -45,7 +42,7 @@ def get_users(session: SessionDep):
     response_description="El usuario actual.",
     responses={
         200: {"description": "Usuario actual obtenido"},
-        404: {"description": "Usuario no encontrado"},
+        403: {"model": ErrorResponse, "description": "No autorizado"},
     }
 )
 def get_current_user(current_user: CurrentUser):
@@ -60,7 +57,7 @@ def get_current_user(current_user: CurrentUser):
     response_description="El usuario obtenido.",
     responses={
         200: {"description": "Usuario encontrado"},
-        404: {"description": "Usuario no encontrado"},
+        404: {"model": ErrorResponse, "description": "Usuario no encontrado"},
     },
     dependencies=[Depends(verify_admin)]
 )
@@ -79,7 +76,7 @@ def get_user_by_id(user_id: int, session: SessionDep):
     response_description="El usuario obtenido.",
     responses={
         200: {"description": "Usuario encontrado"},
-        404: {"description": "Usuario no encontrado"},
+        404: {"model": ErrorResponse, "description": "Usuario no encontrado"},
     },
     dependencies=[Depends(verify_admin)]
 )
@@ -95,6 +92,10 @@ def get_user_by_username(username: str, session: SessionDep):
     summary="Registrar un usuario",
     description="Registra un nuevo usuario en el sistema con datos minimos.",
     response_description="El usuario registrado.",
+    responses={
+        200: {"description": "Usuario registrado"},
+        400: {"model": ErrorResponse, "description": "Nombre de usuario ya existente"},
+    },
 )
 def register_user(user: UserRegister, session: SessionDep):
     db_user = users_controller.get_user_by_username(session, user.username)
@@ -112,7 +113,7 @@ def register_user(user: UserRegister, session: SessionDep):
     response_description="El usuario creado.",
     responses={
         200: {"description": "Usuario creado"},
-        400: {"description": "Nombre de usuario ya existente"},
+        400: {"model": ErrorResponse, "description": "Nombre de usuario ya existente"},
     },
     dependencies=[Depends(verify_admin)]
 )
@@ -133,7 +134,7 @@ def create_user(user: UserCreate, session: SessionDep):
     response_description="El usuario actualizado.",
     responses={
         200: {"description": "Usuario actualizado"},
-        404: {"description": "Usuario no encontrado"},
+        404: {"model": ErrorResponse, "description": "Usuario no encontrado"},
     },
     dependencies=[Depends(verify_admin)]
 )
@@ -152,6 +153,10 @@ def update_user(user_id: int, user_update: UserUpdate, session: SessionDep):
     summary="Actualizar el usuario actual",
     description="Actualiza uno o varios campos del usuario que ha iniciado sesión en el sistema.",
     response_description="El usuario actualizado.",
+    responses={
+        200: {"description": "Usuario actualizado"},
+        403: {"model": ErrorResponse, "description": "No autorizado"},
+    }
     )
 def update_current_user(user_update: UserUpdate, session: SessionDep, current_user: CurrentUser):
     updated_user = users_controller.update_user(
@@ -166,7 +171,7 @@ def update_current_user(user_update: UserUpdate, session: SessionDep, current_us
     response_description="El usuario eliminado.",
     responses={
         200: {"description": "Usuario eliminado"},
-        404: {"description": "Usuario no encontrado"},
+        404: {"model": ErrorResponse, "description": "Usuario no encontrado"},
     },
     dependencies=[Depends(verify_admin)]
 )
@@ -186,8 +191,7 @@ def delete_user(user_id: int, session: SessionDep):
     response_description="El usuario eliminado.",
     responses={
         200: {"description": "Usuario eliminado"},
-        404: {"description": "Usuario no encontrado"},
-        400: {"description": "Operacion no permitida"},
+        403: {"model": ErrorResponse, "description": "No autorizado"},
     }
 )
 def delete_current_user(session: SessionDep, current_user: CurrentUser):
