@@ -34,7 +34,6 @@ class Problem(SQLModel, table=True):
     description: str
     difficulty: str
     score: int
-    expectedOutput: str
     authorID: int = Field(foreign_key="users.id")
     
     testCases: List["TestCase"] = Relationship(back_populates="problem", cascade_delete=True)
