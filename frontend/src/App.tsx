@@ -4,6 +4,7 @@ import { OutputPanel } from './components/OutputPanel';
 import { LuCodesandbox, RiJavascriptLine, FaPython, TbBrandCpp, FaPlay } from './components/Icons';
 import { vscodeDark, vscodeLight } from '@uiw/codemirror-theme-vscode';
 import { languageExtensions } from './components/constants';
+import { code as sendCode, CodeData } from './client';
 
 const DEFAULT_CODE = languageExtensions['python'][1];
 
@@ -23,32 +24,19 @@ function App() {
 		setLanguage(newLanguage);
 		setExtension(newExtension);
 	}
-	const handleSend = (code: string, language: string) => {
-		fetch('http://localhost:8000/code', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
+	const handleSend = (code: string) => {
+		// We'll send the code to the server
+		const options = {
+			query: {
+				code: code
 			},
-			body: JSON.stringify({ code, language }),
-		})
-			.then(response => response.json())
-			.then(data => {
-				// First, we need to check if there's an error in the response
-				// If there is, we'll set the output to the error message
-				// Otherwise, we'll set the output to the actual output
-				if (data.error) {
-					setOutput(data.error)
-					return
-				}
-				setOutput(data.output)
-			})
-			.catch((error) => {
-				if (error.message === 'Failed to fetch') {
-					setOutput('Servidor no disponible actualmente...');
-				} else {
-					setOutput(error.message);
-				}
-			});
+		}
+		sendCode(options).then(
+			Response => 
+				{ if(Response.data?.message) setOutput(Response.data?.message) }
+		).catch(
+			error => setOutput(error.message)
+		)
 	}
 
 
@@ -91,7 +79,7 @@ function App() {
 
 					<div className="flex justify gap-4">
 						<button
-							onClick={() => handleSend(code, language)}
+							onClick={() => handleSend(code)}
 							className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
 						>
 							<FaPlay />  Send

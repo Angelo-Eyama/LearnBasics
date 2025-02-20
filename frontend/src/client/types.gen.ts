@@ -56,7 +56,6 @@ export type ProblemCreate = {
     description: string;
     difficulty: string;
     score: number;
-    expectedOutput: string;
 };
 
 export type ProblemRead = {
@@ -65,7 +64,6 @@ export type ProblemRead = {
     description: string;
     difficulty: string;
     score: number;
-    expectedOutput: string;
     id: number;
     authorID: number;
 };
@@ -76,7 +74,6 @@ export type ProblemUpdate = {
     description?: string | null;
     difficulty?: string | null;
     score?: number | null;
-    expectedOutput?: string | null;
 };
 
 export type ReportCreate = {
@@ -1970,6 +1967,37 @@ export type GetTestCasesByProblemIdResponses = {
 };
 
 export type GetTestCasesByProblemIdResponse = GetTestCasesByProblemIdResponses[keyof GetTestCasesByProblemIdResponses];
+
+export type CodeData = {
+    body?: never;
+    path?: never;
+    query: {
+        code: string;
+    };
+    url: '/code/';
+};
+
+export type CodeErrors = {
+    /**
+     * Error al crear el código
+     */
+    400: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CodeError = CodeErrors[keyof CodeErrors];
+
+export type CodeResponses = {
+    /**
+     * Código creado
+     */
+    200: Message;
+};
+
+export type CodeResponse = CodeResponses[keyof CodeResponses];
 
 export type ClientOptions = {
     baseURL: 'http://localhost:8000' | (string & {});

@@ -1,3 +1,4 @@
+import random
 from fastapi import APIRouter
 from app.schemas.utils import ErrorResponse, Message
 
@@ -13,5 +14,8 @@ router = APIRouter(
         400: {"model": ErrorResponse, "description": "Error al crear el código"},
     }
 )
-def code():
-    return {"message": "Código creado en el servidor"}
+def code(code: str):
+    random_number = random.randint(1, 15)
+    if code == "":
+        return {"message": f"Has enviado un código vacio. Retorno aleatorio: {random_number}"}
+    return {"message": f"Código Recibido.Retorno aleatorio: {random_number}"}
