@@ -1,6 +1,5 @@
 import CodeMirror, { Extension } from '@uiw/react-codemirror';
 import { vscodeDark, vscodeLight } from '@uiw/codemirror-theme-vscode';
-
 type ThemeType = typeof vscodeDark | typeof vscodeLight;
 
 interface EditorProps {

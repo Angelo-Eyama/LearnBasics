@@ -32,55 +32,16 @@ Ahora solo tenemos que correr el siguiente comando para iniciar el servidor:
 ``` bash
 uvicorn app.main:app --reload
 ```
+o si prefieres
+``` bash
+fastapi dev app/main.py
+```
 Accede a la url [http://localhost:8000/docs](http://localhost:8000/docs) para ver la documentacion de la API.
 
 
 
 ## Estructura
-
-Actualmente, la estructura del proyecto es la siguiente:
-
-``` textplain
-.
-├── app/
-│   ├── __init__.py
-│   ├── controllers/
-│   │   ├── __init__.py
-│   │   ├── comments.py
-│   │   ├── notifications.py
-│   │   ├── problems.py
-│   │   ├── reports.py
-│   │   ├── roles.py
-│   │   ├── submissions.py
-│   │   ├── test_cases.py
-│   │   ├── users.py
-│   ├── database.py
-│   ├── db/
-│   │   └── database.sql
-│   ├── main.py
-│   ├── models.py
-│   ├── routers/
-│   │   ├── coments.py
-│   │   ├── notifications.py
-│   │   ├── problems.py
-│   │   ├── reports.py
-│   │   ├── roles.py
-│   │   ├── submissions.py
-│   │   ├── test_cases.py
-│   │   ├── users.py
-│   ├── schemas.py
-├── tests/
-│   ├── __init__.py
-│   ├── test_main.py
-│   ├── test_users.py
-│   ├── tests.py
-├── .gitignore
-├── requirements.txt
-└── README.md
-````
-
-Aunque ahora mismo estoy intentando reestructurar el proyecto para que sea mas escalable y mantenible.
-La estructura a la que aspiro es la siguiente:
+La estructura del proyecto es la siguiente:
 
 ``` textplain
 

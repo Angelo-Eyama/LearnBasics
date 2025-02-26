@@ -31,7 +31,7 @@ def get_users(session: SessionDep):
     users = users_controller.get_users(session)
     if not users:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No se encontraron usuarios")
-    return users
+    return {"users": users}
 
 
 @router.get(

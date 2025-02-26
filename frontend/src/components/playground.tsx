@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { Editor } from './components/Editor';
-import { OutputPanel } from './components/OutputPanel';
-import { LuCodesandbox, RiJavascriptLine, FaPython, TbBrandCpp, FaPlay } from './components/Icons';
+import { Editor } from './Editor';
+import { OutputPanel } from './OutputPanel';
+import { LuCodesandbox, RiJavascriptLine, FaPython, TbBrandCpp, FaPlay } from './Icons';
 import { vscodeDark, vscodeLight } from '@uiw/codemirror-theme-vscode';
-import { languageExtensions } from './components/constants';
-import { code as sendCode, CodeData } from './client';
+import { languageExtensions } from './constants';
+import { code as sendCode} from '../client';
 
-const DEFAULT_CODE = languageExtensions['python'][1];
 
 function App() {
 	const [language, setLanguage] = useState('python')
+	const DEFAULT_CODE = languageExtensions[language][1];
 	const [output, setOutput] = useState('')
 	const [code, setCode] = useState(DEFAULT_CODE)
 	const [theme, setTheme] = useState(vscodeDark)
@@ -41,7 +41,7 @@ function App() {
 
 
 	return (
-		<div className=" bg-gray-950 text-white p-4">
+		<div className=" bg-gray-950 text-white p-6 py-10 w-full min-h-screen">
 			<div className="mx-auto">
 
 				<header className='mb-4'>
@@ -49,6 +49,7 @@ function App() {
 						<h1 className="flex gap-2 text-3xl font-bold"> <LuCodesandbox /> Code Editor</h1>
 					</div>
 					<button
+						type="button"
 						onClick={handleTheme}
 						className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors">
 						Change Theme
@@ -79,12 +80,14 @@ function App() {
 
 					<div className="flex justify gap-4">
 						<button
+							type="button"
 							onClick={() => handleSend(code)}
 							className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
 						>
 							<FaPlay />  Send
 						</button>
 						<button
+							type="button"
 							onClick={handleReset}
 							className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg transition-colors"
 						>
@@ -92,6 +95,7 @@ function App() {
 						</button>
 
 						<button
+							type="button"
 							onClick={handleClear}
 							className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 rounded-lg transition-colors"
 						>
