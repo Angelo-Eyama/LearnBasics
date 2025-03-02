@@ -7,32 +7,35 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { useState } from "react"
 import { Link } from "react-router-dom"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { validateRegister } from "@/utils/validation"
 
 export function RegisterForm({
     className,
     ...props
 }: React.ComponentProps<"div">) {
+    const [firstName, setFirstName] = useState("")
+    const [lastName, setLastName] = useState("")
     const [username, setUsername] = useState("")
+    const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [confirmPassword, setConfirmPassword] = useState("")
     const [error, setError] = useState("")
-    function handleLogin() {
+
+    function handleRegister() {
         console.log("Login: ", { username, password })
         handleError()
     }
 
     function handleError() {
-        if (username === "" || password === "") {
-            setError("Por favor, llene todos los campos")
-        } else {
-            setError("Credenciales incorrectas")
-        }
+        const error = validateRegister(firstName, lastName, username, email, password, confirmPassword)
+        setError(error)
         setTimeout(() => {
             setError("")
-        }, 3000)
+        }, 5000)
     }
 
     return (
@@ -53,7 +56,7 @@ export function RegisterForm({
                                     id="first-name"
                                     type="text"
                                     placeholder="Diego"
-                                    onChange={(e) => setUsername(e.target.value)}
+                                    onChange={(e) => setFirstName(e.target.value)}
                                     required
                                 />
                             </div>
@@ -63,7 +66,7 @@ export function RegisterForm({
                                     id="last-name"
                                     type="text"
                                     placeholder="Hernando Varela"
-                                    onChange={(e) => setUsername(e.target.value)}
+                                    onChange={(e) => setLastName(e.target.value)}
                                     required
                                 />
                             </div>
@@ -73,6 +76,16 @@ export function RegisterForm({
                                     id="email"
                                     type="email"
                                     placeholder="mail@example.com"
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                />
+                            </div>
+                            <div className="grid gap-3">
+                                <Label htmlFor="text">Nombre de usuario</Label>
+                                <Input
+                                    id="username"
+                                    type="text"
+                                    placeholder="jdoe"
                                     onChange={(e) => setUsername(e.target.value)}
                                     required
                                 />
@@ -87,12 +100,12 @@ export function RegisterForm({
                                 <div className="flex items-center">
                                     <Label htmlFor="password">Repita su contraseña</Label>
                                 </div>
-                                <Input id="password" type="password" onChange={(e) => setPassword(e.target.value)} required />
+                                <Input id="password" type="password" onChange={(e) => setConfirmPassword(e.target.value)} required />
                             </div>
 
 
                             <div className="flex flex-col gap-3">
-                                <Button type="button" className="w-full" onClick={handleLogin}>
+                                <Button type="button" className="w-full" onClick={handleRegister}>
                                     Crear nueva cuenta
                                 </Button>
                             </div>

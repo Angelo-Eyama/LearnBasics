@@ -10,7 +10,9 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {useState} from "react"
-import {Link} from "react-router-dom"
+import {Link, useNavigate} from "react-router-dom"
+import { loginForAccessToken, BodyLoginLoginForAccessToken as accessToken } from "@/client"
+import { useAuth } from "@/context/useAuth"
 
 export function LoginForm({
   className,
@@ -19,17 +21,31 @@ export function LoginForm({
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
+  const navigate = useNavigate()
+  const { login } = useAuth()
   function handleLogin() {
-    console.log("Login: ", { username, password })
-    handleError()
+    let data : accessToken = {
+      username: username,
+      password: password
+    }
+    loginForAccessToken({ body: data }).then((response) => {
+      if(response.data && response.data.access_token){
+        localStorage.setItem("access_token", response.data.access_token)
+        login()
+        navigate("/home")
+      }
+    }).catch((error) => {
+      console.log(error.detail)
+      if (error.response && error.response.detail) {
+        handleError(error.response.detail);
+      } else {
+        handleError("Error del servidor");
+      }
+    })
   }
 
-  function handleError(){
-    if(username === "" || password === ""){
-      setError("Por favor, llene todos los campos")
-    } else {
-      setError("Credenciales incorrectas")
-    }
+  function handleError(message: string){
+    setError(message)
     setTimeout(() => {
       setError("")
     }, 3000)
