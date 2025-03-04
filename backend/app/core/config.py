@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     )
     # Inicio con "api" porque podría incluir otros servicios como "web" o "admin"
     API_VERSION: str = "api/v0"
-    SECRET_KEY: str = secrets.token_urlsafe(32)
+    SECRET_KEY: str
     # 60 minutes * 24 hours * 1 days = 1 day
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1
     FRONTEND_HOST: str = "http://localhost:5173"

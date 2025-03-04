@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {useState} from "react"
 import {Link, useNavigate} from "react-router-dom"
-import { loginForAccessToken, BodyLoginLoginForAccessToken as accessToken } from "@/client"
+import { loginForAccessToken } from "@/client"
 import { useAuth } from "@/context/useAuth"
 
 export function LoginForm({
@@ -23,25 +23,35 @@ export function LoginForm({
   const [error, setError] = useState("")
   const navigate = useNavigate()
   const { login } = useAuth()
-  function handleLogin() {
-    let data : accessToken = {
-      username: username,
-      password: password
-    }
-    loginForAccessToken({ body: data }).then((response) => {
-      if(response.data && response.data.access_token){
+  const handleLogin = async () => {
+    try {
+      const response = await loginForAccessToken(
+        {
+          body: {
+            username: username,
+            password: password
+          },
+        }
+      )
+      // En caso de solicitud exitosa, se almacena el token en el local storage
+      if (response.data && response.data.access_token){
         localStorage.setItem("access_token", response.data.access_token)
         login()
         navigate("/home")
       }
-    }).catch((error) => {
-      console.log(error.detail)
-      if (error.response && error.response.detail) {
-        handleError(error.response.detail);
+    } catch (err: any) {
+      console.error(err)
+      if (err.response) {
+        // Errores de validación (422) o errores específicos de la API
+        setError(err.response.data.detail || 'Error al iniciar sesión');
+      } else if (err.request) {
+        // Error de red (no se recibió respuesta del servidor)
+        setError('Error de red. Por favor, verifica tu conexión.');
       } else {
-        handleError("Error del servidor");
+        // Error en la configuración de la solicitud
+        setError('Error en la solicitud. Por favor, inténtalo de nuevo.');
       }
-    })
+    }
   }
 
   function handleError(message: string){

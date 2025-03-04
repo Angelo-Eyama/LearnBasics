@@ -1,53 +1,104 @@
 import { Link } from "react-router";
 import { ModeToggle } from "@/components/mode-toggle";
+import {
+    Sheet,
+    SheetContent,
+    SheetTrigger,
+} from "@/components/ui/sheet"
+import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react";
 import { useAuth } from "@/context/useAuth";
 
 export default function Navigation() {
     const { logout, isLoggedIn } = useAuth();
 
     return (
-        <nav className='bg-white shadow-lg border-gray-200 dark:bg-gray-900'>
-            <div className="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4 ">
+        <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+            <div className="container flex h-16 items-center justify-between px-4 md:px-6">
                 <Link to="/" className="flex items-center space-x-3 rtl:space-x-reverse">
                     <img src="https://fakerjs.dev/logo.svg" className="h-8" alt="The Logo" />
                     <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Learn Basics</span>
                 </Link>
-                <div className="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-                    {
-                        isLoggedIn ? (
-                            <button onClick={logout} className="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:outline-none focus:ring-red-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">
-                                Cerrar sesion
-                            </button>
-                        ) : (
-                            <Link to='/login' className="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-4 py-2 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                                Iniciar sesion
-                            </Link>
-                        )
-                    }
-                    <div className="mx-4 space-x-3 rtl:space-x-reverse ">
-                        <ModeToggle />
+                <nav className="hidden md:flex gap-10">
+                    <Link to="/home" className="text-sm font-medium hover:underline underline-offset-4">
+                        Inicio
+                    </Link>
+                    <Link to="/register" className="text-sm font-medium hover:underline underline-offset-4">
+                        Registro
+                    </Link>
+                    <Link to="/about" className="text-sm font-medium hover:underline underline-offset-4">
+                        Sobre nosotros
+                    </Link>
+                </nav>
+                <div className="flex items-center gap-2">
+                    <ModeToggle />
+                    <div className="hidden md:flex gap-2">
+                        {
+                            isLoggedIn ? (
+                                <Button variant="destructive" className="w-full cursor-pointer">
+                                    Cerrar sesion
+                                </Button>
+                            ) : (
+                                <>
+                                    <Link to='/login'>
+                                        <Button variant="outline" className="w-full cursor-pointer">
+                                            Iniciar sesion
+                                        </Button>
+                                    </Link>
+                                    <Link to='/register'>
+                                        <Button className="w-full cursor-pointer">
+                                            Registrarse
+                                        </Button>
+                                    </Link>
+                                </>
+                            )
+                        }
                     </div>
-                    <button data-collapse-toggle="navbar-cta" type="button" className="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="navbar-cta" aria-expanded="false">
-                        <span className="sr-only">Open main menu</span>
-                        <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
-                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M1 1h15M1 7h15M1 13h15" />
-                        </svg>
-                    </button>
-                </div>
-                <div className="items-center justify-between hidden w-full md:flex md:w-auto md:order-1">
-                    <ul className="flex flex-col gap-5 font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
-                        <li>
-                            <Link to='/home' className="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Inicio</Link>
-                        </li>
-                        <li>
-                            <Link to='/register' className="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Registro</Link>
-                        </li>
-                        <li>
-                            <Link to='/about' className="block py-2 px-3 md:p-0 text-gray-900 rounded-sm hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:dark:hover:text-blue-500 dark:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">Sobre nosotros</Link>
-                        </li>
-                    </ul>
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <Button variant="outline" size="icon" className="md:hidden">
+                                <Menu className="h-5 w-5" />
+                                <span className="sr-only">Desplegar menu</span>
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="right">
+                            <nav className="flex flex-col gap-4 mt-8">
+                                <Link to="/home" className="text-sm font-medium hover:underline underline-offset-4">
+                                    Inicio
+                                </Link>
+                                <Link to="/register" className="text-sm font-medium hover:underline underline-offset-4">
+                                    Registro
+                                </Link>
+                                <Link to="/about" className="text-sm font-medium hover:underline underline-offset-4">
+                                    Sobre nosotros
+                                </Link>
+                                <div className="flex flex-col gap-2 mt-1 p-10 gap-y-4">
+                                    {
+                                        isLoggedIn ? (
+                                            <Button variant="destructive" className="w-full cursor-pointer">
+                                                Cerrar sesion
+                                            </Button>
+                                        ) : (
+                                            <>
+                                                <Link to='/login'>
+                                                    <Button variant="outline" className="w-full cursor-pointer">
+                                                        Iniciar sesion
+                                                    </Button>
+                                                </Link>
+                                                <Link to='/register'>
+                                                    <Button className="w-full cursor-pointer">
+                                                        Registrarse
+                                                    </Button>
+                                                </Link>
+                                            </>
+                                        )
+                                    }
+                                </div>
+                            </nav>
+                        </SheetContent>
+                    </Sheet>
                 </div>
             </div>
-        </nav>
-    );
+        </header>
+    )
 }

@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import Navigation from '@/components/nav-bar';
+import Footer from '@/components/footer';
 import Landing from '@/pages/landing';
 import Login from '@/pages/login';
 import Home from '@/pages/home';
@@ -21,6 +22,7 @@ const App = () => {
                         <Route path='/home' element={<Home />} />
                         <Route path='*' element={<NotFound />} />
                     </Routes>
+                    <Footer/>
                 </BrowserRouter>
             </AuthProvider>
         </ThemeProvider>
