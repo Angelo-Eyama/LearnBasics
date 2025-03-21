@@ -141,7 +141,6 @@ export function PublicPlayground() {
         </div>
     )
 }
-const hello = "Hello, world!"
 
 export function PrivatePlayground() {
     const [language, setLanguage] = useState("javascript")
