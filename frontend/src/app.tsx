@@ -10,6 +10,8 @@ import NotFound from '@/pages/public/not-found';
 import ProfilePage from './pages/users/profile';
 import EditProfilePage from './pages/users/edit-profile';
 import {PublicPlayground, PrivatePlayground} from './pages/private/playground';
+import UserDetailPage from './pages/admin/users/user-details';
+import UserListPage from './pages/admin/users/users-page';
 import { AuthProvider } from '@/context/useAuth';
 import { Toaster } from 'sonner';
 
@@ -29,6 +31,8 @@ const App = () => {
                         <Route path='/private' element={<PrivatePlayground />} />
                         <Route path='/profile' element={<ProfilePage />} />
                         <Route path='/edit-profile' element={<EditProfilePage />} />
+                        <Route path='/admin/users' element={<UserListPage />} />
+                        <Route path='/admin/users/:id' element={<UserDetailPage />} />
                         <Route path='*' element={<NotFound />} />
                     </Routes>
                     <Footer/>
