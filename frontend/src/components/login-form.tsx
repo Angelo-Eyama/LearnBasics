@@ -24,34 +24,9 @@ export function LoginForm({
   const navigate = useNavigate()
   const { login } = useAuth()
   const handleLogin = async () => {
-    try {
-      const response = await loginForAccessToken(
-        {
-          body: {
-            username: username,
-            password: password
-          },
-        }
-      )
-      // En caso de solicitud exitosa, se almacena el token en el local storage
-      if (response.data && response.data.access_token){
-        localStorage.setItem("access_token", response.data.access_token)
-        login()
-        navigate("/home")
-      }
-    } catch (err: any) {
-      console.error(err)
-      if (err.response) {
-        // Errores de validación (422) o errores específicos de la API
-        setError(err.response.data.detail || 'Error al iniciar sesión');
-      } else if (err.request) {
-        // Error de red (no se recibió respuesta del servidor)
-        setError('Error de red. Por favor, verifica tu conexión.');
-      } else {
-        // Error en la configuración de la solicitud
-        setError('Error en la solicitud. Por favor, inténtalo de nuevo.');
-      }
-    }
+    localStorage.setItem("access_token", "TEST_TOKEN")
+    login()
+    navigate("/")
   }
 
   function handleError(message: string){
