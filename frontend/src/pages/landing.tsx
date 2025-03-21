@@ -1,15 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { ArrowRight, CheckCircle, ChevronRight, Code, Globe, Layers, Zap } from "lucide-react"
+import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ArrowRight, ChevronRight, Code, Zap } from "lucide-react"
 import AnimatedSection from "@/components/animated-section"
 
 export const Landing: React.FC = () => {
     return (
         <div className="flex min-h-screen flex-col">
             <main className="flex-1">
-                {/* Seccion descripcion */}
+                {/* Seccion de descripcion */}
                 <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48">
                     <div className="container px-4 md:px-6">
                         <AnimatedSection className="flex flex-col items-center space-y-4 text-center">
@@ -23,8 +23,8 @@ export const Landing: React.FC = () => {
                                 </p>
                             </div>
                             <div className="flex flex-wrap items-center justify-center gap-4">
-                                <Button size="lg" className="h-12">
-                                    Registrarse
+                                <Button size="lg" className="h-12 bg-[rgb(72,202,107)] hover:bg-[rgb(85,195,115)]">
+                                    Codificar
                                     <ArrowRight className="ml-2 h-4 w-4" />
                                 </Button>
                                 <Link to='/login'>

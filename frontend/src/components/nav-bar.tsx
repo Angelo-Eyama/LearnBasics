@@ -75,7 +75,7 @@ export default function Navigation() {
                                 <div className="flex flex-col gap-2 mt-1 p-10 gap-y-4">
                                     {
                                         isLoggedIn ? (
-                                            <Button variant="destructive" className="w-full cursor-pointer">
+                                            <Button variant="destructive" className="w-full cursor-pointer" onClick={logout}>
                                                 Cerrar sesion
                                             </Button>
                                         ) : (
