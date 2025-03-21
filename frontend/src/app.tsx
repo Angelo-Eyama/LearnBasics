@@ -7,7 +7,7 @@ import Login from '@/pages/login';
 import Home from '@/pages/home';
 import Register from '@/pages/sign-in';
 import NotFound from '@/pages/not-found';
-import PublicPlayground from './pages/playground';
+import {PublicPlayground, PrivatePlayground} from './pages/playground';
 import { AuthProvider } from '@/context/useAuth';
 
 const App = () => {
@@ -22,6 +22,7 @@ const App = () => {
                         <Route path='/register' element={<Register />} />
                         <Route path='/home' element={<Home />} />
                         <Route path='/playground' element={<PublicPlayground />} />
+                        <Route path='/private' element={<PrivatePlayground />} />
                         <Route path='*' element={<NotFound />} />
                     </Routes>
                     <Footer/>
