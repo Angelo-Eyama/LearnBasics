@@ -2,12 +2,14 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import Navigation from '@/components/nav-bar';
 import Footer from '@/components/footer';
-import Landing from '@/pages/landing';
-import Login from '@/pages/login';
-import Home from '@/pages/home';
-import Register from '@/pages/sign-in';
-import NotFound from '@/pages/not-found';
-import {PublicPlayground, PrivatePlayground} from './pages/playground';
+import Landing from '@/pages/public/landing';
+import Login from '@/pages/public/login';
+import Home from '@/pages/private/home';
+import Register from '@/pages/public/sign-in';
+import NotFound from '@/pages/public/not-found';
+import ProfilePage from './pages/users/profile';
+import EditProfilePage from './pages/users/edit-profile';
+import {PublicPlayground, PrivatePlayground} from './pages/private/playground';
 import { AuthProvider } from '@/context/useAuth';
 
 const App = () => {
@@ -23,6 +25,8 @@ const App = () => {
                         <Route path='/home' element={<Home />} />
                         <Route path='/playground' element={<PublicPlayground />} />
                         <Route path='/private' element={<PrivatePlayground />} />
+                        <Route path='/profile' element={<ProfilePage />} />
+                        <Route path='/edit-profile' element={<EditProfilePage />} />
                         <Route path='*' element={<NotFound />} />
                     </Routes>
                     <Footer/>
