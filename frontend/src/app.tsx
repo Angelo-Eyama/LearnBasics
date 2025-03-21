@@ -11,12 +11,14 @@ import ProfilePage from './pages/users/profile';
 import EditProfilePage from './pages/users/edit-profile';
 import {PublicPlayground, PrivatePlayground} from './pages/private/playground';
 import { AuthProvider } from '@/context/useAuth';
+import { Toaster } from 'sonner';
 
 const App = () => {
     return (
         <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
             <AuthProvider>
                 <BrowserRouter>
+                    <Toaster />
                     <Navigation />
                     <Routes>
                         <Route path='/' element={<Landing />} />

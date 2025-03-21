@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import { ArrowLeft, Upload } from "lucide-react"
 import {Link} from "react-router-dom"
 
@@ -27,7 +27,6 @@ const user = {
 }
 
 export default function EditProfilePage() {
-    const { toast } = useToast()
     const [formData, setFormData] = useState(user)
     const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -43,15 +42,12 @@ export default function EditProfilePage() {
         // Simulate API call
         setTimeout(() => {
             setIsSubmitting(false)
-            toast({
-                title: "Profile updated",
-                description: "Your profile has been updated successfully.",
-            })
+            toast("Profile updated", {description: "Your profile has been updated successfully."})
         }, 1000)
     }
 
     return (
-        <div className="container mx-auto py-6">
+        <div className="container mx-auto py-6 px-4">
             <div className="flex items-center mb-6">
                 <Button variant="ghost" size="sm" asChild className="mr-2">
                     <Link to="/profile">
