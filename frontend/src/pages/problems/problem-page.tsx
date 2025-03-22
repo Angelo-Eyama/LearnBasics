@@ -155,8 +155,8 @@ export default function ProblemDetailPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="space-y-6">
-                    <Card>
+                <div className="space-y-4">
+                    <Card className="border rounded-md overflow-hidden">
                         <CardHeader className="pb-2">
                             <Tabs value={activeTab} onValueChange={setActiveTab}>
                                 <TabsList className="grid w-full grid-cols-3">
@@ -167,7 +167,7 @@ export default function ProblemDetailPage() {
                             </Tabs>
                         </CardHeader>
                         <CardContent>
-                            <Tabs>
+                            <Tabs defaultValue="hints" value={activeTab}>
                                 <TabsContent value="description" className="mt-0">
                                     <div className="prose dark:prose-invert max-w-none">
                                         <pre className="whitespace-pre-wrap font-sans text-sm">{problem.description}</pre>
@@ -227,17 +227,6 @@ export default function ProblemDetailPage() {
                             </Tabs>
                         </CardContent>
                     </Card>
-
-                    <Card>
-                        <CardHeader className="pb-2">
-                            <CardTitle>Output</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="p-4 h-[200px] bg-black text-white font-mono text-sm overflow-auto whitespace-pre-wrap rounded-md">
-                                {output || "Run your code to see the output here..."}
-                            </div>
-                        </CardContent>
-                    </Card>
                 </div>
 
                 <div className="space-y-4">
@@ -258,7 +247,7 @@ export default function ProblemDetailPage() {
                         </div>
                     </div>
 
-                    <Card className="border rounded-md overflow-hidden h-[calc(100vh-300px)]">
+                    <Card className="border rounded-md overflow-hidden h-[calc(100vh-300px)] pb-0 pt-0.5 px-0.5">
                         <Suspense fallback={<Loading />}>
                             <MonacoEditor
                                 height="100%"
@@ -274,6 +263,17 @@ export default function ProblemDetailPage() {
                                 }}
                             />
                         </Suspense>
+                    </Card>
+
+                    <Card>
+                        <CardHeader className="pb-2">
+                            <CardTitle>Output</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="p-4 h-[200px] bg-black text-white font-mono text-sm overflow-auto whitespace-pre-wrap rounded-md">
+                                {output || "Run your code to see the output here..."}
+                            </div>
+                        </CardContent>
                     </Card>
                 </div>
             </div>

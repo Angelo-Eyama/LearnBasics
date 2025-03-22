@@ -173,15 +173,15 @@ export function PrivatePlayground() {
         setTimeout(() => {
             setFeedback(`
                 Análisis de código:
-                
+
                 ✅ La sintaxis del código es correcta.
                 ✅ El código sigue buenas prácticas para la salida de registro.
-                
+
                 Sugerencias:
                 1. Considera utilizar funciones para reutilzar código.
                 2. Añade algunos comentarios para explicar el propósito de las líneas de código.
                 3. Considera utilizar excepciones para manejar errores de forma más elegante.
-                
+
                 Rendimiento:
                 - El código se ejecuta de forma eficiente y no contiene bucles infinitos.
         `)
@@ -297,11 +297,7 @@ export function PrivatePlayground() {
                     </div>
 
                     <Card className="border rounded-md overflow-hidden h-[calc(100vh-250px)]">
-                        <Tabs>
-                            {/* TODO: 
-                            - Mirar porqué no se muestran los mensajes 
-                            - Aplicar estilos de sombra y borde a los tabs para que se noten cuales están activos
-                            */}
+                        <Tabs defaultValue="output" value={activeTab} className="w-full h-full">
                             <TabsContent value="output" className="h-full m-0">
                                 <div className="p-4 h-full bg-black text-white font-mono text-sm overflow-auto whitespace-pre-wrap">
                                     {output || "Ejecute el código para ver la salida aquí..."}
@@ -309,7 +305,7 @@ export function PrivatePlayground() {
                             </TabsContent>
                             <TabsContent value="feedback" className="h-full m-0">
                                 <div className="p-4 h-full bg-card text-card-foreground overflow-auto whitespace-pre-wrap">
-                                    {feedback || "Pulsa 'Obtener feedback' para recibir respuesta del análisis de nuestra IA..."}
+                                    {feedback.trim() || "Pulsa 'Obtener feedback' para recibir respuesta del análisis de nuestra IA..."}
                                 </div>
                             </TabsContent>
                         </Tabs>
