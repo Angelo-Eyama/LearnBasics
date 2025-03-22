@@ -23,7 +23,7 @@ export const Landing: React.FC = () => {
                                 </p>
                             </div>
                             <div className="flex flex-wrap items-center justify-center gap-4">
-                                <Button size="lg" className="h-12 bg-[rgb(72,202,107)] hover:bg-[rgb(85,195,115)]">
+                                <Button size="lg" className="h-12 bg-[rgb(72,202,107)] hover:bg-[rgb(73,164,97)]">
                                     Codificar
                                     <ArrowRight className="ml-2 h-4 w-4" />
                                 </Button>
