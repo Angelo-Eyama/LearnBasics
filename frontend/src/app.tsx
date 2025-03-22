@@ -22,7 +22,7 @@ const App = () => {
         <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
             <AuthProvider>
                 <BrowserRouter>
-                    <Toaster />
+                    <Toaster richColors />
                     <Navigation />
                     <Routes>
                         <Route path='/' element={<Landing />} />
