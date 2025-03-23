@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -37,8 +37,8 @@ export default function NewUserPage() {
         e.preventDefault()
 
         if (formData.password !== formData.confirmPassword) {
-            toast.error("Passwords don't match", {
-                description: "Please make sure your passwords match.",
+            toast.error("Las contraseñas no coinciden", {
+                description: "Por favor, verifica que las contraseñas son iguales.",
             })
             return
         }
@@ -48,46 +48,46 @@ export default function NewUserPage() {
         // Simulate API call
         setTimeout(() => {
             setIsSubmitting(false)
-            toast.success("User created", {
-                description: "The user has been created successfully.",
+            toast.success("Usuario creado", {
+                description: "El usuario se ha creado correctamente.",
             })
             navigate("/admin/users")
         }, 1000)
     }
 
     return (
-        <div className="container mx-auto py-6">
+        <div className="container mx-auto py-6 px-4">
             <title>Crear usuario</title>
             <div className="flex items-center mb-6">
                 <Button variant="ghost" size="sm" asChild className="mr-2">
                     <Link to="/admin/users">
                         <ArrowLeft className="h-4 w-4 mr-1" />
-                        Back to Users
+                        Volver
                     </Link>
                 </Button>
-                <h1 className="text-3xl font-bold">Create New User</h1>
+                <h1 className="text-3xl font-bold">Crear nuevo usuario</h1>
             </div>
 
             <Card className="max-w-2xl mx-auto">
                 <CardHeader>
-                    <CardTitle>User Information</CardTitle>
-                    <CardDescription>Add a new user to the platform</CardDescription>
+                    <CardTitle>Información de usuario</CardTitle>
+                    <CardDescription>Añadir un nuevo usuario a la aplicación</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name">Full Name</Label>
+                            <Label htmlFor="name">Nombre completo</Label>
                             <Input id="name" name="name" value={formData.name} onChange={handleChange} required />
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="email">Email</Label>
+                            <Label htmlFor="email">Correo electrónico</Label>
                             <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} required />
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="password">Password</Label>
+                                <Label htmlFor="password">Contraseña</Label>
                                 <Input
                                     id="password"
                                     name="password"
@@ -99,7 +99,7 @@ export default function NewUserPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label htmlFor="confirmPassword">Confirm Password</Label>
+                                <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
                                 <Input
                                     id="confirmPassword"
                                     name="confirmPassword"
@@ -112,23 +112,23 @@ export default function NewUserPage() {
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="role">Role</Label>
+                            <Label htmlFor="role">Rol</Label>
                             <Select value={formData.role} onValueChange={(value) => handleSelectChange("role", value)}>
                                 <SelectTrigger>
                                     <SelectValue placeholder="Select role" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="User">User</SelectItem>
-                                    <SelectItem value="Moderator">Moderator</SelectItem>
-                                    <SelectItem value="Admin">Admin</SelectItem>
+                                    <SelectItem value="User">Estudiante</SelectItem>
+                                    <SelectItem value="Moderator">Moderador</SelectItem>
+                                    <SelectItem value="Admin">Administrador</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button type="submit" disabled={isSubmitting}>
+                        <Button type="submit" disabled={isSubmitting} className="mt-4">
                             <Save className="mr-2 h-4 w-4" />
-                            {isSubmitting ? "Creating..." : "Create User"}
+                            {isSubmitting ? "Creando..." : "Crear usuario"}
                         </Button>
                     </CardFooter>
                 </form>

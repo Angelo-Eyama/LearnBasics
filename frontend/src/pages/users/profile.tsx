@@ -29,11 +29,11 @@ export default function ProfilePage() {
         <div className="container mx-auto py-6 px-4">
             <title>Mi perfil</title>
             <div className="flex justify-between items-center mb-6">
-                <h1 className="text-3xl font-bold">Profile</h1>
+                <h1 className="text-3xl font-bold">Mi perfil</h1>
                 <Button asChild>
                     <Link to="/edit-profile">
                         <Edit className="mr-2 h-4 w-4" />
-                        Edit Profile
+                        Editar perfil
                     </Link>
                 </Button>
             </div>
@@ -81,12 +81,12 @@ export default function ProfilePage() {
                 <div className="md:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>About</CardTitle>
+                            <CardTitle>Sobre mi</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <p>{user.bio}</p>
                             <div className="mt-4">
-                                <h3 className="font-medium mb-2">Skills</h3>
+                                <h3 className="font-medium mb-2">Habilidades</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {user.skills.map((skill) => (
                                         <Badge key={skill} variant="secondary">
@@ -100,24 +100,24 @@ export default function ProfilePage() {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Statistics</CardTitle>
+                            <CardTitle>Estadisticas</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
                                     <Award className="h-8 w-8 mb-2 text-primary" />
                                     <span className="text-2xl font-bold">{user.rank}</span>
-                                    <span className="text-sm text-muted-foreground">Current Rank</span>
+                                    <span className="text-sm text-muted-foreground">Rango actual</span>
                                 </div>
                                 <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
                                     <Code className="h-8 w-8 mb-2 text-primary" />
                                     <span className="text-2xl font-bold">{user.problemsSolved}</span>
-                                    <span className="text-sm text-muted-foreground">Problems Solved</span>
+                                    <span className="text-sm text-muted-foreground">Problemas resueltos</span>
                                 </div>
                                 <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
                                     <FileCode className="h-8 w-8 mb-2 text-primary" />
                                     <span className="text-2xl font-bold">{user.submissions}</span>
-                                    <span className="text-sm text-muted-foreground">Total Submissions</span>
+                                    <span className="text-sm text-muted-foreground">Total de entregas</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -125,14 +125,14 @@ export default function ProfilePage() {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Recent Activity</CardTitle>
+                            <CardTitle>Actividad reciente</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">
                                 {[1, 2, 3].map((i) => (
                                     <div key={i} className="flex items-start space-x-4">
                                         <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-medium">Solved Problem #{Math.floor(Math.random() * 100)}</p>
+                                            <p className="text-sm font-medium">Problema #{Math.floor(Math.random() * 100)} resuelto</p>
                                             <p className="text-sm text-muted-foreground">
                                                 {new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleDateString()}
                                             </p>

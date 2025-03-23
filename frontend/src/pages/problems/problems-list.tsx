@@ -14,7 +14,7 @@ const problems = [
     {
         id: "1",
         title: "Two Sum",
-        difficulty: "Easy",
+        difficulty: "Facil",
         tags: ["Arrays", "Hash Table"],
         description:
             "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
@@ -23,7 +23,7 @@ const problems = [
     {
         id: "2",
         title: "Reverse Linked List",
-        difficulty: "Easy",
+        difficulty: "Facil",
         tags: ["Linked List", "Recursion"],
         description: "Given the head of a singly linked list, reverse the list, and return the reversed list.",
         solved: false,
@@ -31,7 +31,7 @@ const problems = [
     {
         id: "3",
         title: "Binary Tree Level Order Traversal",
-        difficulty: "Medium",
+        difficulty: "Normal",
         tags: ["Tree", "BFS", "Binary Tree"],
         description: "Given the root of a binary tree, return the level order traversal of its nodes' values.",
         solved: true,
@@ -39,7 +39,7 @@ const problems = [
     {
         id: "4",
         title: "Merge K Sorted Lists",
-        difficulty: "Hard",
+        difficulty: "Dificil",
         tags: ["Linked List", "Divide and Conquer", "Heap"],
         description:
             "You are given an array of k linked-lists lists, each linked-list is sorted in ascending order. Merge all the linked-lists into one sorted linked-list and return it.",
@@ -48,7 +48,7 @@ const problems = [
     {
         id: "5",
         title: "LRU Cache",
-        difficulty: "Medium",
+        difficulty: "Normal",
         tags: ["Hash Table", "Linked List", "Design"],
         description: "Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.",
         solved: false,
@@ -83,15 +83,15 @@ export default function ProblemsPage() {
         <div className="container mx-auto py-6 px-4">
             <title>Lista de problemas</title>
             <div className="mb-6">
-                <h1 className="text-3xl font-bold">Programming Problems</h1>
-                <p className="text-muted-foreground">Practice your coding skills with these challenges</p>
+                <h1 className="text-3xl font-bold">Problemas de programación</h1>
+                <p className="text-muted-foreground">Practica tus conocimientos de programación con estos problemas</p>
             </div>
 
             <div className="flex flex-col md:flex-row gap-4 mb-6">
                 <div className="relative flex-1">
                     <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                     <Input
-                        placeholder="Search problems by title or tag..."
+                        placeholder="Busca problemas por nombre o etiquetas"
                         className="pl-8"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
@@ -99,24 +99,24 @@ export default function ProblemsPage() {
                 </div>
                 <div className="flex gap-2">
                     <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-                        <SelectTrigger className="w-[150px]">
-                            <SelectValue placeholder="Difficulty" />
+                        <SelectTrigger className="w-[190px]">
+                            <SelectValue placeholder="Dificultad" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">All Difficulties</SelectItem>
-                            <SelectItem value="easy">Easy</SelectItem>
-                            <SelectItem value="medium">Medium</SelectItem>
-                            <SelectItem value="hard">Hard</SelectItem>
+                            <SelectItem value="all">Todas las dificultades</SelectItem>
+                            <SelectItem value="Facil">Facil</SelectItem>
+                            <SelectItem value="Normal">Normal</SelectItem>
+                            <SelectItem value="Dificil">Dificil</SelectItem>
                         </SelectContent>
                     </Select>
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-[150px]">
+                        <SelectTrigger className="w-[190px]">
                             <SelectValue placeholder="Status" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">All Problems</SelectItem>
-                            <SelectItem value="solved">Solved</SelectItem>
-                            <SelectItem value="unsolved">Unsolved</SelectItem>
+                            <SelectItem value="all">Todos los problemas</SelectItem>
+                            <SelectItem value="solved">Resueltos</SelectItem>
+                            <SelectItem value="unsolved">Sin resolver</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
@@ -139,9 +139,9 @@ export default function ProblemsPage() {
                                     </div>
                                     <Badge
                                         className={
-                                            problem.difficulty === "Easy"
+                                            problem.difficulty === "Facil"
                                                 ? "bg-green-500"
-                                                : problem.difficulty === "Medium"
+                                                : problem.difficulty === "Normal"
                                                     ? "bg-yellow-500"
                                                     : "bg-red-500"
                                         }
@@ -161,14 +161,14 @@ export default function ProblemsPage() {
                             </CardContent>
                             <CardFooter>
                                 <Button asChild>
-                                    <Link to={`/problems/${problem.id}`}>{problem.solved ? "Review Problem" : "Solve Problem"}</Link>
+                                    <Link to={`/problems/${problem.id}`}>{problem.solved ? "Revisar" : "Resolver"}</Link>
                                 </Button>
                             </CardFooter>
                         </Card>
                     ))
                 ) : (
                     <div className="text-center py-10">
-                        <p className="text-muted-foreground">No problems found matching your filters.</p>
+                        <p className="text-muted-foreground">No se han encontrado problemas con este filtro.</p>
                         <Button
                             variant="link"
                             onClick={() => {
@@ -177,7 +177,7 @@ export default function ProblemsPage() {
                                 setStatusFilter("all")
                             }}
                         >
-                            Clear filters
+                            Limpiar filtros
                         </Button>
                     </div>
                 )}

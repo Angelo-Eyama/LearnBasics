@@ -75,8 +75,8 @@ export default function NewProblemPage() {
         // Simulate API call
         setTimeout(() => {
             setIsSubmitting(false)
-            toast.success("Problem created",{
-                description: "The problem has been created successfully.",
+            toast.success("Problema creado",{
+                description: "El problema ha sido creado exitosamente",
             })
             navigate("/admin/problems")
         }, 1000)
@@ -89,10 +89,10 @@ export default function NewProblemPage() {
                 <Button variant="ghost" size="sm" asChild className="mr-2">
                     <Link to="/admin/problems">
                         <ArrowLeft className="h-4 w-4 mr-1" />
-                        Back to Problems
+                        Volver
                     </Link>
                 </Button>
-                <h1 className="text-3xl font-bold">Create New Problem</h1>
+                <h1 className="text-3xl font-bold">Crear nuevo problema</h1>
             </div>
 
             <form onSubmit={handleSubmit}>
@@ -100,8 +100,8 @@ export default function NewProblemPage() {
                     <div className="lg:col-span-2 space-y-6">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Problem Details</CardTitle>
-                                <CardDescription>Basic information about the problem</CardDescription>
+                                <CardTitle>Detalles del problema</CardTitle>
+                                <CardDescription>Información básica del problema</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
@@ -110,7 +110,7 @@ export default function NewProblemPage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="description">Description</Label>
+                                    <Label htmlFor="description">Descripción</Label>
                                     <Textarea
                                         id="description"
                                         name="description"
@@ -118,7 +118,7 @@ export default function NewProblemPage() {
                                         value={formData.description}
                                         onChange={handleChange}
                                         required
-                                        placeholder="Provide a detailed description of the problem, including examples and constraints."
+                                        placeholder="Proporcione una descripción detallada del problema, con ejemplos de entrada y salida, y restricciones."
                                     />
                                 </div>
                             </CardContent>
@@ -126,8 +126,8 @@ export default function NewProblemPage() {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Starter Code</CardTitle>
-                                <CardDescription>Provide starter code for different languages</CardDescription>
+                                <CardTitle>Prototipo de código</CardTitle>
+                                <CardDescription>Proporcione un trozo de código en diferentes lenguajes de programación</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
@@ -154,8 +154,8 @@ export default function NewProblemPage() {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Test Cases</CardTitle>
-                                <CardDescription>Add test cases to validate solutions</CardDescription>
+                                <CardTitle>Casos de prueba (tests)</CardTitle>
+                                <CardDescription>Añada las pruebas necesarias para validar la solución</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <Textarea
@@ -177,23 +177,23 @@ Output: [1,2]"
                     <div className="space-y-6">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Problem Settings</CardTitle>
-                                <CardDescription>Configure problem properties</CardDescription>
+                                <CardTitle>Ajustes del problema</CardTitle>
+                                <CardDescription>Configura los detalles del problema</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="difficulty">Difficulty</Label>
+                                    <Label htmlFor="difficulty">Dificultad</Label>
                                     <Select
                                         value={formData.difficulty}
                                         onValueChange={(value) => handleSelectChange("difficulty", value)}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select difficulty" />
+                                            <SelectValue placeholder="Indique la dificultad" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="Easy">Easy</SelectItem>
-                                            <SelectItem value="Medium">Medium</SelectItem>
-                                            <SelectItem value="Hard">Hard</SelectItem>
+                                            <SelectItem value="Easy">Facil</SelectItem>
+                                            <SelectItem value="Medium">Medio</SelectItem>
+                                            <SelectItem value="Hard">Dificil</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -202,11 +202,11 @@ Output: [1,2]"
                                     <Label htmlFor="status">Status</Label>
                                     <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Select status" />
+                                            <SelectValue placeholder="Indique estado" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="Draft">Draft</SelectItem>
-                                            <SelectItem value="Published">Published</SelectItem>
+                                            <SelectItem value="Draft">Borrador</SelectItem>
+                                            <SelectItem value="Published">Publicado</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -231,7 +231,7 @@ Output: [1,2]"
                                         <Input
                                             value={newTag}
                                             onChange={(e) => setNewTag(e.target.value)}
-                                            placeholder="Add a tag"
+                                            placeholder="Añada alguna etiqueta"
                                             onKeyDown={(e) => {
                                                 if (e.key === "Enter") {
                                                     e.preventDefault()
@@ -249,17 +249,17 @@ Output: [1,2]"
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Publish</CardTitle>
-                                <CardDescription>Save or publish your problem</CardDescription>
+                                <CardTitle>Publicar</CardTitle>
+                                <CardDescription>Guarde un borrador o publique su problema</CardDescription>
                             </CardHeader>
                             <CardContent>
                                 <p className="text-sm text-muted-foreground mb-4">
-                                    You can save as draft to continue editing later, or publish immediately to make it available to users.
+                                    Puedes guardar como borrador para continuar editando más tarde, o publicar inmediatamente para que esté disponible para los usuarios.
                                 </p>
                                 <div className="flex gap-2">
                                     <Button type="submit" disabled={isSubmitting} className="flex-1">
                                         <Save className="mr-2 h-4 w-4" />
-                                        {isSubmitting ? "Saving..." : "Save Problem"}
+                                        {isSubmitting ? "Guardando..." : "Guardar"}
                                     </Button>
                                 </div>
                             </CardContent>

@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Save, Ban, Shield, Activity } from "lucide-react"
+import { ArrowLeft, Save, Ban, Shield } from "lucide-react"
 import { toast } from "sonner"
 
 // Mock user data
@@ -74,8 +74,8 @@ export default function UserDetailPage() {
         // Simulate API call
         setTimeout(() => {
             setIsSubmitting(false)
-            toast("User updated", {
-                description: "User information has been updated successfully.",
+            toast.success("Usuario actualizado", {
+                description: "La información del usuario ha sido actualizada correctamente.",
             })
         }, 1000)
     }
@@ -87,10 +87,10 @@ export default function UserDetailPage() {
                 <Button variant="ghost" size="sm" asChild className="mr-2">
                     <Link to="/admin/users">
                         <ArrowLeft className="h-4 w-4 mr-1" />
-                        Back to Users
+                        Volver
                     </Link>
                 </Button>
-                <h1 className="text-3xl font-bold">User Details</h1>
+                <h1 className="text-3xl font-bold">Detalles de usuario</h1>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -116,36 +116,32 @@ export default function UserDetailPage() {
                     <CardContent className="space-y-4">
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                                <span className="text-sm text-muted-foreground">Joined</span>
+                                <span className="text-sm text-muted-foreground">Registrado desde</span>
                                 <span>{userData.joinedDate}</span>
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-sm text-muted-foreground">Last Active</span>
+                                <span className="text-sm text-muted-foreground">Última conexión</span>
                                 <span>{userData.lastActive}</span>
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-sm text-muted-foreground">Problems Solved</span>
+                                <span className="text-sm text-muted-foreground">Problemas resueltos</span>
                                 <span>{userData.problemsSolved}</span>
                             </div>
                             <div className="flex flex-col">
-                                <span className="text-sm text-muted-foreground">Submissions</span>
+                                <span className="text-sm text-muted-foreground">Entregas</span>
                                 <span>{userData.submissions}</span>
                             </div>
                         </div>
                         <div className="pt-4 border-t">
-                            <h3 className="font-medium mb-2">Quick Actions</h3>
+                            <h3 className="font-medium mb-2">Acciones rápidas</h3>
                             <div className="flex flex-col space-y-2">
                                 <Button variant="outline" className="justify-start">
                                     <Shield className="mr-2 h-4 w-4" />
-                                    {userData.role === "Admin" ? "Remove Admin Role" : "Make Admin"}
+                                    {userData.role === "Admin" ? "Quitar rol de Admin" : "Hacer Admin"}
                                 </Button>
                                 <Button variant="outline" className="justify-start">
                                     <Ban className="mr-2 h-4 w-4" />
-                                    {userData.status === "Active" ? "Deactivate Account" : "Activate Account"}
-                                </Button>
-                                <Button variant="outline" className="justify-start">
-                                    <Activity className="mr-2 h-4 w-4" />
-                                    View Activity Log
+                                    {userData.status === "Active" ? "Desactivar cuenta" : "Activar cuenta"}
                                 </Button>
                             </div>
                         </div>
@@ -155,45 +151,45 @@ export default function UserDetailPage() {
                 <div className="md:col-span-2 space-y-6">
                     <Card>
                         <CardHeader>
-                            <CardTitle>Edit User Information</CardTitle>
-                            <CardDescription>Update user details and permissions</CardDescription>
+                            <CardTitle>Editar información de usuario</CardTitle>
+                            <CardDescription>Actualizar detalles y permisos de usuario</CardDescription>
                         </CardHeader>
                         <form onSubmit={handleSubmit}>
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name">Full Name</Label>
+                                        <Label htmlFor="name">Nombre completo</Label>
                                         <Input id="name" name="name" value={userData.name} onChange={handleChange} />
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="email">Email</Label>
+                                        <Label htmlFor="email">Correo electrónico</Label>
                                         <Input id="email" name="email" type="email" value={userData.email} onChange={handleChange} />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="role">Role</Label>
+                                        <Label htmlFor="role">Rol</Label>
                                         <Select value={userData.role} onValueChange={(value) => handleSelectChange("role", value)}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select role" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="User">User</SelectItem>
-                                                <SelectItem value="Moderator">Moderator</SelectItem>
+                                                <SelectItem value="User">Estudiante</SelectItem>
+                                                <SelectItem value="Moderator">Moderador</SelectItem>
                                                 <SelectItem value="Admin">Admin</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
                                     <div className="space-y-2">
-                                        <Label htmlFor="status">Status</Label>
+                                        <Label htmlFor="status">Estado</Label>
                                         <Select value={userData.status} onValueChange={(value) => handleSelectChange("status", value)}>
                                             <SelectTrigger>
                                                 <SelectValue placeholder="Select status" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="Active">Active</SelectItem>
-                                                <SelectItem value="Inactive">Inactive</SelectItem>
-                                                <SelectItem value="Suspended">Suspended</SelectItem>
+                                                <SelectItem value="Active">Activo</SelectItem>
+                                                <SelectItem value="Inactive">Suspendido</SelectItem>
+                                                <SelectItem value="Suspended">Bloqueado</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
@@ -206,7 +202,7 @@ export default function UserDetailPage() {
                             <CardFooter>
                                 <Button type="submit" disabled={isSubmitting} className="mt-4 hover:bg-gray-500">
                                     <Save className="mr-2 h-4 w-4" />
-                                    {isSubmitting ? "Saving..." : "Save Changes"}
+                                    {isSubmitting ? "Guardando..." : "Guardar cambios"}
                                 </Button>
                             </CardFooter>
                         </form>
@@ -214,7 +210,7 @@ export default function UserDetailPage() {
 
                     <Card>
                         <CardHeader>
-                            <CardTitle>Recent Activity</CardTitle>
+                            <CardTitle>Actividad reciente</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-4">

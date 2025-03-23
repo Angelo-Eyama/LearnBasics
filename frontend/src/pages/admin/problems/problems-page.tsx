@@ -95,8 +95,8 @@ export default function AdminProblemsPage() {
     })
 
     const handleStatusChange = (problemId: string, newStatus: string) => {
-        toast("Problem status updated", {
-            description: `Problem status has been changed to ${newStatus}.`,
+        toast.success("Problema actualizado", {
+            description: `El estado del problema ha cambiado a ${newStatus}.`,
         })
     }
 
@@ -104,24 +104,24 @@ export default function AdminProblemsPage() {
         if (!selectedProblem) return
 
         setIsDeleteDialogOpen(false)
-        toast.error("Problem deleted", {
-            description: `Problem "${selectedProblem.title}" has been deleted.`,
+        toast.success("Problema eliminado", {
+            description: `El problema "${selectedProblem.title}" ha sido eliminado.`,
         })
         setSelectedProblem(null)
     }
 
     return (
-        <div className="container mx-auto py-6">
+        <div className="container mx-auto py-6 px-4">
             <title>Gestion de problemas</title>
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h1 className="text-3xl font-bold">Problem Management</h1>
-                    <p className="text-muted-foreground">Create and manage coding problems</p>
+                    <h1 className="text-3xl font-bold">Gestión de problemas</h1>
+                    <p className="text-muted-foreground">Crea y gestiona los problemas de la aplicación</p>
                 </div>
                 <Button asChild>
                     <Link to="/admin/problems/new">
                         <PlusCircle className="mr-2 h-4 w-4" />
-                        Add Problem
+                        Crear problema
                     </Link>
                 </Button>
             </div>
@@ -130,16 +130,16 @@ export default function AdminProblemsPage() {
                 <CardHeader className="pb-2">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
-                            <CardTitle>Problems</CardTitle>
+                            <CardTitle>Problemas</CardTitle>
                             <CardDescription>
-                                Showing {filteredProblems.length} of {problems.length} problems
+                                Mostrando {filteredProblems.length} de {problems.length} problemas
                             </CardDescription>
                         </div>
                         <div className="flex flex-col md:flex-row gap-2">
                             <div className="relative w-full md:w-64">
                                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="Search problems..."
+                                    placeholder="Buscar problemas..."
                                     className="pl-8"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -147,23 +147,23 @@ export default function AdminProblemsPage() {
                             </div>
                             <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
                                 <SelectTrigger className="w-[150px]">
-                                    <SelectValue placeholder="Difficulty" />
+                                    <SelectValue placeholder="Dificultad" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All Difficulties</SelectItem>
-                                    <SelectItem value="easy">Easy</SelectItem>
-                                    <SelectItem value="medium">Medium</SelectItem>
-                                    <SelectItem value="hard">Hard</SelectItem>
+                                    <SelectItem value="all">Todas</SelectItem>
+                                    <SelectItem value="easy">Facil</SelectItem>
+                                    <SelectItem value="medium">Medio</SelectItem>
+                                    <SelectItem value="hard">Dificil</SelectItem>
                                 </SelectContent>
                             </Select>
                             <Select value={statusFilter} onValueChange={setStatusFilter}>
                                 <SelectTrigger className="w-[150px]">
-                                    <SelectValue placeholder="Status" />
+                                    <SelectValue placeholder="Estado" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All Status</SelectItem>
-                                    <SelectItem value="published">Published</SelectItem>
-                                    <SelectItem value="draft">Draft</SelectItem>
+                                    <SelectItem value="all">Todos</SelectItem>
+                                    <SelectItem value="published">Publicados</SelectItem>
+                                    <SelectItem value="draft">Borrador</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -173,12 +173,12 @@ export default function AdminProblemsPage() {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>Title</TableHead>
-                                <TableHead>Difficulty</TableHead>
-                                <TableHead>Tags</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Created</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableHead>Titulo</TableHead>
+                                <TableHead>Dificultad</TableHead>
+                                <TableHead>Etiquetas</TableHead>
+                                <TableHead>Estado</TableHead>
+                                <TableHead>Fecha de creación</TableHead>
+                                <TableHead className="text-right">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -215,31 +215,31 @@ export default function AdminProblemsPage() {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" className="h-8 w-8 p-0">
-                                                    <span className="sr-only">Open menu</span>
+                                                    <span className="sr-only">Abrir menu</span>
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                                 <DropdownMenuItem asChild>
                                                     <Link to={`/admin/problems/${problem.id}`}>
                                                         <Eye className="mr-2 h-4 w-4" />
-                                                        View Problem
+                                                        Ver problema
                                                     </Link>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem asChild>
                                                     <Link to={`/admin/problems/${problem.id}/edit`}>
                                                         <Edit className="mr-2 h-4 w-4" />
-                                                        Edit Problem
+                                                        Editar problema
                                                     </Link>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
                                                     onClick={() =>
-                                                        handleStatusChange(problem.id, problem.status === "Published" ? "Draft" : "Published")
+                                                        handleStatusChange(problem.id, problem.status === "Published" ? "Borrador" : "Publicado")
                                                     }
                                                 >
-                                                    {problem.status === "Published" ? "Unpublish" : "Publish"}
+                                                    {problem.status === "Published" ? "Borrador" : "Publicado"}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
@@ -250,7 +250,7 @@ export default function AdminProblemsPage() {
                                                     }}
                                                 >
                                                     <Trash className="mr-2 h-4 w-4" />
-                                                    Delete Problem
+                                                    Eliminar problema
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
@@ -265,17 +265,18 @@ export default function AdminProblemsPage() {
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Delete Problem</DialogTitle>
+                        <DialogTitle>Eliminar problema</DialogTitle>
                         <DialogDescription>
-                            Are you sure you want to delete "{selectedProblem?.title}"? This action cannot be undone.
+                            ¿Estás seguro de querer eliminar el problema "{selectedProblem?.title}"? <br />
+                            <b>Esta acción no se puede deshacer.</b>
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-                            Cancel
+                            Cancelar
                         </Button>
                         <Button variant="destructive" onClick={handleDeleteProblem}>
-                            Delete
+                            Eliminar
                         </Button>
                     </DialogFooter>
                 </DialogContent>

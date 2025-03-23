@@ -53,18 +53,18 @@ export default function EditProfilePage() {
                 <Button variant="ghost" size="sm" asChild className="mr-2">
                     <Link to="/profile">
                         <ArrowLeft className="h-4 w-4 mr-1" />
-                        Back to Profile
+                        Volver
                     </Link>
                 </Button>
-                <h1 className="text-3xl font-bold">Edit Profile</h1>
+                <h1 className="text-3xl font-bold">Editar perfil</h1>
             </div>
 
             <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <Card className="md:col-span-1">
                         <CardHeader>
-                            <CardTitle>Profile Picture</CardTitle>
-                            <CardDescription>Update your profile picture</CardDescription>
+                            <CardTitle>Foto de perfil</CardTitle>
+                            <CardDescription>Actualiza tu foto de perfil</CardDescription>
                         </CardHeader>
                         <CardContent className="flex flex-col items-center">
                             <Avatar className="h-32 w-32 mb-4">
@@ -73,47 +73,47 @@ export default function EditProfilePage() {
                             </Avatar>
                             <Button variant="outline" className="w-full">
                                 <Upload className="mr-2 h-4 w-4" />
-                                Upload New Picture
+                                Subir nueva foto
                             </Button>
                         </CardContent>
                     </Card>
 
                     <Card className="md:col-span-2">
                         <CardHeader>
-                            <CardTitle>Personal Information</CardTitle>
-                            <CardDescription>Update your personal details</CardDescription>
+                            <CardTitle>Información personal</CardTitle>
+                            <CardDescription>Actualice aquí sus datos personales</CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="name">Full Name</Label>
+                                    <Label htmlFor="name">Nombre completo</Label>
                                     <Input id="name" name="name" value={formData.name} onChange={handleChange} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="username">Username</Label>
+                                    <Label htmlFor="username">Nombre de usuario</Label>
                                     <Input id="username" name="username" value={formData.username} onChange={handleChange} />
                                 </div>
                             </div>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="email">Email</Label>
+                                    <Label htmlFor="email">Correo Electrónico</Label>
                                     <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="location">Location</Label>
+                                    <Label htmlFor="location">Ciudad</Label>
                                     <Input id="location" name="location" value={formData.location} onChange={handleChange} />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="bio">Bio</Label>
+                                <Label htmlFor="bio">Sobre mi</Label>
                                 <Textarea id="bio" name="bio" rows={4} value={formData.bio} onChange={handleChange} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="skills">Skills (comma separated)</Label>
+                                <Label htmlFor="skills">Habilidades (separadas por comas)</Label>
                                 <Input id="skills" name="skills" value={formData.skills} onChange={handleChange} />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="githubUsername">GitHub Username</Label>
+                                <Label htmlFor="githubUsername">Nombre de usuario de GitHub</Label>
                                 <Input
                                     id="githubUsername"
                                     name="githubUsername"
@@ -125,12 +125,12 @@ export default function EditProfilePage() {
                         <CardFooter className="flex justify-end gap-4">
                             <Link to="/profile">
                                 <Button type="submit">
-                                    <ArrowLeft className="h-4 w-4 mr-1" /> Go back
+                                    <ArrowLeft className="h-4 w-4 mr-1" /> Volver
                                 </Button>
                             </Link>
                             <Button type="submit" disabled={isSubmitting}>
                                 <Save className="h-4 w-4 mr-1" />
-                                {isSubmitting ? "Saving..." : "Save Changes"}
+                                {isSubmitting ? "Guardando..." : "Guardar cambios"}
                             </Button>
                         </CardFooter>
                     </Card>

@@ -113,8 +113,8 @@ export default function AdminCommentsPage() {
     })
 
     const handleStatusChange = (commentId: string, newStatus: string) => {
-        toast("Comment status updated", {
-            description: `Comment status has been changed to ${newStatus}.`,
+        toast.success("Comentario actualizado", {
+            description: `El estado del comentario ha cambiado a ${newStatus}.`,
         })
     }
 
@@ -122,8 +122,8 @@ export default function AdminCommentsPage() {
         if (!selectedComment) return
 
         setIsDeleteDialogOpen(false)
-        toast.error("Comment deleted",{
-            description: "The comment has been deleted successfully.",
+        toast.success("Comentario eliminado",{
+            description: "El comentario ha sido eliminado correctamente.",
         })
         setSelectedComment(null)
     }
@@ -133,12 +133,12 @@ export default function AdminCommentsPage() {
     }
 
     return (
-        <div className="container mx-auto py-6">
+        <div className="container mx-auto py-6 px-4">
             <title>Gestion de comentarios</title>
             <div className="flex justify-between items-center mb-6">
                 <div>
-                    <h1 className="text-3xl font-bold">Comment Moderation</h1>
-                    <p className="text-muted-foreground">Review and moderate user comments</p>
+                    <h1 className="text-3xl font-bold">Moderación de comentarios</h1>
+                    <p className="text-muted-foreground">Revisar y gestionar los comentarios de los usuarios</p>
                 </div>
             </div>
 
@@ -146,16 +146,16 @@ export default function AdminCommentsPage() {
                 <CardHeader className="pb-2">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
-                            <CardTitle>Comments</CardTitle>
+                            <CardTitle>Comentarios</CardTitle>
                             <CardDescription>
-                                Showing {filteredComments.length} of {comments.length} comments
+                                Mosntrando {filteredComments.length} de {comments.length} comentarios
                             </CardDescription>
                         </div>
                         <div className="flex flex-col md:flex-row gap-2">
                             <div className="relative w-full md:w-64">
                                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
-                                    placeholder="Search comments..."
+                                    placeholder="Buscar comentarios..."
                                     className="pl-8"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -163,13 +163,13 @@ export default function AdminCommentsPage() {
                             </div>
                             <Select value={statusFilter} onValueChange={setStatusFilter}>
                                 <SelectTrigger className="w-[150px]">
-                                    <SelectValue placeholder="Status" />
+                                    <SelectValue placeholder="Estado" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">All Status</SelectItem>
-                                    <SelectItem value="approved">Approved</SelectItem>
-                                    <SelectItem value="pending">Pending</SelectItem>
-                                    <SelectItem value="rejected">Rejected</SelectItem>
+                                    <SelectItem value="all">Todos</SelectItem>
+                                    <SelectItem value="approved">Aprobados</SelectItem>
+                                    <SelectItem value="pending">Pendientes</SelectItem>
+                                    <SelectItem value="rejected">Rechazados</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -179,12 +179,12 @@ export default function AdminCommentsPage() {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>User</TableHead>
-                                <TableHead>Comment</TableHead>
-                                <TableHead>Problem</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Date</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableHead>Usuario</TableHead>
+                                <TableHead>Comentario</TableHead>
+                                <TableHead>Problema</TableHead>
+                                <TableHead>Estado</TableHead>
+                                <TableHead>Fecha de creacion</TableHead>
+                                <TableHead className="text-right">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -225,12 +225,12 @@ export default function AdminCommentsPage() {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" className="h-8 w-8 p-0">
-                                                    <span className="sr-only">Open menu</span>
+                                                    <span className="sr-only">Abrir menu</span>
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                                 <DropdownMenuItem
                                                     onClick={() => {
                                                         setSelectedComment(comment)
@@ -238,19 +238,19 @@ export default function AdminCommentsPage() {
                                                     }}
                                                 >
                                                     <Eye className="mr-2 h-4 w-4" />
-                                                    View Full Comment
+                                                    Ver comentario completo
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 {comment.status !== "Approved" && (
                                                     <DropdownMenuItem onClick={() => handleStatusChange(comment.id, "Approved")}>
                                                         <Check className="mr-2 h-4 w-4" />
-                                                        Approve
+                                                        Aprobar
                                                     </DropdownMenuItem>
                                                 )}
                                                 {comment.status !== "Rejected" && (
                                                     <DropdownMenuItem onClick={() => handleStatusChange(comment.id, "Rejected")}>
                                                         <X className="mr-2 h-4 w-4" />
-                                                        Reject
+                                                        Rechazar
                                                     </DropdownMenuItem>
                                                 )}
                                                 <DropdownMenuSeparator />
@@ -262,7 +262,7 @@ export default function AdminCommentsPage() {
                                                     }}
                                                 >
                                                     <X className="mr-2 h-4 w-4" />
-                                                    Delete Comment
+                                                    Eliminar comentario
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
@@ -277,17 +277,18 @@ export default function AdminCommentsPage() {
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Delete Comment</DialogTitle>
+                        <DialogTitle>Eliminar comentario</DialogTitle>
                         <DialogDescription>
-                            Are you sure you want to delete this comment? This action cannot be undone.
+                            ¿ Está seguro de querer eliminar este comentario ? <br /> 
+                            <b>Esta accion no puede ser revertida </b>
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-                            Cancel
+                            Cancelar
                         </Button>
                         <Button variant="destructive" onClick={handleDeleteComment}>
-                            Delete
+                            Eliminar
                         </Button>
                     </DialogFooter>
                 </DialogContent>
@@ -296,7 +297,7 @@ export default function AdminCommentsPage() {
             <Dialog open={isViewDialogOpen} onOpenChange={setIsViewDialogOpen}>
                 <DialogContent className="sm:max-w-md">
                     <DialogHeader>
-                        <DialogTitle>Comment Details</DialogTitle>
+                        <DialogTitle>Detalles</DialogTitle>
                     </DialogHeader>
                     {selectedComment && (
                         <div className="space-y-4">
@@ -316,7 +317,7 @@ export default function AdminCommentsPage() {
                             <div className="flex items-center space-x-2">
                                 <MessageSquare className="h-4 w-4 text-muted-foreground" />
                                 <p className="text-sm">
-                                    On problem:{" "}
+                                    Problema relacionado:{" "}
                                     <Link to={`/problems/${selectedComment.problemId}`} className="text-primary hover:underline">
                                         {selectedComment.problem}
                                     </Link>
@@ -349,7 +350,7 @@ export default function AdminCommentsPage() {
                                     }}
                                 >
                                     <Check className="mr-2 h-4 w-4" />
-                                    Approve
+                                    Aprobar
                                 </Button>
                             )}
                             {selectedComment && selectedComment.status !== "Rejected" && (
@@ -362,12 +363,12 @@ export default function AdminCommentsPage() {
                                     }}
                                 >
                                     <X className="mr-2 h-4 w-4" />
-                                    Reject
+                                    Rechazar
                                 </Button>
                             )}
                         </div>
                         <Button variant="outline" onClick={() => setIsViewDialogOpen(false)}>
-                            Close
+                            Cerrar
                         </Button>
                     </DialogFooter>
                 </DialogContent>

@@ -93,7 +93,7 @@ export default function ProblemDetailPage() {
 
     const handleRunCode = () => {
         setIsRunning(true)
-        setOutput("Running code...\n")
+        setOutput("Ejecutando codigo...\n")
 
         // Simulate code execution with a timeout
         setTimeout(() => {
@@ -127,7 +127,7 @@ export default function ProblemDetailPage() {
                 <Button variant="ghost" size="sm" asChild className="mr-2">
                     <Link to="/problems">
                         <ArrowLeft className="h-4 w-4 mr-1" />
-                        Back to Problems
+                        Volver
                     </Link>
                 </Button>
                 <div>
@@ -159,9 +159,9 @@ export default function ProblemDetailPage() {
                         <CardHeader className="pb-2">
                             <Tabs value={activeTab} onValueChange={setActiveTab}>
                                 <TabsList className="grid w-full grid-cols-3">
-                                    <TabsTrigger value="description">Description</TabsTrigger>
-                                    <TabsTrigger value="hints">Hints</TabsTrigger>
-                                    <TabsTrigger value="discussion">Discussion</TabsTrigger>
+                                    <TabsTrigger value="description">Descripcion</TabsTrigger>
+                                    <TabsTrigger value="hints">Pistas</TabsTrigger>
+                                    <TabsTrigger value="discussion">Comentarios</TabsTrigger>
                                 </TabsList>
                             </Tabs>
                         </CardHeader>
@@ -240,9 +240,9 @@ export default function ProblemDetailPage() {
                         </div>
                         <div className="flex items-center space-x-2">
                             <Button onClick={handleRunCode} disabled={isRunning}>
-                                {isRunning ? "Running..." : "Run Code"}
+                                {isRunning ? "Ejecutando..." : "Ejecutar"}
                             </Button>
-                            <Button variant="default">Submit Solution</Button>
+                            <Button variant="default">Subir solucion</Button>
                         </div>
                     </div>
 
@@ -252,11 +252,11 @@ export default function ProblemDetailPage() {
 
                     <Card>
                         <CardHeader className="pb-2">
-                            <CardTitle>Output</CardTitle>
+                            <CardTitle>Salida</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="p-4 h-[200px] bg-black text-white font-mono text-sm overflow-auto whitespace-pre-wrap rounded-md">
-                                {output || "Run your code to see the output here..."}
+                                {output || "Ejecuta el código y la salida se mostrará aquí..."}
                             </div>
                         </CardContent>
                     </Card>

@@ -139,12 +139,12 @@ export function PrivatePlayground() {
 
     const handleRunCode = () => {
         setIsRunning(true)
-        setOutput("Running code...\n")
+        setOutput("Ejecutando codigo...\n")
 
         //TODO: Enviar código a la API para ejecutarlo
         // Simulate code execution with a timeout
         setTimeout(() => {
-            setOutput((prev) => prev + "Hello, world!\nExecution completed successfully.")
+            setOutput((prev) => prev + "Hello, world!\n\nCodigo ejecutado con exito")
             setIsRunning(false)
         }, 1000)
     }

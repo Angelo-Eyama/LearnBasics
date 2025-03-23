@@ -120,23 +120,23 @@ export default function AdminUsersPage() {
         <div className="container mx-auto py-6 px-4">
             <title>Gestion de usuarios</title>
             <div className="mb-6">
-                <h1 className="text-3xl font-bold">User Management</h1>
-                <p className="text-muted-foreground">Manage users and their permissions</p>
+                <h1 className="text-3xl font-bold">Gestion de usuarios</h1>
+                <p className="text-muted-foreground">Gestiona a los usuarios y sus permisos</p>
             </div>
 
             <Card>
                 <CardHeader className="pb-2">
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div>
-                            <CardTitle>Users</CardTitle>
+                            <CardTitle>Usuarios</CardTitle>
                             <CardDescription>
-                                Showing {filteredUsers.length} of {users.length} users
+                                Mostrando {filteredUsers.length} de {users.length} usuarios
                             </CardDescription>
                         </div>
                         <div className="relative w-full md:w-64">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
-                                placeholder="Search users..."
+                                placeholder="Buscar usuarios..."
                                 className="pl-8"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -148,12 +148,12 @@ export default function AdminUsersPage() {
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead>User</TableHead>
-                                <TableHead>Role</TableHead>
-                                <TableHead>Status</TableHead>
-                                <TableHead>Problems Solved</TableHead>
-                                <TableHead>Joined</TableHead>
-                                <TableHead className="text-right">Actions</TableHead>
+                                <TableHead>Usuario</TableHead>
+                                <TableHead>Rol</TableHead>
+                                <TableHead>Estado</TableHead>
+                                <TableHead>Problemas Resueltos</TableHead>
+                                <TableHead>Registrado desde</TableHead>
+                                <TableHead className="text-right">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -181,22 +181,22 @@ export default function AdminUsersPage() {
                                     <TableCell>
                                         <Badge variant={user.status === "Active" ? "default" : "destructive"}>{user.status}</Badge>
                                     </TableCell>
-                                    <TableCell>{user.problemsSolved}</TableCell>
+                                    <TableCell className="text-center">{user.problemsSolved}</TableCell>
                                     <TableCell>{user.joinedDate}</TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" className="h-8 w-8 p-0">
-                                                    <span className="sr-only">Open menu</span>
+                                                    <span className="sr-only">Abrir menu</span>
                                                     <MoreHorizontal className="h-4 w-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
                                                 <DropdownMenuItem asChild>
                                                     <Link to={`/admin/users/${user.id}`}>
                                                         <Eye className="mr-2 h-4 w-4" />
-                                                        View Details
+                                                        Ver detalles
                                                     </Link>
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
@@ -204,13 +204,13 @@ export default function AdminUsersPage() {
                                                     onClick={() => handleRoleChange(user.id, user.role === "Admin" ? "User" : "Admin")}
                                                 >
                                                     <UserCog className="mr-2 h-4 w-4" />
-                                                    {user.role === "Admin" ? "Remove Admin" : "Make Admin"}
+                                                    {user.role === "Admin" ? "Quitar Admin" : "Hacer Admin"}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuItem
                                                     onClick={() => handleStatusChange(user.id, user.status === "Active" ? "Inactive" : "Active")}
                                                 >
                                                     <Shield className="mr-2 h-4 w-4" />
-                                                    {user.status === "Active" ? "Deactivate" : "Activate"}
+                                                    {user.status === "Active" ? "Desactivar" : "Activar"}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
@@ -221,7 +221,7 @@ export default function AdminUsersPage() {
                                                     }}
                                                 >
                                                     <Ban className="mr-2 h-4 w-4" />
-                                                    Delete User
+                                                    Eliminar usuario
                                                 </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
@@ -236,17 +236,17 @@ export default function AdminUsersPage() {
             <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Delete User</DialogTitle>
+                        <DialogTitle>Eliminar usuario</DialogTitle>
                         <DialogDescription>
-                            Are you sure you want to delete {selectedUser?.name}? This action cannot be undone.
+                            ¿Estás seguro de que quieres eliminar la cuenta de {selectedUser?.name}? <br /> <b>Esta acción no se puede deshacer.</b>
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
                         <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
-                            Cancel
+                            Cancelar
                         </Button>
                         <Button variant="destructive" onClick={handleDeleteUser}>
-                            Delete
+                            Eliminar
                         </Button>
                     </DialogFooter>
                 </DialogContent>

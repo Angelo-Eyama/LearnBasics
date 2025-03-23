@@ -16,6 +16,7 @@ const UserDetailPage = lazy(() => import('@/pages/admin/users/user-details'));
 const AdminDashboardPage = lazy(() => import('@/pages/admin/dashboard'));
 const AdminUsersPage = lazy(() => import('@/pages/admin/users/users-page'));
 const AdminUserDetailPage = lazy(() => import('@/pages/admin/users/user-details'));
+const NewUserPage = lazy(() => import('@/pages/admin/users/user-new'));
 const AdminProblemsPage = lazy(() => import('@/pages/admin/problems/problems-page'));
 const NewProblemPage = lazy(() => import('@/pages/admin/problems/problem-new'));
 const AdminCommentsPage = lazy(() => import('@/pages/admin/comments/comments-page'));
@@ -32,6 +33,7 @@ const routes: RouteObject[] = [
     { path: '/problems', element: <ProblemsPage /> },
     { path: '/problems/:id', element: <ProblemDetailPage /> },
     { path: '/admin/users', element: <UserListPage /> },
+    { path: '/admin/users/new', element: <NewUserPage /> },
     { path: '/admin/users/:id', element: <UserDetailPage /> },
     { path: '/admin/', element: <AdminDashboardPage /> },
     { path: '/admin/users', element: <AdminUsersPage /> },

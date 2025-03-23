@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { BrowserRouter, Router, useRoutes } from 'react-router-dom';
+import { BrowserRouter, useRoutes } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import Navigation from '@/components/nav-bar';
 import Footer from '@/components/footer';
@@ -13,7 +13,7 @@ const App = () => {
         <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
             <AuthProvider>
                 <BrowserRouter>
-                    <Toaster richColors />
+                    <Toaster richColors closeButton/>
                     <Navigation />
                     <Suspense fallback={<Loading />}>
                         <RoutesWrapper />
