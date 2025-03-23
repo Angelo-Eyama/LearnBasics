@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 // y con un botón para volver a la lista de problemas
 export default function ProblemDetailPage() {
     return (
-        <div className="container mx-auto py-6">
+        <div className="container mx-auto py-6 px-4">
             <title>Detalle del problema</title>
             <div className="mb-6">
                 <h1 className="text-3xl font-bold">Problem Detail</h1>

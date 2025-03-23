@@ -42,7 +42,8 @@ export default function EditProfilePage() {
         // Simulate API call
         setTimeout(() => {
             setIsSubmitting(false)
-            toast("Profile updated", {description: "Your profile has been updated successfully."})
+            toast.success("Perfil actualizado", 
+                {description: "Tu perfil se ha actualizado correctamente"})
         }, 1000)
     }
 

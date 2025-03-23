@@ -8,7 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ArrowLeft, MessageSquare, ThumbsUp, Send } from "lucide-react"
+import { ArrowLeft, ThumbsUp, Send } from "lucide-react"
 import Editor from "@/components/editor"
 
 // Mock problem data
@@ -176,7 +176,7 @@ export default function ProblemDetailPage() {
                                     <div className="space-y-4">
                                         {problem.hints.map((hint, index) => (
                                             <div key={index} className="p-4 border rounded-md">
-                                                <h3 className="font-medium mb-2">Hint {index + 1}</h3>
+                                                <h3 className="font-medium mb-2">Pista {index + 1}</h3>
                                                 <p>{hint}</p>
                                             </div>
                                         ))}
@@ -186,7 +186,7 @@ export default function ProblemDetailPage() {
                                     <div className="space-y-4">
                                         <div className="flex items-center space-x-2">
                                             <Textarea
-                                                placeholder="Add a comment or question..."
+                                                placeholder="Añadir un comentario o una pregunta..."
                                                 value={newComment}
                                                 onChange={(e) => setNewComment(e.target.value)}
                                                 className="flex-1"
@@ -213,10 +213,6 @@ export default function ProblemDetailPage() {
                                                     <Button variant="ghost" size="sm" className="h-8 px-2">
                                                         <ThumbsUp className="h-4 w-4 mr-1" />
                                                         {comment.likes}
-                                                    </Button>
-                                                    <Button variant="ghost" size="sm" className="h-8 px-2">
-                                                        <MessageSquare className="h-4 w-4 mr-1" />
-                                                        Reply
                                                     </Button>
                                                 </div>
                                             </div>

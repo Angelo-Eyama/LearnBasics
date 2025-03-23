@@ -83,7 +83,7 @@ export default function NewProblemPage() {
     }
 
     return (
-        <div className="container mx-auto py-6">
+        <div className="container mx-auto py-6 px-4">
             <title>Nuevo problema</title>
             <div className="flex items-center mb-6">
                 <Button variant="ghost" size="sm" asChild className="mr-2">

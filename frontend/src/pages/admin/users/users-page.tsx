@@ -95,14 +95,14 @@ export default function AdminUsersPage() {
     })
 
     const handleStatusChange = (userId: string, newStatus: string) => {
-        toast("User status updated", {
-            description: `User status has been changed to ${newStatus}.`,
+        toast.success("Estado de usuario actualizado", {
+            description: `El estado del usuario ha cambiado a ${newStatus}.`,
         })
     }
 
     const handleRoleChange = (userId: string, newRole: string) => {
-        toast("User role updated", {
-            description: `User role has been changed to ${newRole}.`,
+        toast.success("Rol actualizado", {
+            description: `El rol del usuario ha cambiado a ${newRole}.`,
         })
     }
 
@@ -110,8 +110,8 @@ export default function AdminUsersPage() {
         if (!selectedUser) return
 
         setIsDeleteDialogOpen(false)
-        toast("User deleted", {
-            description: `User ${selectedUser.name} has been deleted.`,
+        toast.success("Usuario eliminado", {
+            description: `El usuario ${selectedUser.name} se ha eliminado.`,
         })
         setSelectedUser(null)
     }
