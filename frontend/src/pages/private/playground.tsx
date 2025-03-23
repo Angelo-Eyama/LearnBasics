@@ -5,7 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Play, Download, Copy, MessageSquare } from "lucide-react";
 import Editor from "@/components/editor";
-import useTitle from "@/hooks/useTitle"
 const languages = [
     { value: "javascript", label: "JavaScript", extension: "js" },
     { value: "typescript", label: "TypeScript", extension: "ts" },
@@ -22,7 +21,6 @@ const themes = [
 // - Refactorizar los dos editores extrayendo los componentes y props comunes
 
 export function PublicPlayground() {
-    useTitle("Editor")
     const [language, setLanguage] = useState("javascript");
     const [theme, setTheme] = useState("vs-dark");
     const [code, setCode] = useState(`console.log('Hola mundo')`);
@@ -56,6 +54,7 @@ export function PublicPlayground() {
 
     return (
         <div className="container mx-auto py-6 px-4">
+            <title>Editor</title>
             <div className="mb-6">
                 <h1 className="text-3xl font-bold">Editor de código</h1>
                 <p className="text-muted-foreground">Escribe, compila y ejecuta tu código aquí</p>
@@ -191,6 +190,7 @@ export function PrivatePlayground() {
 
     return (
         <div className="container mx-auto py-6 px-4">
+            <title>Editor privado</title>
             <div className="mb-6">
                 <h1 className="text-3xl font-bold">Editor de código</h1>
                 <p className="text-muted-foreground">Escribe, compila y ejecuta tu código aquí</p>

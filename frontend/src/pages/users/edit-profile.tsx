@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { toast } from "sonner"
-import { ArrowLeft, Upload } from "lucide-react"
+import { ArrowLeft, Upload, Save } from "lucide-react"
 import {Link} from "react-router-dom"
 
 // Mock user data - in a real app, this would come from your API
@@ -48,6 +48,7 @@ export default function EditProfilePage() {
 
     return (
         <div className="container mx-auto py-6 px-4">
+            <title>Mi perfil - Editar</title>
             <div className="flex items-center mb-6">
                 <Button variant="ghost" size="sm" asChild className="mr-2">
                     <Link to="/profile">
@@ -121,8 +122,14 @@ export default function EditProfilePage() {
                                 />
                             </div>
                         </CardContent>
-                        <CardFooter className="flex justify-end">
+                        <CardFooter className="flex justify-end gap-4">
+                            <Link to="/profile">
+                                <Button type="submit">
+                                    <ArrowLeft className="h-4 w-4 mr-1" /> Go back
+                                </Button>
+                            </Link>
                             <Button type="submit" disabled={isSubmitting}>
+                                <Save className="h-4 w-4 mr-1" />
                                 {isSubmitting ? "Saving..." : "Save Changes"}
                             </Button>
                         </CardFooter>

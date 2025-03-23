@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, lazy, Suspense } from "react"
+import { useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -9,9 +9,7 @@ import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { ArrowLeft, MessageSquare, ThumbsUp, Send } from "lucide-react"
-import { Loading } from "@/components/ui/loading"
-
-const MonacoEditor = lazy(() => import('@monaco-editor/react')); //Carga dinámica del componente
+import Editor from "@/components/editor"
 
 // Mock problem data
 const problem = {
@@ -124,6 +122,7 @@ export default function ProblemDetailPage() {
 
     return (
         <div className="container mx-auto py-6 px-4">
+            <title>{problem.title}</title>
             <div className="flex items-center mb-6">
                 <Button variant="ghost" size="sm" asChild className="mr-2">
                     <Link to="/problems">
@@ -248,21 +247,7 @@ export default function ProblemDetailPage() {
                     </div>
 
                     <Card className="border rounded-md overflow-hidden h-[calc(100vh-300px)] pb-0 pt-0.5 px-0.5">
-                        <Suspense fallback={<Loading />}>
-                            <MonacoEditor
-                                height="100%"
-                                language={language === "javascript" ? "javascript" : "python"}
-                                theme="vs-dark"
-                                value={code}
-                                onChange={(value) => setCode(value || "")}
-                                options={{
-                                    minimap: { enabled: false },
-                                    scrollBeyondLastLine: false,
-                                    fontSize: 14,
-                                    automaticLayout: true,
-                                }}
-                            />
-                        </Suspense>
+                        <Editor language={language === "javascript" ? "javascript" : "python"} code={code} theme="vs-dark" setCode={setCode} />
                     </Card>
 
                     <Card>

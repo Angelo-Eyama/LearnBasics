@@ -1,13 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {Link} from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import useTitle from "@/hooks/useTitle"
 import { Users, BookText, MessageSquare } from "lucide-react"
 
 export default function AdminDashboardPage() {
-    useTitle("Admin Dashboard")
     return (
         <div className="container mx-auto py-6 px-4">
+            <title>Administrador</title>
             <div className="mb-6">
                 <h1 className="text-3xl font-bold">Admin Dashboard</h1>
                 <p className="text-muted-foreground">Manage your platform's content and users</p>

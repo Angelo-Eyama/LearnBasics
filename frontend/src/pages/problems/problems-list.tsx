@@ -81,6 +81,7 @@ export default function ProblemsPage() {
 
     return (
         <div className="container mx-auto py-6 px-4">
+            <title>Lista de problemas</title>
             <div className="mb-6">
                 <h1 className="text-3xl font-bold">Programming Problems</h1>
                 <p className="text-muted-foreground">Practice your coding skills with these challenges</p>

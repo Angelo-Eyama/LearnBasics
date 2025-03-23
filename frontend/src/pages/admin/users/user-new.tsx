@@ -57,6 +57,7 @@ export default function NewUserPage() {
 
     return (
         <div className="container mx-auto py-6">
+            <title>Crear usuario</title>
             <div className="flex items-center mb-6">
                 <Button variant="ghost" size="sm" asChild className="mr-2">
                     <Link to="/admin/users">

@@ -82,6 +82,7 @@ export default function UserDetailPage() {
 
     return (
         <div className="container mx-auto py-6 px-4">
+            <title>{user.name}</title>
             <div className="flex items-center mb-6">
                 <Button variant="ghost" size="sm" asChild className="mr-2">
                     <Link to="/admin/users">

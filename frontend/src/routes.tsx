@@ -5,7 +5,6 @@ import { RouteObject } from 'react-router-dom';
 const Landing = lazy(() => import('@/pages/public/landing'));
 const Login = lazy(() => import('@/pages/public/login'));
 const Register = lazy(() => import('@/pages/public/sign-in'));
-const Home = lazy(() => import('@/pages/private/home'));
 const PublicPlayground = lazy(() => import('@/pages/private/playground').then(module => ({ default: module.PublicPlayground })));
 const PrivatePlayground = lazy(() => import('@/pages/private/playground').then(module => ({ default: module.PrivatePlayground })));
 const ProfilePage = lazy(() => import('@/pages/users/profile'));
@@ -26,7 +25,6 @@ const routes: RouteObject[] = [
     { path: '/', element: <Landing /> },
     { path: '/login', element: <Login /> },
     { path: '/register', element: <Register /> },
-    { path: '/home', element: <Home /> },
     { path: '/playground', element: <PublicPlayground /> },
     { path: '/private', element: <PrivatePlayground /> },
     { path: '/profile', element: <ProfilePage /> },
