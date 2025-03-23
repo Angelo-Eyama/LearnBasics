@@ -30,18 +30,24 @@ export default function Navigation() {
                     <Link to="/playground" className="text-sm font-medium hover:underline underline-offset-4">
                         Editor
                     </Link>
-                    <Link to="/private" className="text-sm font-medium hover:underline underline-offset-4">
-                        Editor privado
-                    </Link>
-                    <Link to="/problems" className="text-sm font-medium hover:underline underline-offset-4">
-                        Problemas
-                    </Link>
-                    <Link to="/admin" className="text-sm font-medium hover:underline underline-offset-4">
-                        Admin
-                    </Link>
-                    <Link to="/about" className="text-sm font-medium hover:underline underline-offset-4">
-                        Sobre nosotros
-                    </Link>
+                    {
+                        isLoggedIn && (
+                            <>
+                                <Link to="/private" className="text-sm font-medium hover:underline underline-offset-4">
+                                    Editor privado
+                                </Link>
+                                <Link to="/problems" className="text-sm font-medium hover:underline underline-offset-4">
+                                    Problemas
+                                </Link>
+                                <Link to="/admin" className="text-sm font-medium hover:underline underline-offset-4">
+                                    Admin
+                                </Link> {/* Solo visible para administradores y moderadores */}
+                                <Link to="/about" className="text-sm font-medium hover:underline underline-offset-4">
+                                    Sobre nosotros
+                                </Link>
+                            </>
+                        )
+                    }
                 </nav>
                 <div className="flex items-center gap-2">
                     <ModeToggle />
