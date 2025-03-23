@@ -1,12 +1,11 @@
-import { useState, Suspense, lazy } from "react";
-import { Loading } from "@/components/ui/loading";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Play, Download, Copy, MessageSquare } from "lucide-react";
-const MonacoEditor = lazy(() => import('@monaco-editor/react')); //Carga dinámica del componente
-
+import Editor from "@/components/editor";
+import useTitle from "@/hooks/useTitle"
 const languages = [
     { value: "javascript", label: "JavaScript", extension: "js" },
     { value: "typescript", label: "TypeScript", extension: "ts" },
@@ -23,6 +22,7 @@ const themes = [
 // - Refactorizar los dos editores extrayendo los componentes y props comunes
 
 export function PublicPlayground() {
+    useTitle("Editor")
     const [language, setLanguage] = useState("javascript");
     const [theme, setTheme] = useState("vs-dark");
     const [code, setCode] = useState(`console.log('Hola mundo')`);
@@ -105,34 +105,20 @@ export function PublicPlayground() {
                             </Button>
                         </div>
                     </div>
-
-                    <Card className="border rounded-md overflow-hidden h-[calc(100vh-250px)]">
-                        <Suspense fallback={<Loading />}>
-                            <MonacoEditor
-                                height="100%"
-                                language={language}
-                                theme={theme}
-                                value={code}
-                                onChange={(value) => setCode(value || "")}
-                                options={{
-                                    minimap: { enabled: false },
-                                    scrollBeyondLastLine: false,
-                                    fontSize: 14,
-                                    automaticLayout: true,
-                                }}
-                            />
-                        </Suspense>
+                    <Card className="border rounded-md overflow-hidden h-[calc(100vh-250px)] pb-0 pt-0.5 px-0.5">
+                        <Editor language={language} theme={theme} code={code} setCode={setCode} />
                     </Card>
+
                 </div>
 
                 <div className="flex flex-col space-y-4">
                     <div className="flex items-center justify-between">
                     </div>
-                    <Card className="border rounded-md overflow-hidden h-[calc(100vh-250px)]">
-                        <div className="p-4 h-full bg-black text-white font-mono text-sm overflow-auto whitespace-pre-wrap">
+                    <Card className="px-0.5 py-1.5 border rounded-md overflow-hidden h-[calc(100vh-250px)]">
+                        <div className="pb-0 p-4 h-full bg-black text-white font-mono text-sm overflow-auto whitespace-pre-wrap">
                             {output || "Ejecuta el código para ver los resultados..."}
                         </div>
-                        <Button size="sm" variant="outline" onClick={() => setOutput("")} className="p-4 mx-1">
+                        <Button size="sm" variant="outline" onClick={() => setOutput("")} className="p-4 mx-1 hover:bg-red-700 cursor-pointer">
                             Limpiar terminal
                         </Button>
                     </Card>
@@ -255,20 +241,8 @@ export function PrivatePlayground() {
                         </div>
                     </div>
 
-                    <Card className="border rounded-md overflow-hidden h-[calc(100vh-250px)]">
-                        <MonacoEditor
-                            height="100%"
-                            language={language}
-                            theme={theme}
-                            value={code}
-                            onChange={(value) => setCode(value || "")}
-                            options={{
-                                minimap: { enabled: false },
-                                scrollBeyondLastLine: false,
-                                fontSize: 14,
-                                automaticLayout: true,
-                            }}
-                        />
+                    <Card className="border rounded-md overflow-hidden h-[calc(100vh-250px)] pb-0 pt-0.5 px-0.5">
+                        <Editor language={language} theme={theme} code={code} setCode={setCode} />
                     </Card>
                 </div>
 
@@ -296,10 +270,10 @@ export function PrivatePlayground() {
                         </Tabs>
                     </div>
 
-                    <Card className="border rounded-md overflow-hidden h-[calc(100vh-250px)]">
+                    <Card className="px-0.5 pb-0 pt-1 border rounded-md overflow-hidden h-[calc(100vh-250px)]">
                         <Tabs defaultValue="output" value={activeTab} className="w-full h-full">
                             <TabsContent value="output" className="h-full m-0">
-                                <div className="p-4 h-full bg-black text-white font-mono text-sm overflow-auto whitespace-pre-wrap">
+                                <div className="h-full bg-black text-white font-mono text-sm overflow-auto whitespace-pre-wrap">
                                     {output || "Ejecute el código para ver la salida aquí..."}
                                 </div>
                             </TabsContent>
