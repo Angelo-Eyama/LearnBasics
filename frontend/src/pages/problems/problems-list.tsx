@@ -1,13 +1,22 @@
 "use client"
 
 import { useState } from "react"
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
+import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, CheckCircle2 } from "lucide-react"
+import { Search, CheckCircle2, MoreHorizontal, Flag } from "lucide-react"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
 
 // Mock problems data
 const problems = [
@@ -59,6 +68,7 @@ export default function ProblemsPage() {
     const [searchQuery, setSearchQuery] = useState("")
     const [difficultyFilter, setDifficultyFilter] = useState("all")
     const [statusFilter, setStatusFilter] = useState("all")
+
 
     const filteredProblems = problems.filter((problem) => {
         // Search filter
@@ -159,10 +169,49 @@ export default function ProblemsPage() {
                                     ))}
                                 </div>
                             </CardContent>
-                            <CardFooter>
+                            <CardFooter className="flex justify-between items-center">
                                 <Button asChild>
                                     <Link to={`/problems/${problem.id}`}>{problem.solved ? "Revisar" : "Resolver"}</Link>
                                 </Button>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="ghost" className="h-8 w-8 p-0">
+                                            <span className="sr-only">Abrir menu</span>
+                                            <MoreHorizontal className="h-4 w-4" />
+                                        </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="mx-4">
+                                        <DropdownMenuItem asChild>
+                                            <AlertDialog>
+                                                <AlertDialogTrigger className="w-full" >
+                                                    <Button variant="ghost" className="w-full hover:bg-red-400">
+                                                        <Flag className="h-5 w-5 mr-2" /> Reportar
+                                                    </Button>
+                                                </AlertDialogTrigger>
+                                                <AlertDialogContent>
+                                                    <AlertDialogHeader>
+                                                        <AlertDialogTitle>Reportar problema</AlertDialogTitle>
+                                                        <AlertDialogDescription>
+                                                            Comuniquenos si ha encontrado algún error en este problema.
+                                                        </AlertDialogDescription>
+                                                    </AlertDialogHeader>
+                                                    <Label htmlFor="report" />
+                                                    <Textarea
+                                                        id="description"
+                                                        name="description"
+                                                        rows={5}                                                        
+                                                        required
+                                                        placeholder="Describa el problema que ha encontrado, cuanto más detallado mejor. Los administradores revisarán su reporte y tomarán las medidas necesarias. Gracias"
+                                                    />
+                                                    <AlertDialogFooter>
+                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                        <AlertDialogAction>Reportar</AlertDialogAction>
+                                                    </AlertDialogFooter>
+                                                </AlertDialogContent>
+                                            </AlertDialog>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </CardFooter>
                         </Card>
                     ))

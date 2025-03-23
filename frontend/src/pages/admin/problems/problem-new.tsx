@@ -105,7 +105,7 @@ export default function NewProblemPage() {
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="title">Title</Label>
+                                    <Label htmlFor="title">Titulo</Label>
                                     <Input id="title" name="title" value={formData.title} onChange={handleChange} required />
                                 </div>
 
@@ -199,7 +199,7 @@ Output: [1,2]"
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="status">Status</Label>
+                                    <Label htmlFor="status">Estado</Label>
                                     <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Indique estado" />
@@ -212,7 +212,7 @@ Output: [1,2]"
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label>Tags</Label>
+                                    <Label>Etiquetas</Label>
                                     <div className="flex flex-wrap gap-2 mb-2">
                                         {formData.tags.map((tag) => (
                                             <Badge key={tag} variant="secondary" className="flex items-center gap-1">
