@@ -74,12 +74,12 @@ export default function Navigation() {
                             </>
                         ) : (
                             <>
-                                <Link to='/login'>
+                                <Link to='/auth/login'>
                                     <Button variant="outline" className="w-full cursor-pointer">
                                         Iniciar sesion
                                     </Button>
                                 </Link>
-                                <Link to='/register'>
+                                <Link to='/auth/register'>
                                     <Button className="w-full cursor-pointer">
                                         Registrarse
                                     </Button>
@@ -121,15 +121,20 @@ export default function Navigation() {
                                                     Mi perfil
                                             </Button>
                                         </Link>
-                                        <Button variant="outline" onClick={handleLogout} className="w-full cursor-pointer">
-                                                    Mi perfil
+                                        <Button variant="destructive" onClick={handleLogout} className="w-full cursor-pointer">
+                                                    Cerrar sesion
                                         </Button>
                                         </>
                                     ) : (
                                         <>
-                                            <Link to='/login'>
+                                            <Link to='/auth/login'>
                                                 <Button variant="outline" className="w-full cursor-pointer">
                                                     Iniciar sesion
+                                                </Button>
+                                            </Link>
+                                            <Link to='/auth/register'>
+                                                <Button variant="default" className="w-full cursor-pointer">
+                                                    Registrarse
                                                 </Button>
                                             </Link>
                                         </>

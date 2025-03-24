@@ -28,7 +28,7 @@ export const Landing: React.FC = () => {
                                         Codificar <ArrowRight className="ml-2 h-4 w-4" />
                                     </Button>
                                 </Link>
-                                <Link to='/login'>
+                                <Link to='/auth/login'>
                                     <Button variant="outline" size="lg" className="h-12">
                                         Iniciar sesion
                                     </Button>
@@ -105,13 +105,13 @@ export const Landing: React.FC = () => {
                                 </p>
                             </div>
                             <div className="flex flex-wrap items-center justify-center gap-4">
-                                <Link to='/register'>
+                                <Link to='/auth/register'>
                                     <Button size="lg" className="h-12">
                                         Registrarse
                                         <ChevronRight className="ml-1 h-4 w-4" />
                                     </Button>
                                 </Link>
-                                <Link to='/login'>
+                                <Link to='/auth/login'>
                                     <Button variant="outline" size="lg" className="h-12">
                                         Iniciar sesion
                                     </Button>
