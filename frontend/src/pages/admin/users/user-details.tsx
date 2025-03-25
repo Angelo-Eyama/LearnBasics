@@ -3,16 +3,28 @@
 import type React from "react"
 
 import { useState } from "react"
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Save, Ban, Shield } from "lucide-react"
+import { ArrowLeft, Save, Ban, Shield, CheckCircle, CircleX, Activity, Bell, Send } from "lucide-react"
 import { toast } from "sonner"
+import { Textarea } from "@/components/ui/textarea"
 
 // Mock user data
 const user = {
@@ -20,7 +32,7 @@ const user = {
     name: "Jane Smith",
     email: "jane.smith@example.com",
     avatar: "/placeholder.svg?height=100&width=100",
-    role: "User",
+    role: "Estudiante",
     status: "Active",
     problemsSolved: 42,
     submissions: 78,
@@ -48,6 +60,7 @@ const user = {
             date: "2023-10-10T16:45:00Z",
         },
     ],
+    verified: false,
 }
 
 // TODO: Modificar el componente para que muestre la información del usuario con el id que se recibe en los parámetros de la URL
@@ -57,6 +70,9 @@ export default function UserDetailPage() {
 
     const [userData, setUserData] = useState(user)
     const [isSubmitting, setIsSubmitting] = useState(false)
+    const [notificationMessage, setNotificationMessage] = useState("")
+    const [isSendingNotification, setIsSendingNotification] = useState(false)
+
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
@@ -65,6 +81,31 @@ export default function UserDetailPage() {
 
     const handleSelectChange = (name: string, value: string) => {
         setUserData((prev) => ({ ...prev, [name]: value }))
+    }
+
+    const handleVerifyUser = () => {
+        setUserData((prev) => ({ ...prev, verified: true }))
+        toast.success("Usuario verificado", {
+            description: "El usuario ha sido verificado correctamente.",
+        })
+    }
+
+    const handleSendNotification = () => {
+        if (!notificationMessage.trim()) {
+            toast.error("Mensaje vacío", {
+                description: "Por favor, escribe un mensaje antes de enviar la notificación.",
+            })
+            return
+        }
+        setIsSendingNotification(true)
+        // Simulate API call
+        setTimeout(() => {
+            setIsSendingNotification(false)
+            setNotificationMessage("")
+            toast.success("Notificación enviada", {
+                description: "La notificación ha sido enviada correctamente.",
+            })
+        }, 1000)
     }
 
     const handleSubmit = (e: React.FormEvent) => {
@@ -111,6 +152,17 @@ export default function UserDetailPage() {
                                 {userData.role}
                             </Badge>
                             <Badge variant={userData.status === "Active" ? "default" : "destructive"}>{userData.status}</Badge>
+                            {userData.verified ? (
+                                <Badge variant="default" className="flex items-center gap-1 bg-green-500">
+                                    <CheckCircle className="h-3 w-3" />
+                                    Verificado
+                                </Badge>
+                            ) : (
+                                <Badge variant="outline" className="flex items-center gap-1">
+                                    <CircleX className="h-3 w-3" />
+                                    No verificado
+                                </Badge>
+                            )}
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -137,12 +189,60 @@ export default function UserDetailPage() {
                             <div className="flex flex-col space-y-2">
                                 <Button variant="outline" className="justify-start">
                                     <Shield className="mr-2 h-4 w-4" />
-                                    {userData.role === "Admin" ? "Quitar rol de Admin" : "Hacer Admin"}
+                                    {userData.role === "Admin" ? "Quitar rol de Admin." : "Hacer Admin."}
                                 </Button>
                                 <Button variant="outline" className="justify-start">
                                     <Ban className="mr-2 h-4 w-4" />
-                                    {userData.status === "Active" ? "Desactivar cuenta" : "Activar cuenta"}
+                                    {userData.status === "Active" ? "Bloquear cuenta" : "Desbloqueear cuenta"}
                                 </Button>
+                                <Button variant="outline" className="justify-start">
+                                    <Activity className="mr-2 h-4 w-4" />
+                                    Ver registro de actividad
+                                </Button>
+                                {!userData.verified && (
+                                    <Button variant="default" className="justify-start" onClick={handleVerifyUser}>
+                                        <CheckCircle className="mr-2 h-4 w-4" />
+                                        Verificar usuario
+                                    </Button>
+                                )}
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="outline" className="justify-start">
+                                            <Bell className="mr-2 h-4 w-4" />
+                                            Enviar notificación
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Enviar notificación</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Enviar notificación a {userData.name}. Esta notificación aparecerá en la bandeja de entrada del usuario.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <div className="space-y-4 py-4">
+                                            <div className="space-y-2">
+                                                <Label htmlFor="notification">Mensaje</Label>
+                                                <Textarea
+                                                    id="notification"
+                                                    placeholder="Introduzca aquí la descripción de la notificación..."
+                                                    value={notificationMessage}
+                                                    onChange={(e) => setNotificationMessage(e.target.value)}
+                                                    rows={4}
+                                                />
+                                            </div>
+                                        </div>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                onClick={handleSendNotification}
+                                                disabled={isSendingNotification || !notificationMessage.trim()}
+                                            >
+                                                <Send className="mr-2 h-4 w-4" />
+                                                {isSendingNotification ? "Enviando..." : "Enviar notificación"}
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </div>
                         </div>
                     </CardContent>
@@ -174,7 +274,7 @@ export default function UserDetailPage() {
                                                 <SelectValue placeholder="Select role" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="User">Estudiante</SelectItem>
+                                                <SelectItem value="Estudiante">Estudiante</SelectItem>
                                                 <SelectItem value="Moderator">Moderador</SelectItem>
                                                 <SelectItem value="Admin">Admin</SelectItem>
                                             </SelectContent>

@@ -284,21 +284,23 @@ export default function ProfilePage() {
                         </Avatar>
                         <CardTitle>{user.name}</CardTitle>
                         <CardDescription>@{user.username}</CardDescription>
-                        <Badge className="mt-2">{user.rank}</Badge>
-                        {user.verified ? (
-                                <Badge variant="default" className="mt-2 flex items-center gap-1 bg-green-500">
-                                    <CheckCircle className="h-3 w-3" />
-                                    Verificado
-                                </Badge>
-                            )
-                            :
-                            (
-                                <Badge variant="destructive" className="mt-2 flex items-center gap-1">
-                                    <CircleX className="h-3 w-3" />
-                                    No Verificado
-                                </Badge>
-                            )
-                        }
+                        <div className="flex gap-2 mt-2">
+                            <Badge className="mt-2">{user.rank}</Badge>
+                            {user.verified ? (
+                                    <Badge variant="default" className="mt-2 flex items-center gap-1 bg-green-500">
+                                        <CheckCircle className="h-3 w-3" />
+                                        Verificado
+                                    </Badge>
+                                )
+                                :
+                                (
+                                    <Badge variant="destructive" className="mt-2 flex items-center gap-1">
+                                        <CircleX className="h-3 w-3" />
+                                        No Verificado
+                                    </Badge>
+                                )
+                            }
+                        </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center">
@@ -373,12 +375,11 @@ export default function ProfilePage() {
                                             <span className="text-sm text-muted-foreground">Total de entregas</span>
                                         </div>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent className="max-w-4xl">
+                                    <AlertDialogContent className="max-w-xl">
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Historial de entregas</AlertDialogTitle>
-                                            <AlertDialogDescription>Ver todo el código</AlertDialogDescription>
                                         </AlertDialogHeader>
-                                        <div className="max-h-[60vh] overflow-auto">
+                                        <div className="max-h-[80vh]  overflow-auto">
                                             <Table>
                                                 <TableHeader>
                                                     <TableRow>
@@ -519,16 +520,16 @@ export default function ProfilePage() {
                         <CardContent>
                             <Tabs defaultValue="all" value={notificationsTab} onValueChange={setNotificationsTab}>
                                 <TabsList className="mb-4">
-                                    <TabsTrigger value="all">All</TabsTrigger>
+                                    <TabsTrigger value="all">Todas</TabsTrigger>
                                     <TabsTrigger value="unread">
-                                        No leído
+                                        No leídas
                                         {userNotifications.filter((n) => !n.read).length > 0 && (
                                             <Badge variant="secondary" className="ml-2">
                                                 {userNotifications.filter((n) => !n.read).length}
                                             </Badge>
                                         )}
                                     </TabsTrigger>
-                                    <TabsTrigger value="read">Leer</TabsTrigger>
+                                    <TabsTrigger value="read">Leídas</TabsTrigger>
                                 </TabsList>
 
                                 <div className="space-y-4">
@@ -545,7 +546,7 @@ export default function ProfilePage() {
                                                     </div>
                                                     {!notification.read && (
                                                         <Button variant="ghost" size="sm" onClick={() => markAsRead(notification.id)}>
-                                                            Marcar como leído
+                                                            Marcar como leída
                                                         </Button>
                                                     )}
                                                 </div>
