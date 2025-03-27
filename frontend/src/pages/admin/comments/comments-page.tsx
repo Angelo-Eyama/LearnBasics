@@ -148,7 +148,7 @@ export default function AdminCommentsPage() {
                         <div>
                             <CardTitle>Comentarios</CardTitle>
                             <CardDescription>
-                                Mosntrando {filteredComments.length} de {comments.length} comentarios
+                                Mostrando {filteredComments.length} de {comments.length} comentarios
                             </CardDescription>
                         </div>
                         <div className="flex flex-col md:flex-row gap-2">

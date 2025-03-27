@@ -47,7 +47,7 @@ export default function AdminDashboardPage() {
 
                 <Card>
                     <CardHeader className="pb-2">
-                        <CardTitle className="text-xl">Commentarios</CardTitle>
+                        <CardTitle className="text-xl">Comentarios</CardTitle>
                         <CardDescription>Moderación de comentarios de usuarios</CardDescription>
                     </CardHeader>
                     <CardContent>
