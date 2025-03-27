@@ -15,6 +15,13 @@ Lo primero es crear un entorno virtual de python con el siguiente comnando:
 python -m venv venv
 ```
 
+Luego activamos el entorno virtual con el siguiente comando:
+
+``` bash
+source venv/bin/activate # Linux
+.\venv\Scripts\activate # Windows
+```
+
 Con el entorno listo, instalamos las dependencias del proyecto con el siguiente comando:
 
 ``` bash
@@ -27,6 +34,13 @@ Si todo ha salido bien, debes tener ya instalada la libreria alembic, que se enc
     alembic upgrade head
 ```
 
+Necesitas un archivo .env en la raiz del proyecto con las siguientes variables de entorno, en el proyecto hay uno de ejemplo.
+Ejecuta:
+``` bash
+cp .env.example .env
+```
+Modifica el archivo .env con tus credenciales de la base de datos y cambia los datos de la aplicacion si lo deseas.
+
 Ahora solo tenemos que correr el siguiente comando para iniciar el servidor:
 
 ``` bash
@@ -37,7 +51,6 @@ o si prefieres
 fastapi dev app/main.py
 ```
 Accede a la url [http://localhost:8000/docs](http://localhost:8000/docs) para ver la documentacion de la API.
-
 
 
 ## Estructura
