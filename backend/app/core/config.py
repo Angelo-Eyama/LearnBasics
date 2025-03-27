@@ -1,4 +1,3 @@
-import secrets
 from typing import Annotated, Any, Literal
 import mysql.connector
 
