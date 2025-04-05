@@ -20,6 +20,7 @@ def create_access_token(data: dict | Any, expires_delta: timedelta = None):
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
+#TODO: Cambiar a un nombre más generico, ya que se puede usar para cualquier tipo de token
 def create_password_recovery_token() -> str:
     return token_urlsafe(32)
 

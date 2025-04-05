@@ -12,7 +12,7 @@ def create_token(session: Session, token: Token):
 def get_token_by_user_id(session: Session, user_id: int):
     token = session.exec(
         select(Token).where(Token.userID == user_id)
-        ).first()
+        ).all()
     return token
 
 def get_token_by_token(session: Session, token: str):
