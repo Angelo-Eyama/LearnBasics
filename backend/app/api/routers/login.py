@@ -4,9 +4,12 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
 from app.api.controllers.users import authenticate, get_user_by_email
+from app.api.controllers import token as token_controller
 from app.core import security
 from app.core.config import settings
-from app.schemas.utils import Token, ErrorResponse
+from app.schemas.utils import AccessToken, ErrorResponse, Message
+from app.schemas.token import TokenUpdate
+
 from app.api.deps import SessionDep
 
 router = APIRouter(
@@ -15,7 +18,7 @@ router = APIRouter(
     )
 
 @router.post("/access-token",
-            response_model=Token,
+            response_model=AccessToken,
             summary="Generar token de acceso",
             description="Solicita datos de inicio de sesion y genera un token de acceso para el usuario.",
             )
@@ -48,12 +51,11 @@ def login_for_access_token(session: SessionDep, form_data: OAuth2PasswordRequest
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/password-recovery",
-            response_model=Token,
             summary="Solicitar recuperacion de contraseña",
             description="El usuario solicita recuperar su contraseña. Se enviara un correo electronico con el token de recuperacion.",
             responses={
                 200: {
-                    "model": Token,
+                    "model": Message,
                     "description": "Se ha enviado un correo electronico con el token de recuperacion.",
                 },
                 400: {
@@ -74,20 +76,21 @@ def password_recovery(email: EmailStr, session: SessionDep):
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Usuario inactivo",
         )
-    # Generar token de recuperacion
-    token = security.create_password_recovery_token()
-    expiration = datetime.now(timezone.utc) + timedelta(minutes=settings.PASSWORD_RECOVERY_TOKEN_EXPIRE_MINUTES)
-    # Guardar token en la base de datos
-    session.add(
-        Token(
-            userID=user.id,
-            token=token,
-            expire_at=expiration,
-            type="recovery",
-            isValid=True
-        )
+
+    # Generar y guardar token en la base de datos
+    token_data = TokenUpdate(
+        userID= user.id,
+        token= security.create_password_recovery_token(),
+        expire_at= datetime.now(timezone.utc) + timedelta(minutes=settings.RECOVERY_TOKEN_EXPIRE_MINUTES),
+        type= "recovery",
+        isValid= True
     )
-    session.commit()
+    # Verificar si el usuario ya tiene un token de recuperacion activo
+    if token_controller.get_token_by_user_id(session, user.id):
+        # print(f"El usuario {user.id, user.username} ya tiene un token de recuperacion activo")
+        token = token_controller.update_token(session, user.id, token_data)
+    else:
+        token = token_controller.create_token(session, token_data)
     # TODO: Enviar correo electronico con el token de recuperacion
     if False:
         reset_link = f"{settings.FRONTEND_URL}/reset-password?token={token}"
@@ -96,9 +99,7 @@ def password_recovery(email: EmailStr, session: SessionDep):
         # send_email(email)
 
     return {
-        "message": "Se ha enviado un correo electronico con el token de recuperacion.",
-        "token": token,
-        "expire_at": expiration.isoformat()
+        "message": f"Se ha enviado un correo electronico a {email} con el token de recuperacion.",
     }
 
 ''' 
