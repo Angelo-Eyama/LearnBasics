@@ -31,7 +31,7 @@ def validate_token(token: str) -> dict | Any:
         return None
 
 def hash_password(password: str):
-    return pwd_context.hash(password)
+    return pwd_context.hash(password.encode("utf-8"))
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)

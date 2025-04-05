@@ -40,7 +40,7 @@ def update_user(session: Session, db_user: User, user_in: UserUpdate) -> User:
     return db_user
 
 def update_password(session: Session, db_user: User, password: str):    
-    db_user.password = hash_password(password.encode("utf-8"))
+    db_user.password = hash_password(password)
     session.add(db_user)
     session.commit()
     session.refresh(db_user)
