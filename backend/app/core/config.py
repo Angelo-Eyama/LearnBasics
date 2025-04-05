@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     SECRET_KEY: str
     # 60 minutes * 24 hours * 1 days = 1 day
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 1
+    RECOVERY_TOKEN_EXPIRE_MINUTES: int = 60 * 1
     FRONTEND_HOST: str = "http://localhost:5173"
     ENVIRONMENT: Literal["local", "staging", "production"] = "local"
 

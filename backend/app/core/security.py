@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from typing import Any
-
+from secrets import token_urlsafe
 import jwt
 from passlib.context import CryptContext
 from app.core.config import settings
@@ -19,6 +19,16 @@ def create_access_token(data: dict | Any, expires_delta: timedelta = None):
     )
     encoded_jwt = jwt.encode(to_encode, settings.SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
+def create_password_recovery_token() -> str:
+    return token_urlsafe(32)
+
+def validate_token(token: str) -> dict | Any:
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
+    except jwt.PyJWTError:
+        return None
 
 def hash_password(password: str):
     return pwd_context.hash(password)

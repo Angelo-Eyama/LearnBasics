@@ -19,12 +19,16 @@ class User(SQLModel, table=True):
     email: str
     score: Optional[int] = 0
     creationDate: Optional[datetime] = Field(default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
+    bio: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
+    profilePicture: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
+    github: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     active: bool = Field(default=True, description='Indica si el usuario puede acceder o no.', sa_column_kwargs={"comment": 'Indica si el usuario puede acceder o no.'} )
-    
+    isVerified: bool = Field(default=False, description='Indica si el usuario ha verificado su cuenta.', sa_column_kwargs={"comment": 'Indica si el usuario ha verificado su cuenta.'} )
     roles: List["Role"] = Relationship(back_populates="users",link_model=UserRole)
     comments: List["Comment"] = Relationship(back_populates="user")
     notifications: List["Notification"] = Relationship(back_populates="user")
-    
+    tokens: List["Token"] = Relationship(back_populates="user")
+
 class Problem(SQLModel, table=True):
     __tablename__ = "problems"
     
@@ -32,10 +36,11 @@ class Problem(SQLModel, table=True):
     title: str
     block: str
     description: str
+    hints: str
     difficulty: str
     score: int
+    tags: str
     authorID: int = Field(foreign_key="users.id")
-    
     testCases: List["TestCase"] = Relationship(back_populates="problem", cascade_delete=True)
     
 class Submission(SQLModel, table=True):
@@ -55,8 +60,19 @@ class Role(SQLModel, table=True):
     __tablename__ = "roles"
     name: Optional[str] = Field(default=None, primary_key=True)
     description: str
-    
     users: List[User] = Relationship(back_populates="roles", link_model=UserRole)
+
+class Token(SQLModel, table=True):
+    __tablename__ = "tokens"
+    
+    id: Optional[int] = Field(default=None, primary_key=True)
+    userID: int = Field(foreign_key="users.id", ondelete="CASCADE")
+    token: str = Field(sa_column_kwargs={"unique": True})
+    expire_at: Optional[datetime] = Field(default=None, sa_column_kwargs={"nullable": True})
+    # El tipo de token puede ser verify o recovery
+    type: str = Field(sa_column_kwargs={"comment": "El tipo de token puede ser verify o recovery"})
+    isValid: bool = Field(default=True, sa_column_kwargs={"comment": "Indica si el token es valido o no"})
+    user: User = Relationship(back_populates="tokens")
 
 class Comment(SQLModel, table=True):
     __tablename__ = "comments"
