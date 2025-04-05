@@ -31,17 +31,19 @@ def create_user(session: Session, new_user: UserCreate) -> User:
     return user_db
 
 
-def update_user(*, session: Session, db_user: User, user_in: UserUpdate) -> User:
+def update_user(session: Session, db_user: User, user_in: UserUpdate) -> User:
     user_data = user_in.model_dump(exclude_unset=True)
-    if "password" in user_data:
-        password = user_data["password"]
-        user_data["password"] = hash_password(password)
     db_user.sqlmodel_update(user_data)
     session.add(db_user)
     session.commit()
     session.refresh(db_user)
     return db_user
 
+def update_password(session: Session, db_user: User, password: str):    
+    db_user.password = hash_password(password.encode("utf-8"))
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
 
 def delete_user(session: Session, user_id: int) -> User:
     user = session.get(User, user_id)

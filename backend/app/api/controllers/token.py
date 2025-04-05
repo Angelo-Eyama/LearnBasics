@@ -15,6 +15,15 @@ def get_token_by_user_id(session: Session, user_id: int):
         ).first()
     return token
 
+def get_token_by_token(session: Session, token: str):
+    db_token = session.exec(
+        select(Token).where(Token.token == token)
+        ).first()
+    return db_token
+
+def get_tokens(session: Session) -> list[Token]:
+    tokens = session.exec(select(Token)).all()
+    return tokens
 def update_token(session: Session, user_id: int, token_in: TokenUpdate):
     tmp = get_token_by_user_id(session, user_id)
     db_token = session.get(Token, tmp.id)
@@ -27,9 +36,9 @@ def update_token(session: Session, user_id: int, token_in: TokenUpdate):
     session.refresh(db_token)
     return db_token
 
-def change_state_token(session: Session, token_id: int):
+def change_state_token(session: Session, token_id: int) -> bool:
     token = session.get(Token, token_id)
     token.isValid = not token.isValid
     session.commit()
     session.refresh(token)
-    return token
+    return True

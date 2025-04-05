@@ -3,12 +3,14 @@ from pydantic import EmailStr
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.api.controllers.users import authenticate, get_user_by_email
+from app.api.controllers.users import authenticate, get_user_by_email, update_password
 from app.api.controllers import token as token_controller
 from app.core import security
 from app.core.config import settings
+from app.models import User
 from app.schemas.utils import AccessToken, ErrorResponse, Message
 from app.schemas.token import TokenUpdate
+from app.schemas.user import UserUpdate
 
 from app.api.deps import SessionDep
 
@@ -102,6 +104,57 @@ def password_recovery(email: EmailStr, session: SessionDep):
         "message": f"Se ha enviado un correo electronico a {email} con el token de recuperacion.",
     }
 
+@router.post("/password-reset",
+            summary="Restablecer contraseña",
+            description="El usuario introduce los datos de su nueva contraseña y el token de recuperacion.",
+            responses={
+                200: {
+                    "model": Message,
+                    "description": "Se ha actualizado la contraseña.",
+                },
+                400: {
+                    "model": ErrorResponse,
+                    "description": "El token es invalido o ha caducado.",
+                },
+            }
+            )
+def password_reset(token: str, new_password: str, session: SessionDep):
+    '''
+    Restablece la contraseña del usuario.
+    '''
+    # Verificar si el token es valido
+    token_data = token_controller.get_token_by_token(session, token)
+    if not token_data:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El token introducido no existe",
+        )
+    if not token_data.isValid:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El token ya no es valido",
+        )
+    if token_data.expire_at.replace(tzinfo=timezone.utc) < datetime.now(timezone.utc):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El token ha caducado",
+        )
+    
+    # Actualizar la contraseña del usuario
+    user = session.get(User, token_data.userID)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="El usuario no existe",
+        )
+
+    update_password(session, user, new_password)
+    # Invalidar el token
+    token_controller.change_state_token(session, token_data.id)
+    
+    return {
+        "message": f"Se ha actualizado la contraseña de {user.username}",
+    }
 ''' 
     FUNCIONES A IMPLEMENTAR EN UN FUTURO:
     * Recuperar contraseña

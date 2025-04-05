@@ -29,11 +29,11 @@ class UserResponse(BaseModel):
     users: List[UserRead]
 
 class UserUpdate(BaseModel):
-    firstName: Optional[str]
-    lastName: Optional[str]
-    email: Optional[EmailStr]
-    active: Optional[bool]
-    score: Optional[int]
+    firstName: Optional[str] = None
+    lastName: Optional[str] = None
+    email: Optional[EmailStr] = None
+    active: Optional[bool] = None
+    score: Optional[int] = None
 
 class UserRegister(SQLModel):
     firstName: str
