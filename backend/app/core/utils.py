@@ -6,7 +6,7 @@ class RoleType():
 
 tags_metadata = [
     {
-        "name": "Login",
+        "name": "Auth",
         "description": "Operaciones relacionadas con la autenticación y autorización de los usuarios.",
     }
     ,

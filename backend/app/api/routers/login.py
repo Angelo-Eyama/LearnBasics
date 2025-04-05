@@ -11,7 +11,7 @@ from app.api.deps import SessionDep
 
 router = APIRouter(
     prefix="/auth",
-    tags=["Login"]
+    tags=["Auth"],
     )
 
 @router.post("/access-token",

@@ -15,7 +15,7 @@ from app.schemas.utils import TokenPayload
 from app.models import User
 from app.core.utils import RoleType
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login/access-token")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/access-token")
 
 def get_db() -> Generator:
     with Session(engine) as session:
