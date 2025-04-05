@@ -13,7 +13,7 @@ class User(SQLModel, table=True):
     
     id: Optional[int] = Field(default=None, primary_key=True)
     username: str = Field(sa_column_kwargs={"unique": True})
-    password: bytes = Field(sa_column=Column(LargeBinary))
+    password: str = Field(sa_column_kwargs={"comment": "La contraseña se guarda hasheada"})
     firstName: str
     lastName: str
     email: str
