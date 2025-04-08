@@ -1,22 +1,16 @@
 import { Link, useNavigate } from "react-router";
 import { ModeToggle } from "@/components/mode-toggle";
-import {
-    Sheet,
-    SheetContent,
-    SheetTrigger,
-} from "@/components/ui/sheet"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Button } from "@/components/ui/button";
-import { Menu, User } from "lucide-react";
 import NotificationsDropdown from "./notifications-dropdown";
 import { useAuth } from "@/context/useAuth";
-
-export default function Navigation() {
+import { DesktopUserMenu, MobileUserMenu } from "./user-menu";
+import AuthButtons from "./authButtons";
+import { NavLinks } from "./nav-links";
+export default function NavigationBar() {
     const { logout, isLoggedIn } = useAuth();
     const Navigate = useNavigate();
     const handleLogout = () => {
         logout();
-        Navigate("/login");
+        Navigate("/auth/login");
     }
 
     return (
@@ -27,27 +21,7 @@ export default function Navigation() {
                     <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Learn Basics</span>
                 </Link>
                 <nav className="hidden md:flex gap-10">
-                    <Link to="/playground" className="text-sm font-medium hover:underline underline-offset-4">
-                        Editor
-                    </Link>
-                    {
-                        isLoggedIn && (
-                            <>
-                                <Link to="/private" className="text-sm font-medium hover:underline underline-offset-4">
-                                    Editor privado
-                                </Link>
-                                <Link to="/problems" className="text-sm font-medium hover:underline underline-offset-4">
-                                    Problemas
-                                </Link>
-                                <Link to="/admin" className="text-sm font-medium hover:underline underline-offset-4">
-                                    Admin
-                                </Link> {/* Solo visible para administradores y moderadores */}
-                                <Link to="/about" className="text-sm font-medium hover:underline underline-offset-4">
-                                    Sobre nosotros
-                                </Link>
-                            </>
-                        )
-                    }
+                    <NavLinks isLoggedIn={isLoggedIn} />
                 </nav>
                 <div className="flex items-center gap-2">
                     <ModeToggle />
@@ -56,93 +30,15 @@ export default function Navigation() {
                         {isLoggedIn ? (
                             <>
                             <NotificationsDropdown />
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-                                        <User className="h-5 w-5" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    <DropdownMenuItem asChild>
-                                        <Link to="/profile">Mi perfil</Link>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem asChild>
-                                        <p onClick={handleLogout}>Cerrar sesion</p>
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                            <DesktopUserMenu onLogout={handleLogout} />
                             </>
                         ) : (
-                            <>
-                                <Link to='/auth/login'>
-                                    <Button variant="outline" className="w-full cursor-pointer">
-                                        Iniciar sesion
-                                    </Button>
-                                </Link>
-                                <Link to='/auth/register'>
-                                    <Button className="w-full cursor-pointer">
-                                        Registrarse
-                                    </Button>
-                                </Link>
-                            </>
+                            <AuthButtons />
                         )}
                     </div>
 
                     {/* Mobile Menu */}
-                    <Sheet>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" size="icon" className="md:hidden">
-                                <Menu className="h-5 w-5" />
-                                <span className="sr-only">Desplegar menu</span>
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="right">
-                            <nav className="flex flex-col gap-4 mt-8 justify-between text-center">
-                                <Link to="/playground" className="text-sm font-medium hover:underline underline-offset-4">
-                                    Editor
-                                </Link>
-                                <Link to="/private" className="text-sm font-medium hover:underline underline-offset-4">
-                                    Editor privado
-                                </Link>
-                                <Link to="/problems" className="text-sm font-medium hover:underline underline-offset-4">
-                                    Problemas
-                                </Link>
-                                <Link to="/admin" className="text-sm font-medium hover:underline underline-offset-4">
-                                    Admin
-                                </Link>
-                                <Link to="/about" className="text-sm font-medium hover:underline underline-offset-4">
-                                    Sobre nosotros
-                                </Link>
-                                <div className="flex flex-col gap-2 mt-1 p-10 gap-y-4">
-                                    {isLoggedIn ? (
-                                        <>
-                                        <Link to='/profile'>
-                                            <Button variant="outline" className="w-full cursor-pointer">
-                                                    Mi perfil
-                                            </Button>
-                                        </Link>
-                                        <Button variant="destructive" onClick={handleLogout} className="w-full cursor-pointer">
-                                                    Cerrar sesion
-                                        </Button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Link to='/auth/login'>
-                                                <Button variant="outline" className="w-full cursor-pointer">
-                                                    Iniciar sesion
-                                                </Button>
-                                            </Link>
-                                            <Link to='/auth/register'>
-                                                <Button variant="default" className="w-full cursor-pointer">
-                                                    Registrarse
-                                                </Button>
-                                            </Link>
-                                        </>
-                                    )}
-                                </div>
-                            </nav>
-                        </SheetContent>
-                    </Sheet>
+                    <MobileUserMenu onLogout={handleLogout} isLoggedIn={isLoggedIn} />
                 </div>
             </div>
         </header>

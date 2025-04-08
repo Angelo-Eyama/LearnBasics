@@ -1,7 +1,7 @@
 import { Suspense } from 'react';
 import { BrowserRouter, useRoutes } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
-import Navigation from '@/components/nav-bar';
+import NavigationBar from '@/components/nav-bar';
 import Footer from '@/components/footer';
 import { AuthProvider } from '@/context/useAuth';
 import { Toaster } from 'sonner';
@@ -14,7 +14,7 @@ const App = () => {
             <AuthProvider>
                 <BrowserRouter>
                     <Toaster richColors closeButton/>
-                    <Navigation />
+                    <NavigationBar />
                     <Suspense fallback={<Loading />}>
                         <RoutesWrapper />
                     </Suspense>
