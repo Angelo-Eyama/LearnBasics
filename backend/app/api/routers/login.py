@@ -264,10 +264,4 @@ def verify_account(session: SessionDep, token: str):
     return {
         "message": f"Se ha activado la cuenta de {user.username}",
     }
-''' 
-    FUNCIONES A IMPLEMENTAR EN UN FUTURO:
-    * Recuperar contraseña
-    * Cambiar contraseña
-    * Reiniciar contraseña
-    * Recuperar usuario y contraseña
-'''
+
