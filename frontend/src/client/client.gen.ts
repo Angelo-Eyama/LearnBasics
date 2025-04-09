@@ -16,3 +16,10 @@ export type CreateClientConfig<T extends DefaultClientOptions = ClientOptions> =
 export const client = createClient(createConfig<ClientOptions>({
     baseURL: 'http://localhost:8000'
 }));
+
+// Agregar un interceptor para manejar el token de acceso
+client.instance.interceptors.request.use((config) => {
+    const token = localStorage.getItem('access_token');
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+    return config;
+});

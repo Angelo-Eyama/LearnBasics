@@ -1,12 +1,12 @@
 import { Link, useNavigate } from "react-router";
 import { ModeToggle } from "@/components/mode-toggle";
 import NotificationsDropdown from "./notifications-dropdown";
-import { useAuth } from "@/context/useAuth";
+import useAuth, { isLoggedIn } from "@/hooks/useAuth";
 import { DesktopUserMenu, MobileUserMenu } from "./user-menu";
 import AuthButtons from "./authButtons";
 import { NavLinks } from "./nav-links";
 export default function NavigationBar() {
-    const { logout, isLoggedIn } = useAuth();
+    const { logout } = useAuth();
     const Navigate = useNavigate();
     const handleLogout = () => {
         logout();
@@ -27,7 +27,7 @@ export default function NavigationBar() {
                     <ModeToggle />
                     {/* Desktop Menu */}
                     <div className="hidden md:flex gap-2">
-                        {isLoggedIn ? (
+                        {isLoggedIn() ? (
                             <>
                             <NotificationsDropdown />
                             <DesktopUserMenu onLogout={handleLogout} />

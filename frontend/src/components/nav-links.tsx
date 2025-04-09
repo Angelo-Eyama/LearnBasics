@@ -1,14 +1,14 @@
 import { NavLink } from "react-router-dom";
 
 
-export const NavLinks = ({ isLoggedIn }: { isLoggedIn: boolean }) => {
+export const NavLinks = ({ isLoggedIn }: { isLoggedIn:() => boolean }) => {
     return (
         <>
             <NavLink to="/playground" className="text-sm font-medium hover:underline underline-offset-4">
                 Editor
             </NavLink>
             {
-                isLoggedIn && (
+                isLoggedIn() && (
                     <>
                         <NavLink to="/private" className="text-sm font-medium hover:underline underline-offset-4">
                             Editor privado

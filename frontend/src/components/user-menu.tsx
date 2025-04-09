@@ -24,7 +24,7 @@ export const DesktopUserMenu = memo(({ onLogout }: { onLogout: () => void }) => 
     </DropdownMenu>
 ))
 
-export const MobileUserMenu = memo(({ onLogout, isLoggedIn }: { onLogout: () => void, isLoggedIn: boolean }) => (
+export const MobileUserMenu = memo(({ onLogout, isLoggedIn }: { onLogout: () => void, isLoggedIn:() => boolean }) => (
     <Sheet>
         <SheetTrigger asChild>
             <Button variant="outline" size="icon" className="md:hidden">
@@ -38,7 +38,7 @@ export const MobileUserMenu = memo(({ onLogout, isLoggedIn }: { onLogout: () => 
                     Editor
                 </NavLink>
                 {
-                    isLoggedIn && (
+                    isLoggedIn() && (
                         <>
                             <NavLink to="/private" className="text-sm font-medium hover:underline underline-offset-4">
                                 Editor privado
@@ -57,7 +57,7 @@ export const MobileUserMenu = memo(({ onLogout, isLoggedIn }: { onLogout: () => 
                 }
 
                 <div className="flex flex-col gap-2 mt-1 p-10 gap-y-4">
-                    {isLoggedIn ? (
+                    {isLoggedIn() ? (
                         <>
                             <NavLink to='/profile'>
                                 <Button variant="outline" className="w-full cursor-pointer">

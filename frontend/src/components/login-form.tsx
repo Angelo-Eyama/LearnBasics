@@ -11,8 +11,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {useState} from "react"
 import {Link, useNavigate} from "react-router-dom"
-import { loginForAccessToken } from "@/client"
-import { useAuth } from "@/context/useAuth"
+import useAuth from "@/hooks/useAuth"
 
 export function LoginForm({
   className,
@@ -22,10 +21,13 @@ export function LoginForm({
   const [password, setPassword] = useState("")
   const [error, setError] = useState("")
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { loginMutation } = useAuth()
   const handleLogin = async () => {
-    localStorage.setItem("access_token", "TEST_TOKEN")
-    login()
+    await loginMutation.mutateAsync({
+      username: username, 
+      password: password
+    })
+    setPassword("")
     navigate("/")
   }
 
