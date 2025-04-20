@@ -46,6 +46,11 @@ class UserRegister(SQLModel):
 class UserPublic(UserBase):
     id: int
     roles: List[RoleNameBase]
+    bio: Optional[str] = None
+    github: Optional[str] = None
+    isVerified: Optional[bool] = None
+    profilePicture: Optional[str] = None
+    creationDate: Optional[datetime] = None
     
     model_config = ConfigDict(
         from_attributes=True

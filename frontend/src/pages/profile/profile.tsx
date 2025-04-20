@@ -18,7 +18,8 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Link } from "react-router-dom"
-import { Eye, Edit, Github, Mail, MapPin, Calendar, Award, Code, FileCode, Bell, CheckCircle, CircleX } from "lucide-react"
+import { Eye, Edit, Github, Mail, Calendar, Award, Code, FileCode, Bell, CheckCircle, CircleX } from "lucide-react"
+import useAuth from "@/hooks/useAuth"
 
 // Mock user data - in a real app, this would come from your API
 const user = {
@@ -241,6 +242,8 @@ export default function ProfilePage() {
     const [selectedSubmission, setSelectedSubmission] = useState<(typeof submissions)[0] | null>(null)
     const [notificationsTab, setNotificationsTab] = useState("all")
     const [userNotifications, setUserNotifications] = useState(notifications)
+    const { user: userData } = useAuth()
+
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleString()
@@ -279,19 +282,19 @@ export default function ProfilePage() {
                 <Card className="md:col-span-1">
                     <CardHeader className="flex flex-col items-center text-center">
                         <Avatar className="h-24 w-24 mb-4">
-                            <AvatarImage src={user.avatar} alt={user.name} />
-                            <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                            <AvatarImage src="https://randomuser.me/api/portraits/med/men/12.jpg" alt={user.name} />
+                            <AvatarFallback>{userData?.username?.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
-                        <CardTitle>{user.name}</CardTitle>
-                        <CardDescription>@{user.username}</CardDescription>
+                        <CardTitle>{`${userData?.firstName} ${userData?.lastName}`}</CardTitle>
+                        <CardDescription>@{userData?.username}</CardDescription>
                         <div className="flex gap-2 mt-2">
                             <Badge className="mt-2">{user.rank}</Badge>
-                            {user.verified ? (
-                                    <Badge variant="default" className="mt-2 flex items-center gap-1 bg-green-500">
-                                        <CheckCircle className="h-3 w-3" />
-                                        Verificado
-                                    </Badge>
-                                )
+                            {userData?.isVerified ? (
+                                <Badge variant="default" className="mt-2 flex items-center gap-1 bg-green-500">
+                                    <CheckCircle className="h-3 w-3" />
+                                    Verificado
+                                </Badge>
+                            )
                                 :
                                 (
                                     <Badge variant="destructive" className="mt-2 flex items-center gap-1">
@@ -305,15 +308,12 @@ export default function ProfilePage() {
                     <CardContent className="space-y-4">
                         <div className="flex items-center">
                             <Mail className="mr-2 h-4 w-4 opacity-70" />
-                            <span>{user.email}</span>
+                            <span>{userData?.email}</span>
                         </div>
-                        <div className="flex items-center">
-                            <MapPin className="mr-2 h-4 w-4 opacity-70" />
-                            <span>{user.location}</span>
-                        </div>
+
                         <div className="flex items-center">
                             <Calendar className="mr-2 h-4 w-4 opacity-70" />
-                            <span>Joined {user.joinedDate}</span>
+                            <span>Joined {userData?.creationDate ? new Date(userData.creationDate).toDateString() : "Unknown"}</span>
                         </div>
                         {user.githubUsername && (
                             <div className="flex items-center">
@@ -337,7 +337,7 @@ export default function ProfilePage() {
                             <CardTitle>Sobre mi</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p>{user.bio}</p>
+                            <p>{userData?.bio || "Sin descripcion" }</p>
                             <div className="mt-4">
                                 <h3 className="font-medium mb-2">Habilidades</h3>
                                 <div className="flex flex-wrap gap-2">

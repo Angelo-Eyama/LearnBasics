@@ -178,6 +178,11 @@ export type UserPublic = {
     score?: number | null;
     id: number;
     roles: Array<RoleNameBase>;
+    bio?: string | null;
+    github?: string | null;
+    isVerified?: boolean | null;
+    profilePicture?: string | null;
+    creationDate?: string | null;
 };
 
 export type UserRead = {

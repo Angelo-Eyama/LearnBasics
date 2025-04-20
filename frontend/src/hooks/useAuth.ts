@@ -33,7 +33,8 @@ const useAuth = () => {
             toast("Error al obtener el usuario actual")
             throw new Error("Error al obtener el usuario actual");
         },
-        enabled: isLoggedIn, // Only fetch if the user is logged in
+        enabled: isLoggedIn(), // Only fetch if the user is logged in
+        
     })
 
     const signUpMutation = useMutation({
@@ -73,9 +74,6 @@ const useAuth = () => {
     }
 
     const loginMutation = useMutation({
-        onMutate: (data) => {
-            console.log(data)
-        },
         mutationFn: login,
 
         onSuccess: () => {
@@ -83,7 +81,6 @@ const useAuth = () => {
         },
 
         onError: (error: Error) => {
-            console.log(Object.keys(error))
             let errorMessage = error?.message || "Error al iniciar sesion";
 
             toast.error("Error", {

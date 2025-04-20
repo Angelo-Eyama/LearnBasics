@@ -26,7 +26,6 @@ export function RegisterForm({
     const [error, setError] = useState("")
 
     function handleRegister() {
-        console.log("Login: ", { username, password })
         handleError()
     }
 
