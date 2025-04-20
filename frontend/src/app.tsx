@@ -9,18 +9,9 @@ import { Loading } from './components/ui/loading';
 import routes from '@/routes';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
-import { getCurrentUser } from './client';
 
 const App = () => {
-    const queryClient = new QueryClient({
-        defaultOptions: {
-            queries: {
-                queryFn: async () => {
-                    return await getCurrentUser();
-                }
-            }
-        }
-    })
+    const queryClient = new QueryClient()
     return (
         <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
             <AuthProvider>

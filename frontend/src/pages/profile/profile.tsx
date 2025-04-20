@@ -311,20 +311,15 @@ export default function ProfilePage() {
                             <span>{userData?.email}</span>
                         </div>
 
-                        <div className="flex items-center">
-                            <Calendar className="mr-2 h-4 w-4 opacity-70" />
-                            <span>Joined {userData?.creationDate ? new Date(userData.creationDate).toDateString() : "Unknown"}</span>
-                        </div>
-                        {user.githubUsername && (
+                        {userData?.github && (
                             <div className="flex items-center">
                                 <Github className="mr-2 h-4 w-4 opacity-70" />
                                 <a
-                                    href={`https://github.com/${user.githubUsername}`}
+                                    href={`https://github.com/${userData.github}`}
                                     target="_blank"
-                                    rel="noopener noreferrer"
                                     className="text-primary hover:underline"
                                 >
-                                    {user.githubUsername}
+                                    {userData?.github}
                                 </a>
                             </div>
                         )}
@@ -558,27 +553,6 @@ export default function ProfilePage() {
                                     )}
                                 </div>
                             </Tabs>
-                        </CardContent>
-                    </Card>
-
-                    {/* Actividad Reciente */}
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Actividad reciente</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {[1, 2, 3].map((i) => (
-                                    <div key={i} className="flex items-start space-x-4">
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-medium">Problema #{Math.floor(Math.random() * 100)} resuelto</p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {new Date(Date.now() - i * 24 * 60 * 60 * 1000).toLocaleDateString()}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
                         </CardContent>
                     </Card>
                 </div>
