@@ -3,14 +3,16 @@ from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
 class NotificationBase(BaseModel):
-    content: str
+    title: str
+    description: str
     read: bool
 
 class NotificationCreate(NotificationBase):
     userID: int
 
 class NotificationUpdate(NotificationBase):
-    content: Optional[str]
+    title: Optional[str] = None
+    description: Optional[str] = None
     read: Optional[bool] = False
 
 class NotificationRead(NotificationBase):
@@ -20,3 +22,7 @@ class NotificationRead(NotificationBase):
     model_config = ConfigDict(
         from_attributes=True
     )
+
+class NotificationsList(BaseModel):
+    total: int
+    notifications: list[NotificationRead]

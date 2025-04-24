@@ -1,6 +1,6 @@
 from typing import List, Optional
 from sqlmodel import SQLModel, Field, Relationship, Column, LargeBinary
-from datetime import datetime
+from datetime import datetime, timezone
 
 class UserRole(SQLModel, table=True):
     __tablename__ = "user_roles"
@@ -20,10 +20,12 @@ class User(SQLModel, table=True):
     score: Optional[int] = 0
     creationDate: Optional[datetime] = Field(default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
     bio: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
+    skills: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     profilePicture: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     github: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     active: bool = Field(default=True, description='Indica si el usuario puede acceder o no.', sa_column_kwargs={"comment": 'Indica si el usuario puede acceder o no.'} )
     isVerified: bool = Field(default=False, description='Indica si el usuario ha verificado su cuenta.', sa_column_kwargs={"comment": 'Indica si el usuario ha verificado su cuenta.'} )
+    
     roles: List["Role"] = Relationship(back_populates="users",link_model=UserRole)
     comments: List["Comment"] = Relationship(back_populates="user")
     notifications: List["Notification"] = Relationship(back_populates="user")
@@ -89,7 +91,9 @@ class Notification(SQLModel, table=True):
     __tablename__ = "notifications"
     
     id: Optional[int] = Field(default=None, primary_key=True)
-    content: str
+    #TODO: Separar content en title y description
+    title: str
+    description: str
     read: bool
     timePosted: Optional[datetime] = Field(default=None, sa_column_kwargs={"nullable": True})
     userID: int = Field(foreign_key="users.id", ondelete="CASCADE")

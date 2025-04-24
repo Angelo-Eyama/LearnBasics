@@ -1,8 +1,9 @@
 from sqlmodel import Session, select
 from app.models import Notification
-from app.schemas.notification import NotificationCreate, NotificationUpdate
+from app.schemas.notification import NotificationCreate, NotificationUpdate, NotificationsList
 
 def get_notifications(session: Session):
+    count = session.exec(select(Notification).count()).one()
     notifications = session.exec(select(Notification)).all()
     return notifications
 
