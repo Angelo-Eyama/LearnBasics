@@ -57,11 +57,9 @@ def read_root():
     responses={404: {"model": ErrorResponse}},
 )
 def openapi():
-    client = TestClient(app)
-    response = client.get(f"/{settings.API_VERSION}/openapi.json")
-    openapi_content = response.json()
+    openapi_schema = app.openapi()
 
-    for path_data in openapi_content["paths"].values():
+    for path_data in openapi_schema["paths"].values():
         for operation in path_data.values():
             tag = operation["tags"][0]
             operation_id = operation["operationId"]
@@ -69,7 +67,7 @@ def openapi():
             new_operation_id = operation_id[len(to_remove):]
             operation["operationId"] = new_operation_id
 
-    return openapi_content
+    return openapi_schema
 
 
 app.include_router(api_router)
