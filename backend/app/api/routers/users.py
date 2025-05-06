@@ -3,7 +3,7 @@ from app.api.deps import SessionDep, CurrentUser, verify_admin
 
 from app.models import User
 from app.api.controllers import users as users_controller
-from app.schemas.user import UserCreate, UserUpdate, UserPublic, UserRegister, UserResponse
+from app.schemas.user import UserCreate, UserUpdate, UserPublic, UserRegister, UsersPublic
 from app.schemas.utils import ErrorResponse
 from app.core.utils import RoleType
 
@@ -15,12 +15,12 @@ router = APIRouter(
 
 @router.get(
     "/",
-    response_model=UserResponse,
+    response_model=UsersPublic,
     summary="Obtener todos los usuarios",
     description="Obtiene una lista con todos los usuarios registrados en el sistema.",
     response_description="Lista de usuarios.",
     responses={
-        200: {"description": "Lista de usuarios obtenida", "model": UserResponse},
+        200: {"description": "Lista de usuarios obtenida", "model": UsersPublic},
         404: {"description": "No se encontraron usuarios", "model": ErrorResponse},
         401: {"description": "No autorizado", "model": ErrorResponse},
         403: {"description": "No tiene permisos para realizar esta acción","model": ErrorResponse},

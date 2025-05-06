@@ -1,21 +1,28 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
 from app.models import Notification
 from app.schemas.notification import NotificationCreate, NotificationUpdate, NotificationsList
 
 def get_notifications(session: Session):
-    count = session.exec(select(Notification).count()).one()
+    count = session.exec(select(func.count(Notification.id)).count()).one()
     notifications = session.exec(select(Notification)).all()
-    return notifications
+    return NotificationsList(
+        total=count,
+        notifications=notifications
+    )
 
 def get_notification_by_id(session: Session, notification_id: int):
     notification = session.get(Notification, notification_id)
     return notification
 
-def get_notifications_by_user_id(session: Session, user_id: int) -> list[Notification]:
+def get_notifications_by_user_id(session: Session, user_id: int):
+    count = session.exec(select(func.count(Notification.id)).where(Notification.userID == user_id)).one()
     notifications = session.exec(
         select(Notification).where(Notification.userID == user_id)
     ).all()
-    return notifications
+    return NotificationsList(
+        total=count,
+        notifications=notifications
+    )
 
 def create_notification(session: Session, new_notification: NotificationCreate):
     notification_db = Notification.model_validate(new_notification)

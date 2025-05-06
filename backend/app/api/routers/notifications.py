@@ -3,18 +3,19 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.api.deps import SessionDep, CurrentUser, get_current_user, verify_admin
 from app.api.controllers import notifications as notifications_controller
 from app.models import User, Notification
-from app.schemas.notification import NotificationCreate, NotificationRead
+from app.schemas.notification import NotificationCreate, NotificationRead, NotificationsList
 from app.schemas.utils import ErrorResponse
 
 router = APIRouter(
     tags=["Notificaciones"],
+    prefix="/notifications",
     dependencies=[Depends(get_current_user)]
 )
 
 
 @router.get(
-    "/notifications/",
-    response_model=List[NotificationRead],
+    "/",
+    response_model=NotificationsList,
     dependencies=[Depends(verify_admin)],
     responses={
         200: {"description": "Lista de notificaciones obtenida"},
@@ -27,7 +28,7 @@ def get_notifications(session: SessionDep):
 
 
 @router.get(
-    "/notifications/{notification_id}",
+    "/{notification_id}",
     response_model=NotificationRead,
     dependencies=[Depends(verify_admin)],
     responses={
@@ -42,9 +43,22 @@ def get_notification_by_id(notification_id: int, session: SessionDep):
             status_code=404, detail="Notificación no encontrada")
     return notification
 
+@router.get(
+    "/user/me",
+    response_model=NotificationsList,
+    summary="Obtener las notificaciones del usuario autenticado",
+    responses={
+        200: {"description": "Lista de notificaciones obtenida"},
+        404: {"model": ErrorResponse, "description": "No se encontraron notificaciones"}
+    }
+)
+def get_my_notifications(current_user: CurrentUser, session: SessionDep):
+    notifications = notifications_controller.get_notifications_by_user_id(
+        session, current_user.id)
+    return notifications
 
 @router.get(
-    "/notifications/user/{user_id}",
+    "/user/{user_id}",
     response_model=List[NotificationRead],
     dependencies=[Depends(verify_admin)],
     responses={
@@ -62,23 +76,9 @@ def get_notifications_by_user_id(user_id: int, session: SessionDep):
     return notifications
 
 
-@router.get(
-    "/notifications/user/me",
-    response_model=List[NotificationRead],
-    summary="Obtener las notificaciones del usuario autentucado",
-    responses={
-        200: {"description": "Lista de notificaciones obtenida"},
-        404: {"model": ErrorResponse, "description": "No se encontraron notificaciones"}
-    }
-)
-def get_my_notifications(current_user: CurrentUser, session: SessionDep):
-    notifications = notifications_controller.get_notifications_by_user_id(
-        session, current_user.id)
-    return notifications
-
 
 @router.post(
-    "/notifications/",
+    "/",
     response_model=NotificationRead,
     dependencies=[Depends(verify_admin)],
     responses={
@@ -93,7 +93,7 @@ def create_notification(notification: NotificationCreate, session: SessionDep):
 
 
 @router.delete(
-    "/notifications/{notification_id}",
+    "/{notification_id}",
     response_model=NotificationRead,
     summary="Eliminar una notificación",
     description="Elimina una notificación del sistema utilizando su ID.",
@@ -116,7 +116,7 @@ def delete_notification(notification_id: int, session: SessionDep):
 
 
 @router.patch(
-    "/notifications/{notification_id}",
+    "/{notification_id}",
     response_model=NotificationRead,
     summary="Cambia el estado de una notificación",
     description="Cambia el estado de una notificación, de leido a no leido y viceversa. Utilizando el ID para identificarlo",

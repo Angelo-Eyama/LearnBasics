@@ -1,4 +1,4 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
 from app.core.security import hash_password, verify_password
 
 from app.models import User, Role
@@ -7,7 +7,7 @@ from app.core.utils import RoleType
 
 
 def get_users(session: Session) -> UsersPublic:
-    count = session.exec(select(User).count()).one()
+    count = session.exec(select(func.count(User.id))).one()
     users = session.exec(select(User)).all()
     return UsersPublic( total=count, users=users )
 

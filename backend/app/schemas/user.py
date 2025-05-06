@@ -43,8 +43,6 @@ class UserRead(UserBase):
         from_attributes=True
     )
 
-class UserResponse(BaseModel):
-    users: List[UserRead]
 
 # Esquema para la actualización de un usuario (todos los campos opcionales)
 class UserUpdate(BaseModel):
@@ -80,3 +78,6 @@ class UserPublic(BaseModel):
 class UsersPublic(SQLModel):
     total: int
     users: List[UserPublic]
+    model_config = ConfigDict(
+        from_attributes=True
+    )
