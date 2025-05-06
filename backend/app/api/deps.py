@@ -2,7 +2,7 @@ from collections.abc import Generator
 from typing import Union, Annotated, List
 
 import jwt
-from jwt.exceptions import PyJWTError, InvalidTokenError
+from jwt.exceptions import PyJWTError, InvalidTokenError, ExpiredSignatureError
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from pydantic import ValidationError
@@ -32,18 +32,19 @@ def get_current_user(session: SessionDep, token: TokenDep) -> User:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
         # La llamada TokenPayload(**payload) pasa como parametros cada par clave-valor del diccionario payload
         token_data = TokenPayload(**payload)
-    except (PyJWTError, ValidationError, InvalidTokenError) as e:
-        print(e)
+    except ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="El token ha expirado",
+        )
+    except (PyJWTError, ValidationError, InvalidTokenError):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="No se han posido validar las credenciales",
-        ) from Exception
+        )
 
     # Estructura del token decodificado
-    # sub: id del usuario
-    # username: nombre de usuario
-    # roles: roles del usuario (lista de strings)
-    # exp: fecha de expiracion del token
+    # sub(id), username(str), roles(list), exp(datetime)
     user = session.exec(select(User).where(User.id == token_data.sub)).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Usuario no encontrado")
