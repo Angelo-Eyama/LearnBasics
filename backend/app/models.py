@@ -18,7 +18,7 @@ class User(SQLModel, table=True):
     lastName: str
     email: str
     score: Optional[int] = 0
-    creationDate: Optional[datetime] = Field(default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
+    creationDate: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"nullable": True})
     bio: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     skills: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     profilePicture: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
@@ -52,8 +52,8 @@ class Submission(SQLModel, table=True):
     code: str
     language: str
     status: str
-    timeSubmitted: Optional[datetime] = Field(default_factory=datetime.utcnow , sa_column_kwargs={"nullable": True})
-    timeUpdated: Optional[datetime] = Field(default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
+    timeSubmitted: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"nullable": True})
+    timeUpdated: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"nullable": True})
     suggestions: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
     userID: int = Field(foreign_key="users.id")
@@ -81,7 +81,7 @@ class Comment(SQLModel, table=True):
     
     id: Optional[int] = Field(default=None, primary_key=True)
     content: str
-    timePosted: Optional[datetime] = Field(default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
+    timePosted: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"nullable": True})
     problemID: int = Field(foreign_key="problems.id")
     userID: int = Field(foreign_key="users.id")
     
@@ -105,7 +105,7 @@ class Report(SQLModel, table=True):
     
     id: Optional[int] = Field(default=None, primary_key=True)
     content: str
-    timePosted: Optional[datetime] = Field(default_factory=datetime.utcnow, sa_column_kwargs={"nullable": True})
+    timePosted: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"nullable": True})
     read: bool = Field(default=False)
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
     userID: int = Field(foreign_key="users.id")
