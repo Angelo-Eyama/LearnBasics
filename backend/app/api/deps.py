@@ -17,11 +17,11 @@ from app.core.utils import RoleType
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/access-token")
 
-def get_db() -> Generator:
+def get_session() -> Generator:
     with Session(engine) as session:
         yield session
 
-SessionDep = Annotated[Session, Depends(get_db)]
+SessionDep = Annotated[Session, Depends(get_session)]
 TokenDep = Annotated[str, Depends(oauth2_scheme)]
 
 def get_current_user(session: SessionDep, token: TokenDep) -> User:

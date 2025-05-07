@@ -49,7 +49,6 @@ def login_for_access_token(session: SessionDep, form_data: OAuth2PasswordRequest
             },
         expires_delta=access_token_expires
         )
-    # TODO: Enviar el token por cookies
     return {"access_token": access_token, "token_type": "bearer"}
 
 @router.post("/password-recovery",
