@@ -87,25 +87,6 @@ def get_user_by_username(username: str, session: SessionDep):
     return user
 
 @router.post(
-    "/register",
-    response_model=UserPublic,
-    summary="Registrar un usuario",
-    description="Registra un nuevo usuario en el sistema con datos minimos.",
-    response_description="El usuario registrado.",
-    responses={
-        200: {"description": "Usuario registrado"},
-        400: {"model": ErrorResponse, "description": "Nombre de usuario ya existente"},
-    },
-)
-def register_user(user: UserRegister, session: SessionDep):
-    db_user = users_controller.get_user_by_username(session, user.username)
-    if db_user:
-        raise HTTPException(
-            status_code=400, detail="Nombre de usuario ya existente")
-    new_user = users_controller.create_user(session, User.from_orm(user))
-    return new_user
-
-@router.post(
     "/",
     response_model=UserCreate,
     summary="Crear un usuario",

@@ -3,14 +3,14 @@ from pydantic import EmailStr
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 
-from app.api.controllers.users import authenticate, get_user_by_email, update_password
+from app.api.controllers import users as users_controller
 from app.api.controllers import token as token_controller
 from app.core import security
 from app.core.config import settings
 from app.models import User
 from app.schemas.utils import AccessToken, ErrorResponse, Message
 from app.schemas.token import TokenUpdate
-from app.schemas.user import UserUpdate
+from app.schemas.user import UserPublic, UserRegister, UserUpdate
 
 from app.api.deps import SessionDep
 
@@ -28,7 +28,7 @@ def login_for_access_token(session: SessionDep, form_data: OAuth2PasswordRequest
     '''
     Genera un token de acceso para el usuario.
     '''
-    user = authenticate(session=session,  username=form_data.username, password=form_data.password)
+    user = users_controller.authenticate(session=session,  username=form_data.username, password=form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -51,6 +51,25 @@ def login_for_access_token(session: SessionDep, form_data: OAuth2PasswordRequest
         )
     return {"access_token": access_token, "token_type": "bearer"}
 
+@router.post(
+    "/register",
+    response_model=UserPublic,
+    summary="Registrar un usuario",
+    description="Registra un nuevo usuario en el sistema con datos minimos.",
+    response_description="El usuario registrado.",
+    responses={
+        200: {"description": "Usuario registrado"},
+        400: {"model": ErrorResponse, "description": "Nombre de usuario ya existente"},
+    },
+)
+def register_user(user: UserRegister, session: SessionDep):
+    db_user = users_controller.get_user_by_username(session, user.username)
+    if db_user:
+        raise HTTPException(
+            status_code=400, detail="Nombre de usuario ya existente")
+    new_user = users_controller.create_user(session, User.model_validate(user))
+    return new_user
+
 @router.post("/password-recovery",
             summary="Solicitar recuperacion de contraseña",
             description="El usuario solicita recuperar su contraseña. Se enviara un correo electronico con el token de recuperacion.",
@@ -66,7 +85,7 @@ def login_for_access_token(session: SessionDep, form_data: OAuth2PasswordRequest
             }
             )
 def password_recovery(email: EmailStr, session: SessionDep):
-    user = get_user_by_email(session, email)
+    user = users_controller.get_user_by_email(session, email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
@@ -147,7 +166,7 @@ def password_reset(token: str, new_password: str, session: SessionDep):
             detail="El usuario no existe",
         )
 
-    update_password(session, user, new_password)
+    users_controller.update_password(session, user, new_password)
     # Invalidar el token
     token_controller.change_state_token(session, token_data.id)
     
@@ -170,7 +189,7 @@ def password_reset(token: str, new_password: str, session: SessionDep):
             }
             )
 def verify_register_token(email: EmailStr, session: SessionDep):
-    user = get_user_by_email(session, email)
+    user = users_controller.get_user_by_email(session, email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
