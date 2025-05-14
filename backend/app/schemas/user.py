@@ -63,6 +63,7 @@ class UserPublic(BaseModel):
     username: str
     firstName: str
     lastName: str
+    email: EmailStr
     score: int
     bio: Optional[str] = None
     github: Optional[HttpUrl] = None

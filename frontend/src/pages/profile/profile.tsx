@@ -18,7 +18,8 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Link } from "react-router-dom"
-import { Eye, Edit, Github, Mail, Calendar, Award, Code, FileCode, Bell, CheckCircle, CircleX } from "lucide-react"
+import { Eye, Edit, Mail, Award, Code, FileCode, Bell, CheckCircle, CircleX } from "lucide-react"
+import { FaGithub } from "react-icons/fa";
 import useAuth from "@/hooks/useAuth"
 
 // Mock user data - in a real app, this would come from your API
@@ -313,7 +314,7 @@ export default function ProfilePage() {
 
                         {userData?.github && (
                             <div className="flex items-center">
-                                <Github className="mr-2 h-4 w-4 opacity-70" />
+                                <FaGithub className="mr-2 h-4 w-4 opacity-70" />
                                 <a
                                     href={`https://github.com/${userData.github}`}
                                     target="_blank"
