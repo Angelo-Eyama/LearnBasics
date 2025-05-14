@@ -43,16 +43,23 @@ export type Message = {
 };
 
 export type NotificationCreate = {
-    content: string;
+    title: string;
+    description: string;
     read: boolean;
     userID: number;
 };
 
 export type NotificationRead = {
-    content: string;
+    title: string;
+    description: string;
     read: boolean;
     id: number;
     timePosted: string | null;
+};
+
+export type NotificationsList = {
+    total: number;
+    notifications: Array<NotificationRead>;
 };
 
 export type ProblemCreate = {
@@ -164,36 +171,22 @@ export type UserCreate = {
     firstName: string;
     lastName: string;
     email: string;
-    active: boolean;
+    active?: boolean;
     score?: number | null;
     password: string;
+    roles: Array<string>;
 };
 
 export type UserPublic = {
+    id: number;
     username: string;
     firstName: string;
     lastName: string;
-    email: string;
-    active: boolean;
-    score?: number | null;
-    id: number;
-    roles: Array<RoleNameBase>;
+    score: number;
     bio?: string | null;
     github?: string | null;
-    isVerified?: boolean | null;
+    skills?: string | null;
     profilePicture?: string | null;
-    creationDate?: string | null;
-};
-
-export type UserRead = {
-    username: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    active: boolean;
-    score?: number | null;
-    id: number;
-    creationDate: string | null;
     roles: Array<RoleNameBase>;
 };
 
@@ -205,16 +198,19 @@ export type UserRegister = {
     password: string;
 };
 
-export type UserResponse = {
-    users: Array<UserRead>;
-};
-
 export type UserUpdate = {
     firstName?: string | null;
     lastName?: string | null;
     email?: string | null;
-    active?: boolean | null;
-    score?: number | null;
+    bio?: string | null;
+    github?: string | null;
+    profilePicture?: string | null;
+    skills?: string | null;
+};
+
+export type UsersPublic = {
+    total: number;
+    users: Array<UserPublic>;
 };
 
 export type ValidationError = {
@@ -299,6 +295,35 @@ export type LoginForAccessTokenResponses = {
 };
 
 export type LoginForAccessTokenResponse = LoginForAccessTokenResponses[keyof LoginForAccessTokenResponses];
+
+export type RegisterUserData = {
+    body: UserRegister;
+    path?: never;
+    query?: never;
+    url: '/auth/register';
+};
+
+export type RegisterUserErrors = {
+    /**
+     * Nombre de usuario ya existente
+     */
+    400: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type RegisterUserError = RegisterUserErrors[keyof RegisterUserErrors];
+
+export type RegisterUserResponses = {
+    /**
+     * Usuario registrado
+     */
+    200: UserPublic;
+};
+
+export type RegisterUserResponse = RegisterUserResponses[keyof RegisterUserResponses];
 
 export type PasswordRecoveryData = {
     body?: never;
@@ -453,7 +478,7 @@ export type GetUsersResponses = {
     /**
      * Lista de usuarios obtenida
      */
-    200: UserResponse;
+    200: UsersPublic;
 };
 
 export type GetUsersResponse = GetUsersResponses[keyof GetUsersResponses];
@@ -627,35 +652,6 @@ export type GetUserByUsernameResponses = {
 };
 
 export type GetUserByUsernameResponse = GetUserByUsernameResponses[keyof GetUserByUsernameResponses];
-
-export type RegisterUserData = {
-    body: UserRegister;
-    path?: never;
-    query?: never;
-    url: '/users/register';
-};
-
-export type RegisterUserErrors = {
-    /**
-     * Nombre de usuario ya existente
-     */
-    400: ErrorResponse;
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type RegisterUserError = RegisterUserErrors[keyof RegisterUserErrors];
-
-export type RegisterUserResponses = {
-    /**
-     * Usuario registrado
-     */
-    200: UserPublic;
-};
-
-export type RegisterUserResponse = RegisterUserResponses[keyof RegisterUserResponses];
 
 export type DeleteUserData = {
     body?: never;
@@ -1594,7 +1590,7 @@ export type GetNotificationsResponses = {
     /**
      * Lista de notificaciones obtenida
      */
-    200: Array<NotificationRead>;
+    200: NotificationsList;
 };
 
 export type GetNotificationsResponse = GetNotificationsResponses[keyof GetNotificationsResponses];
@@ -1721,6 +1717,31 @@ export type ChangeStateNotificationResponses = {
 
 export type ChangeStateNotificationResponse = ChangeStateNotificationResponses[keyof ChangeStateNotificationResponses];
 
+export type GetMyNotificationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/notifications/user/me';
+};
+
+export type GetMyNotificationsErrors = {
+    /**
+     * No se encontraron notificaciones
+     */
+    404: ErrorResponse;
+};
+
+export type GetMyNotificationsError = GetMyNotificationsErrors[keyof GetMyNotificationsErrors];
+
+export type GetMyNotificationsResponses = {
+    /**
+     * Lista de notificaciones obtenida
+     */
+    200: NotificationsList;
+};
+
+export type GetMyNotificationsResponse = GetMyNotificationsResponses[keyof GetMyNotificationsResponses];
+
 export type GetNotificationsByUserIdData = {
     body?: never;
     path: {
@@ -1751,31 +1772,6 @@ export type GetNotificationsByUserIdResponses = {
 };
 
 export type GetNotificationsByUserIdResponse = GetNotificationsByUserIdResponses[keyof GetNotificationsByUserIdResponses];
-
-export type GetMyNotificationsData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/notifications/user/me';
-};
-
-export type GetMyNotificationsErrors = {
-    /**
-     * No se encontraron notificaciones
-     */
-    404: ErrorResponse;
-};
-
-export type GetMyNotificationsError = GetMyNotificationsErrors[keyof GetMyNotificationsErrors];
-
-export type GetMyNotificationsResponses = {
-    /**
-     * Lista de notificaciones obtenida
-     */
-    200: Array<NotificationRead>;
-};
-
-export type GetMyNotificationsResponse = GetMyNotificationsResponses[keyof GetMyNotificationsResponses];
 
 export type GetReportsData = {
     body?: never;
