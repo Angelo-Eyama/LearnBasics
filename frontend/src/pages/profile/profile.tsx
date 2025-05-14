@@ -21,6 +21,7 @@ import { Link } from "react-router-dom"
 import { Eye, Edit, Mail, Award, Code, FileCode, Bell, CheckCircle, CircleX } from "lucide-react"
 import { FaGithub } from "react-icons/fa";
 import useAuth from "@/hooks/useAuth"
+import { parseServerString, decideRank } from "@/utils/utils"
 
 // Mock user data - in a real app, this would come from your API
 const user = {
@@ -244,6 +245,7 @@ export default function ProfilePage() {
     const [notificationsTab, setNotificationsTab] = useState("all")
     const [userNotifications, setUserNotifications] = useState(notifications)
     const { user: userData } = useAuth()
+    if (!userData) return null
 
 
     const formatDate = (dateString: string) => {
@@ -283,13 +285,13 @@ export default function ProfilePage() {
                 <Card className="md:col-span-1">
                     <CardHeader className="flex flex-col items-center text-center">
                         <Avatar className="h-24 w-24 mb-4">
-                            <AvatarImage src="https://randomuser.me/api/portraits/med/men/12.jpg" alt={user.name} />
+                            <AvatarImage src={`https://randomuser.me/api/portraits/med/men/${Math.floor(Math.random() * 100)}.jpg`} alt={user.name} />
                             <AvatarFallback>{userData?.username?.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <CardTitle>{`${userData?.firstName} ${userData?.lastName}`}</CardTitle>
                         <CardDescription>@{userData?.username}</CardDescription>
                         <div className="flex gap-2 mt-2">
-                            <Badge className="mt-2">{user.rank}</Badge>
+                            <Badge className="mt-2">{decideRank(userData.score)}</Badge>
                             {userData?.isVerified ? (
                                 <Badge variant="default" className="mt-2 flex items-center gap-1 bg-green-500">
                                     <CheckCircle className="h-3 w-3" />
@@ -337,7 +339,7 @@ export default function ProfilePage() {
                             <div className="mt-4">
                                 <h3 className="font-medium mb-2">Habilidades</h3>
                                 <div className="flex flex-wrap gap-2">
-                                    {user.skills.map((skill) => (
+                                    { parseServerString(userData?.skills).map((skill) => (
                                         <Badge key={skill} variant="secondary">
                                             {skill}
                                         </Badge>
@@ -355,7 +357,7 @@ export default function ProfilePage() {
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
                                     <Award className="h-8 w-8 mb-2 text-primary" />
-                                    <span className="text-2xl font-bold">{user.rank}</span>
+                                    <span className="text-2xl font-bold">{decideRank(userData?.score)}</span>
                                     <span className="text-sm text-muted-foreground">Rango actual</span>
                                 </div>
                                 <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
