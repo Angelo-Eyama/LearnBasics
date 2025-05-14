@@ -38,9 +38,10 @@ def delete_report(session: Session, report_id: int):
     return report
 
 
-def change_state_report(session: Session, report_id: int):
+def read_report(session: Session, report_id: int):
     report = session.get(Report, report_id)
-    report.read = not report.read
+    if not report.read:
+        report.read = True
     session.commit()
     session.refresh(report)
     return report

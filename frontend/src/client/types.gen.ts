@@ -190,6 +190,7 @@ export type UserPublic = {
     skills?: string | null;
     profilePicture?: string | null;
     roles: Array<RoleNameBase>;
+    notifications?: Array<NotificationRead>;
 };
 
 export type UserRegister = {
@@ -1688,7 +1689,7 @@ export type GetNotificationByIdResponses = {
 
 export type GetNotificationByIdResponse = GetNotificationByIdResponses[keyof GetNotificationByIdResponses];
 
-export type ChangeStateNotificationData = {
+export type ReadNotificationData = {
     body?: never;
     path: {
         notification_id: number;
@@ -1697,7 +1698,7 @@ export type ChangeStateNotificationData = {
     url: '/notifications/{notification_id}';
 };
 
-export type ChangeStateNotificationErrors = {
+export type ReadNotificationErrors = {
     /**
      * Notificación no encontrada
      */
@@ -1708,16 +1709,16 @@ export type ChangeStateNotificationErrors = {
     422: HttpValidationError;
 };
 
-export type ChangeStateNotificationError = ChangeStateNotificationErrors[keyof ChangeStateNotificationErrors];
+export type ReadNotificationError = ReadNotificationErrors[keyof ReadNotificationErrors];
 
-export type ChangeStateNotificationResponses = {
+export type ReadNotificationResponses = {
     /**
      * Notificación actualizada
      */
     200: NotificationRead;
 };
 
-export type ChangeStateNotificationResponse = ChangeStateNotificationResponses[keyof ChangeStateNotificationResponses];
+export type ReadNotificationResponse = ReadNotificationResponses[keyof ReadNotificationResponses];
 
 export type GetMyNotificationsData = {
     body?: never;
@@ -1891,7 +1892,7 @@ export type DeleteReportResponses = {
 
 export type DeleteReportResponse = DeleteReportResponses[keyof DeleteReportResponses];
 
-export type ChangeStateReportData = {
+export type ReadReportData = {
     body?: never;
     path: {
         report_id: number;
@@ -1900,7 +1901,7 @@ export type ChangeStateReportData = {
     url: '/reports/{report_id}';
 };
 
-export type ChangeStateReportErrors = {
+export type ReadReportErrors = {
     /**
      * Reporte no encontrado
      */
@@ -1911,16 +1912,16 @@ export type ChangeStateReportErrors = {
     422: HttpValidationError;
 };
 
-export type ChangeStateReportError = ChangeStateReportErrors[keyof ChangeStateReportErrors];
+export type ReadReportError = ReadReportErrors[keyof ReadReportErrors];
 
-export type ChangeStateReportResponses = {
+export type ReadReportResponses = {
     /**
      * Reporte actualizado
      */
     200: ReportRead;
 };
 
-export type ChangeStateReportResponse = ChangeStateReportResponses[keyof ChangeStateReportResponses];
+export type ReadReportResponse = ReadReportResponses[keyof ReadReportResponses];
 
 export type GetTestCasesData = {
     body?: never;

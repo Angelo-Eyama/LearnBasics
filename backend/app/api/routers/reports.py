@@ -127,9 +127,9 @@ def delete_report(report_id: int, session: SessionDep):
     },
     dependencies=[Depends(valid_role)]
 )
-def change_state_report(report_id: int, session: SessionDep):
+def read_report(report_id: int, session: SessionDep):
     report = reports_controller.get_report_by_id(session, report_id)
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")
-    changed_report = reports_controller.change_state_report(session, report_id)
+    changed_report = reports_controller.read_report(session, report_id)
     return changed_report

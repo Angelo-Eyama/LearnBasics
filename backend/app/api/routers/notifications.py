@@ -118,19 +118,18 @@ def delete_notification(notification_id: int, session: SessionDep):
 @router.patch(
     "/{notification_id}",
     response_model=NotificationRead,
-    summary="Cambia el estado de una notificación",
-    description="Cambia el estado de una notificación, de leido a no leido y viceversa. Utilizando el ID para identificarlo",
+    summary="Marcar una notificación como leída utilizando su ID",
     responses={
         200: {"description": "Notificación actualizada"},
         404: {"model": ErrorResponse, "description": "Notificación no encontrada"},
     }
 )
-def change_state_notification(notification_id: int, session: SessionDep):
+def read_notification(notification_id: int, session: SessionDep):
     notification = notifications_controller.get_notification_by_id(
         session, notification_id)
     if not notification:
         raise HTTPException(
             status_code=404, detail="Notificación no encontrada")
-    updated_notification = notifications_controller.change_state_notification(
+    updated_notification = notifications_controller.read_notification(
         session, notification_id)
     return updated_notification

@@ -21,8 +21,10 @@ import { Link } from "react-router-dom"
 import { Eye, Edit, Mail, Award, Code, FileCode, Bell, CheckCircle, CircleX } from "lucide-react"
 import { FaGithub } from "react-icons/fa";
 import useAuth from "@/hooks/useAuth"
-import { parseServerString, decideRank } from "@/utils/utils"
-
+import { parseServerString, decideRank, formatDate } from "@/utils/utils"
+import { readNotification } from "@/client"
+import { useMutation } from "@tanstack/react-query"
+import { toast } from "sonner"
 // Mock user data - in a real app, this would come from your API
 const user = {
     id: "1",
@@ -201,65 +203,56 @@ const submissions = [
     },
 ]
 
-// Mock notifications data
-const notifications = [
-    {
-        id: "1",
-        title: "Problem Solved",
-        message: "Congratulations! You've successfully solved 'Two Sum'.",
-        read: true,
-        createdAt: "2023-10-15T14:35:00Z",
-    },
-    {
-        id: "2",
-        title: "New Badge Earned",
-        message: "You've earned the 'Problem Solver' badge for solving 10 problems!",
-        read: true,
-        createdAt: "2023-10-10T09:20:00Z",
-    },
-    {
-        id: "3",
-        title: "Weekly Challenge",
-        message: "New weekly challenge is available. Solve 5 problems to earn bonus points!",
-        read: false,
-        createdAt: "2023-10-18T08:00:00Z",
-    },
-    {
-        id: "4",
-        title: "Comment Reply",
-        message: "Maria Garcia replied to your comment on 'Binary Tree Level Order Traversal'.",
-        read: false,
-        createdAt: "2023-10-17T16:45:00Z",
-    },
-    {
-        id: "5",
-        title: "System Maintenance",
-        message: "CodeLab will be undergoing maintenance on October 25th from 2-4 AM UTC.",
-        read: false,
-        createdAt: "2023-10-16T12:30:00Z",
-    },
-]
-
 export default function ProfilePage() {
+    const toggleNotificationRead = async (notificationId: number) => {
+        const response = await readNotification({
+            path: {
+                notification_id: notificationId,
+            }
+        })
+        if (!('data' in response)) {
+            toast.error("Error al cambiar el estado de la notificacion")
+            throw new Error("Error al cambiar el estado de la notificacion")
+        }
+    }
+
+    const { mutate: markNotificationAsRead } = useMutation({
+        mutationFn: toggleNotificationRead,
+        onSuccess: () => {
+            toast.success("Notificacion marcada como leida")
+        },
+        onError: () => {
+            toast.error("Error al marcar la notificacion como leida")
+        }
+    })
+    const { user: userData } = useAuth()
     const [selectedSubmission, setSelectedSubmission] = useState<(typeof submissions)[0] | null>(null)
     const [notificationsTab, setNotificationsTab] = useState("all")
-    const [userNotifications, setUserNotifications] = useState(notifications)
-    const { user: userData } = useAuth()
+    const [userNotifications, setUserNotifications] = useState(userData?.notifications || [])
     if (!userData) return null
 
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleString()
-    }
-
-    const markAsRead = (notificationId: string) => {
+    const handleToggleRead = (notificationId: number) => {
+        markNotificationAsRead(notificationId)
+        // Actualizamos el estado local de las notificaciones
         setUserNotifications((prev) =>
-            prev.map((notification) => (notification.id === notificationId ? { ...notification, read: true } : notification)),
+            prev.map((notification) =>
+                notification.id === notificationId ? { ...notification, read: !notification.read } : notification
+            )
         )
     }
 
     const markAllAsRead = () => {
-        setUserNotifications((prev) => prev.map((notification) => ({ ...notification, read: true })))
+        // Llamamos a la mutación para marcar todas las notificaciones como leídas
+        userNotifications.forEach((notification) => {
+            if (!notification.read) {
+                markNotificationAsRead(notification.id)
+                // Actualizamos el estado local de las notificaciones
+                setUserNotifications((prev) =>
+                    prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
+                )
+            }
+        })
     }
 
     const filteredNotifications = userNotifications.filter((notification) => {
@@ -318,11 +311,11 @@ export default function ProfilePage() {
                             <div className="flex items-center">
                                 <FaGithub className="mr-2 h-4 w-4 opacity-70" />
                                 <a
-                                    href={`https://github.com/${userData.github}`}
+                                    href={`${userData.github}`}
                                     target="_blank"
                                     className="text-primary hover:underline"
                                 >
-                                    {userData?.github}
+                                    {userData?.github.split("/").pop()}
                                 </a>
                             </div>
                         )}
@@ -335,11 +328,11 @@ export default function ProfilePage() {
                             <CardTitle>Sobre mi</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <p>{userData?.bio || "Sin descripcion" }</p>
+                            <p>{userData?.bio || "Sin descripcion"}</p>
                             <div className="mt-4">
                                 <h3 className="font-medium mb-2">Habilidades</h3>
                                 <div className="flex flex-wrap gap-2">
-                                    { parseServerString(userData?.skills).map((skill) => (
+                                    {parseServerString(userData?.skills).map((skill) => (
                                         <Badge key={skill} variant="secondary">
                                             {skill}
                                         </Badge>
@@ -435,7 +428,7 @@ export default function ProfilePage() {
                                     </AlertDialogContent>
                                 </AlertDialog>
 
-                                {/* Dialog de detalles de entregas */}
+                                {/* TODO: (Code Splitting) Dialog de detalles de entregas */}
                                 {selectedSubmission && (
                                     <AlertDialog
                                         open={!!selectedSubmission}
@@ -540,15 +533,15 @@ export default function ProfilePage() {
                                                 <div className="flex justify-between items-start">
                                                     <div>
                                                         <h4 className="font-medium">{notification.title}</h4>
-                                                        <p className="text-sm text-muted-foreground mt-1">{notification.message}</p>
+                                                        <p className="text-sm text-muted-foreground mt-1">{notification.description}</p>
                                                     </div>
                                                     {!notification.read && (
-                                                        <Button variant="ghost" size="sm" onClick={() => markAsRead(notification.id)}>
+                                                        <Button variant="ghost" size="sm" onClick={() => handleToggleRead(notification.id)}>
                                                             Marcar como leída
                                                         </Button>
                                                     )}
                                                 </div>
-                                                <p className="text-xs text-muted-foreground mt-2">{formatDate(notification.createdAt)}</p>
+                                                <p className="text-xs text-muted-foreground mt-2">{formatDate(notification.timePosted)}</p>
                                             </div>
                                         ))
                                     ) : (

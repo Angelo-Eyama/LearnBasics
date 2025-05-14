@@ -47,11 +47,12 @@ def delete_notification(session: Session, notification_id: int):
     session.commit()
     return notification
 
-def change_state_notification(session: Session, notification_id: int):
+def read_notification(session: Session, notification_id: int):
     notification = session.get(Notification, notification_id)
     if not notification:
         return None
-    notification.read = not notification.read
+    if not notification.read:
+        notification.read = True
     session.commit()
     session.refresh(notification)
     return notification

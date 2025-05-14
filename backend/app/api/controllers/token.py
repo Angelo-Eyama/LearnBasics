@@ -38,6 +38,8 @@ def update_token(session: Session, user_id: int, token_in: TokenUpdate):
 
 def change_state_token(session: Session, token_id: int) -> bool:
     token = session.get(Token, token_id)
+    if not token:
+        raise ValueError("Token no encontrado")
     token.isValid = not token.isValid
     session.commit()
     session.refresh(token)
