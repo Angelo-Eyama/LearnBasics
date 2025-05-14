@@ -64,6 +64,7 @@ class UserPublic(BaseModel):
     firstName: str
     lastName: str
     email: EmailStr
+    isVerified: bool
     score: int
     bio: Optional[str] = None
     github: Optional[HttpUrl] = None

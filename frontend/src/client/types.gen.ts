@@ -182,6 +182,8 @@ export type UserPublic = {
     username: string;
     firstName: string;
     lastName: string;
+    email: string;
+    isVerified: boolean;
     score: number;
     bio?: string | null;
     github?: string | null;
@@ -219,48 +221,48 @@ export type ValidationError = {
     type: string;
 };
 
-export type ReadRootData = {
+export type GetData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/';
 };
 
-export type ReadRootErrors = {
+export type GetErrors = {
     /**
      * Not Found
      */
     404: ErrorResponse;
 };
 
-export type ReadRootError = ReadRootErrors[keyof ReadRootErrors];
+export type GetError = GetErrors[keyof GetErrors];
 
-export type ReadRootResponses = {
+export type GetResponses = {
     /**
      * Successful Response
      */
     200: Message;
 };
 
-export type ReadRootResponse = ReadRootResponses[keyof ReadRootResponses];
+export type GetResponse = GetResponses[keyof GetResponses];
 
-export type OpenapiData = {
+export type GetOpenapiJsonData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/openapi.json';
 };
 
-export type OpenapiErrors = {
+export type GetOpenapiJsonErrors = {
     /**
      * Not Found
      */
     404: ErrorResponse;
 };
 
-export type OpenapiError = OpenapiErrors[keyof OpenapiErrors];
+export type GetOpenapiJsonError = GetOpenapiJsonErrors[keyof GetOpenapiJsonErrors];
 
-export type OpenapiResponses = {
+export type GetOpenapiJsonResponses = {
     /**
      * Successful Response
      */
@@ -269,41 +271,41 @@ export type OpenapiResponses = {
     };
 };
 
-export type OpenapiResponse = OpenapiResponses[keyof OpenapiResponses];
+export type GetOpenapiJsonResponse = GetOpenapiJsonResponses[keyof GetOpenapiJsonResponses];
 
-export type LoginForAccessTokenData = {
+export type PostAuthAccessTokenData = {
     body: BodyAuthLoginForAccessToken;
     path?: never;
     query?: never;
     url: '/auth/access-token';
 };
 
-export type LoginForAccessTokenErrors = {
+export type PostAuthAccessTokenErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type LoginForAccessTokenError = LoginForAccessTokenErrors[keyof LoginForAccessTokenErrors];
+export type PostAuthAccessTokenError = PostAuthAccessTokenErrors[keyof PostAuthAccessTokenErrors];
 
-export type LoginForAccessTokenResponses = {
+export type PostAuthAccessTokenResponses = {
     /**
      * Successful Response
      */
     200: AccessToken;
 };
 
-export type LoginForAccessTokenResponse = LoginForAccessTokenResponses[keyof LoginForAccessTokenResponses];
+export type PostAuthAccessTokenResponse = PostAuthAccessTokenResponses[keyof PostAuthAccessTokenResponses];
 
-export type RegisterUserData = {
+export type PostAuthRegisterData = {
     body: UserRegister;
     path?: never;
     query?: never;
     url: '/auth/register';
 };
 
-export type RegisterUserErrors = {
+export type PostAuthRegisterErrors = {
     /**
      * Nombre de usuario ya existente
      */
@@ -314,18 +316,18 @@ export type RegisterUserErrors = {
     422: HttpValidationError;
 };
 
-export type RegisterUserError = RegisterUserErrors[keyof RegisterUserErrors];
+export type PostAuthRegisterError = PostAuthRegisterErrors[keyof PostAuthRegisterErrors];
 
-export type RegisterUserResponses = {
+export type PostAuthRegisterResponses = {
     /**
      * Usuario registrado
      */
     200: UserPublic;
 };
 
-export type RegisterUserResponse = RegisterUserResponses[keyof RegisterUserResponses];
+export type PostAuthRegisterResponse = PostAuthRegisterResponses[keyof PostAuthRegisterResponses];
 
-export type PasswordRecoveryData = {
+export type PostAuthPasswordRecoveryData = {
     body?: never;
     path?: never;
     query: {
@@ -334,7 +336,7 @@ export type PasswordRecoveryData = {
     url: '/auth/password-recovery';
 };
 
-export type PasswordRecoveryErrors = {
+export type PostAuthPasswordRecoveryErrors = {
     /**
      * El usuario no existe o el correo electronico no es valido.
      */
@@ -345,18 +347,18 @@ export type PasswordRecoveryErrors = {
     422: HttpValidationError;
 };
 
-export type PasswordRecoveryError = PasswordRecoveryErrors[keyof PasswordRecoveryErrors];
+export type PostAuthPasswordRecoveryError = PostAuthPasswordRecoveryErrors[keyof PostAuthPasswordRecoveryErrors];
 
-export type PasswordRecoveryResponses = {
+export type PostAuthPasswordRecoveryResponses = {
     /**
      * Se ha enviado un correo electronico con el token de recuperacion.
      */
     200: Message;
 };
 
-export type PasswordRecoveryResponse = PasswordRecoveryResponses[keyof PasswordRecoveryResponses];
+export type PostAuthPasswordRecoveryResponse = PostAuthPasswordRecoveryResponses[keyof PostAuthPasswordRecoveryResponses];
 
-export type PasswordResetData = {
+export type PostAuthPasswordResetData = {
     body?: never;
     path?: never;
     query: {
@@ -366,7 +368,7 @@ export type PasswordResetData = {
     url: '/auth/password-reset';
 };
 
-export type PasswordResetErrors = {
+export type PostAuthPasswordResetErrors = {
     /**
      * El token es invalido o ha caducado.
      */
@@ -377,18 +379,18 @@ export type PasswordResetErrors = {
     422: HttpValidationError;
 };
 
-export type PasswordResetError = PasswordResetErrors[keyof PasswordResetErrors];
+export type PostAuthPasswordResetError = PostAuthPasswordResetErrors[keyof PostAuthPasswordResetErrors];
 
-export type PasswordResetResponses = {
+export type PostAuthPasswordResetResponses = {
     /**
      * Se ha actualizado la contraseña.
      */
     200: Message;
 };
 
-export type PasswordResetResponse = PasswordResetResponses[keyof PasswordResetResponses];
+export type PostAuthPasswordResetResponse = PostAuthPasswordResetResponses[keyof PostAuthPasswordResetResponses];
 
-export type VerifyRegisterTokenData = {
+export type PostAuthVerifyRegisterTokenData = {
     body?: never;
     path?: never;
     query: {
@@ -397,7 +399,7 @@ export type VerifyRegisterTokenData = {
     url: '/auth/verify-register-token';
 };
 
-export type VerifyRegisterTokenErrors = {
+export type PostAuthVerifyRegisterTokenErrors = {
     /**
      * El usuario no existe o el correo electronico no es valido.
      */
@@ -408,18 +410,18 @@ export type VerifyRegisterTokenErrors = {
     422: HttpValidationError;
 };
 
-export type VerifyRegisterTokenError = VerifyRegisterTokenErrors[keyof VerifyRegisterTokenErrors];
+export type PostAuthVerifyRegisterTokenError = PostAuthVerifyRegisterTokenErrors[keyof PostAuthVerifyRegisterTokenErrors];
 
-export type VerifyRegisterTokenResponses = {
+export type PostAuthVerifyRegisterTokenResponses = {
     /**
      * Se ha enviado un correo electronico con el token de verificacion.
      */
     200: Message;
 };
 
-export type VerifyRegisterTokenResponse = VerifyRegisterTokenResponses[keyof VerifyRegisterTokenResponses];
+export type PostAuthVerifyRegisterTokenResponse = PostAuthVerifyRegisterTokenResponses[keyof PostAuthVerifyRegisterTokenResponses];
 
-export type VerifyAccountData = {
+export type PostAuthVerifyAccountData = {
     body?: never;
     path?: never;
     query: {
@@ -428,7 +430,7 @@ export type VerifyAccountData = {
     url: '/auth/verify-account';
 };
 
-export type VerifyAccountErrors = {
+export type PostAuthVerifyAccountErrors = {
     /**
      * El token es invalido o ha caducado.
      */
@@ -439,16 +441,16 @@ export type VerifyAccountErrors = {
     422: HttpValidationError;
 };
 
-export type VerifyAccountError = VerifyAccountErrors[keyof VerifyAccountErrors];
+export type PostAuthVerifyAccountError = PostAuthVerifyAccountErrors[keyof PostAuthVerifyAccountErrors];
 
-export type VerifyAccountResponses = {
+export type PostAuthVerifyAccountResponses = {
     /**
      * Se ha activado la cuenta.
      */
     200: Message;
 };
 
-export type VerifyAccountResponse = VerifyAccountResponses[keyof VerifyAccountResponses];
+export type PostAuthVerifyAccountResponse = PostAuthVerifyAccountResponses[keyof PostAuthVerifyAccountResponses];
 
 export type GetUsersData = {
     body?: never;
@@ -483,14 +485,14 @@ export type GetUsersResponses = {
 
 export type GetUsersResponse = GetUsersResponses[keyof GetUsersResponses];
 
-export type CreateUserData = {
+export type PostUsersData = {
     body: UserCreate;
     path?: never;
     query?: never;
     url: '/users/';
 };
 
-export type CreateUserErrors = {
+export type PostUsersErrors = {
     /**
      * Nombre de usuario ya existente
      */
@@ -501,75 +503,75 @@ export type CreateUserErrors = {
     422: HttpValidationError;
 };
 
-export type CreateUserError = CreateUserErrors[keyof CreateUserErrors];
+export type PostUsersError = PostUsersErrors[keyof PostUsersErrors];
 
-export type CreateUserResponses = {
+export type PostUsersResponses = {
     /**
      * Usuario creado
      */
     200: UserCreate;
 };
 
-export type CreateUserResponse = CreateUserResponses[keyof CreateUserResponses];
+export type PostUsersResponse = PostUsersResponses[keyof PostUsersResponses];
 
-export type DeleteCurrentUserData = {
+export type DeleteUsersMeData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/users/me';
 };
 
-export type DeleteCurrentUserErrors = {
+export type DeleteUsersMeErrors = {
     /**
      * No autorizado
      */
     403: ErrorResponse;
 };
 
-export type DeleteCurrentUserError = DeleteCurrentUserErrors[keyof DeleteCurrentUserErrors];
+export type DeleteUsersMeError = DeleteUsersMeErrors[keyof DeleteUsersMeErrors];
 
-export type DeleteCurrentUserResponses = {
+export type DeleteUsersMeResponses = {
     /**
      * Usuario eliminado
      */
     200: UserPublic;
 };
 
-export type DeleteCurrentUserResponse = DeleteCurrentUserResponses[keyof DeleteCurrentUserResponses];
+export type DeleteUsersMeResponse = DeleteUsersMeResponses[keyof DeleteUsersMeResponses];
 
-export type GetCurrentUserData = {
+export type GetUsersMeData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/users/me';
 };
 
-export type GetCurrentUserErrors = {
+export type GetUsersMeErrors = {
     /**
      * No autorizado
      */
     403: ErrorResponse;
 };
 
-export type GetCurrentUserError = GetCurrentUserErrors[keyof GetCurrentUserErrors];
+export type GetUsersMeError = GetUsersMeErrors[keyof GetUsersMeErrors];
 
-export type GetCurrentUserResponses = {
+export type GetUsersMeResponses = {
     /**
      * Usuario actual obtenido
      */
     200: UserPublic;
 };
 
-export type GetCurrentUserResponse = GetCurrentUserResponses[keyof GetCurrentUserResponses];
+export type GetUsersMeResponse = GetUsersMeResponses[keyof GetUsersMeResponses];
 
-export type UpdateCurrentUserData = {
+export type PatchUsersMeData = {
     body: UserUpdate;
     path?: never;
     query?: never;
     url: '/users/me';
 };
 
-export type UpdateCurrentUserErrors = {
+export type PatchUsersMeErrors = {
     /**
      * No autorizado
      */
@@ -580,18 +582,18 @@ export type UpdateCurrentUserErrors = {
     422: HttpValidationError;
 };
 
-export type UpdateCurrentUserError = UpdateCurrentUserErrors[keyof UpdateCurrentUserErrors];
+export type PatchUsersMeError = PatchUsersMeErrors[keyof PatchUsersMeErrors];
 
-export type UpdateCurrentUserResponses = {
+export type PatchUsersMeResponses = {
     /**
      * Usuario actualizado
      */
     200: UserUpdate;
 };
 
-export type UpdateCurrentUserResponse = UpdateCurrentUserResponses[keyof UpdateCurrentUserResponses];
+export type PatchUsersMeResponse = PatchUsersMeResponses[keyof PatchUsersMeResponses];
 
-export type GetUserByIdData = {
+export type GetUsersIdByUserIdData = {
     body?: never;
     path: {
         user_id: number;
@@ -600,7 +602,7 @@ export type GetUserByIdData = {
     url: '/users/id:{user_id}';
 };
 
-export type GetUserByIdErrors = {
+export type GetUsersIdByUserIdErrors = {
     /**
      * Usuario no encontrado
      */
@@ -611,18 +613,18 @@ export type GetUserByIdErrors = {
     422: HttpValidationError;
 };
 
-export type GetUserByIdError = GetUserByIdErrors[keyof GetUserByIdErrors];
+export type GetUsersIdByUserIdError = GetUsersIdByUserIdErrors[keyof GetUsersIdByUserIdErrors];
 
-export type GetUserByIdResponses = {
+export type GetUsersIdByUserIdResponses = {
     /**
      * Usuario encontrado
      */
     200: UserPublic;
 };
 
-export type GetUserByIdResponse = GetUserByIdResponses[keyof GetUserByIdResponses];
+export type GetUsersIdByUserIdResponse = GetUsersIdByUserIdResponses[keyof GetUsersIdByUserIdResponses];
 
-export type GetUserByUsernameData = {
+export type GetUsersByUsernameData = {
     body?: never;
     path: {
         username: string;
@@ -631,7 +633,7 @@ export type GetUserByUsernameData = {
     url: '/users/{username}';
 };
 
-export type GetUserByUsernameErrors = {
+export type GetUsersByUsernameErrors = {
     /**
      * Usuario no encontrado
      */
@@ -642,18 +644,18 @@ export type GetUserByUsernameErrors = {
     422: HttpValidationError;
 };
 
-export type GetUserByUsernameError = GetUserByUsernameErrors[keyof GetUserByUsernameErrors];
+export type GetUsersByUsernameError = GetUsersByUsernameErrors[keyof GetUsersByUsernameErrors];
 
-export type GetUserByUsernameResponses = {
+export type GetUsersByUsernameResponses = {
     /**
      * Usuario encontrado
      */
     200: UserPublic;
 };
 
-export type GetUserByUsernameResponse = GetUserByUsernameResponses[keyof GetUserByUsernameResponses];
+export type GetUsersByUsernameResponse = GetUsersByUsernameResponses[keyof GetUsersByUsernameResponses];
 
-export type DeleteUserData = {
+export type DeleteUsersByUserIdData = {
     body?: never;
     path: {
         user_id: number;
@@ -662,7 +664,7 @@ export type DeleteUserData = {
     url: '/users/{user_id}';
 };
 
-export type DeleteUserErrors = {
+export type DeleteUsersByUserIdErrors = {
     /**
      * Usuario no encontrado
      */
@@ -673,18 +675,18 @@ export type DeleteUserErrors = {
     422: HttpValidationError;
 };
 
-export type DeleteUserError = DeleteUserErrors[keyof DeleteUserErrors];
+export type DeleteUsersByUserIdError = DeleteUsersByUserIdErrors[keyof DeleteUsersByUserIdErrors];
 
-export type DeleteUserResponses = {
+export type DeleteUsersByUserIdResponses = {
     /**
      * Usuario eliminado
      */
     200: UserPublic;
 };
 
-export type DeleteUserResponse = DeleteUserResponses[keyof DeleteUserResponses];
+export type DeleteUsersByUserIdResponse = DeleteUsersByUserIdResponses[keyof DeleteUsersByUserIdResponses];
 
-export type UpdateUserData = {
+export type PatchUsersByUserIdData = {
     body: UserUpdate;
     path: {
         user_id: number;
@@ -693,7 +695,7 @@ export type UpdateUserData = {
     url: '/users/{user_id}';
 };
 
-export type UpdateUserErrors = {
+export type PatchUsersByUserIdErrors = {
     /**
      * Usuario no encontrado
      */
@@ -704,16 +706,16 @@ export type UpdateUserErrors = {
     422: HttpValidationError;
 };
 
-export type UpdateUserError = UpdateUserErrors[keyof UpdateUserErrors];
+export type PatchUsersByUserIdError = PatchUsersByUserIdErrors[keyof PatchUsersByUserIdErrors];
 
-export type UpdateUserResponses = {
+export type PatchUsersByUserIdResponses = {
     /**
      * Usuario actualizado
      */
     200: UserUpdate;
 };
 
-export type UpdateUserResponse = UpdateUserResponses[keyof UpdateUserResponses];
+export type PatchUsersByUserIdResponse = PatchUsersByUserIdResponses[keyof PatchUsersByUserIdResponses];
 
 export type GetSubmissionsData = {
     body?: never;
@@ -740,14 +742,14 @@ export type GetSubmissionsResponses = {
 
 export type GetSubmissionsResponse = GetSubmissionsResponses[keyof GetSubmissionsResponses];
 
-export type CreateSubmissionData = {
+export type PostSubmissionsData = {
     body: SubmissionCreate;
     path?: never;
     query?: never;
     url: '/submissions/';
 };
 
-export type CreateSubmissionErrors = {
+export type PostSubmissionsErrors = {
     /**
      * Error en los datos enviados
      */
@@ -758,18 +760,18 @@ export type CreateSubmissionErrors = {
     422: HttpValidationError;
 };
 
-export type CreateSubmissionError = CreateSubmissionErrors[keyof CreateSubmissionErrors];
+export type PostSubmissionsError = PostSubmissionsErrors[keyof PostSubmissionsErrors];
 
-export type CreateSubmissionResponses = {
+export type PostSubmissionsResponses = {
     /**
      * Entrega creada
      */
     200: SubmissionCreate;
 };
 
-export type CreateSubmissionResponse = CreateSubmissionResponses[keyof CreateSubmissionResponses];
+export type PostSubmissionsResponse = PostSubmissionsResponses[keyof PostSubmissionsResponses];
 
-export type GetSubmissionsByUserIdData = {
+export type GetSubmissionsUserByUserIdData = {
     body?: never;
     path: {
         user_id: number;
@@ -778,7 +780,7 @@ export type GetSubmissionsByUserIdData = {
     url: '/submissions/user/{user_id}';
 };
 
-export type GetSubmissionsByUserIdErrors = {
+export type GetSubmissionsUserByUserIdErrors = {
     /**
      * No se puede acceder a las entregas de otro usuario
      */
@@ -789,18 +791,18 @@ export type GetSubmissionsByUserIdErrors = {
     422: HttpValidationError;
 };
 
-export type GetSubmissionsByUserIdError = GetSubmissionsByUserIdErrors[keyof GetSubmissionsByUserIdErrors];
+export type GetSubmissionsUserByUserIdError = GetSubmissionsUserByUserIdErrors[keyof GetSubmissionsUserByUserIdErrors];
 
-export type GetSubmissionsByUserIdResponses = {
+export type GetSubmissionsUserByUserIdResponses = {
     /**
      * Lista de entregas obtenida
      */
     200: Array<SubmissionRead>;
 };
 
-export type GetSubmissionsByUserIdResponse = GetSubmissionsByUserIdResponses[keyof GetSubmissionsByUserIdResponses];
+export type GetSubmissionsUserByUserIdResponse = GetSubmissionsUserByUserIdResponses[keyof GetSubmissionsUserByUserIdResponses];
 
-export type GetSubmissionByIdData = {
+export type GetSubmissionsBySubmissionIdData = {
     body?: never;
     path: {
         submission_id: number;
@@ -809,7 +811,7 @@ export type GetSubmissionByIdData = {
     url: '/submissions/{submission_id}';
 };
 
-export type GetSubmissionByIdErrors = {
+export type GetSubmissionsBySubmissionIdErrors = {
     /**
      * No tienes permiso para acceder a este recurso
      */
@@ -824,18 +826,18 @@ export type GetSubmissionByIdErrors = {
     422: HttpValidationError;
 };
 
-export type GetSubmissionByIdError = GetSubmissionByIdErrors[keyof GetSubmissionByIdErrors];
+export type GetSubmissionsBySubmissionIdError = GetSubmissionsBySubmissionIdErrors[keyof GetSubmissionsBySubmissionIdErrors];
 
-export type GetSubmissionByIdResponses = {
+export type GetSubmissionsBySubmissionIdResponses = {
     /**
      * Entrega encontrada
      */
     200: SubmissionRead;
 };
 
-export type GetSubmissionByIdResponse = GetSubmissionByIdResponses[keyof GetSubmissionByIdResponses];
+export type GetSubmissionsBySubmissionIdResponse = GetSubmissionsBySubmissionIdResponses[keyof GetSubmissionsBySubmissionIdResponses];
 
-export type UpdateSubmissionData = {
+export type PatchSubmissionsBySubmissionIdData = {
     body: SubmissionUpdate;
     path: {
         submission_id: number;
@@ -844,7 +846,7 @@ export type UpdateSubmissionData = {
     url: '/submissions/{submission_id}';
 };
 
-export type UpdateSubmissionErrors = {
+export type PatchSubmissionsBySubmissionIdErrors = {
     /**
      * Entrega no encontrada
      */
@@ -855,16 +857,16 @@ export type UpdateSubmissionErrors = {
     422: HttpValidationError;
 };
 
-export type UpdateSubmissionError = UpdateSubmissionErrors[keyof UpdateSubmissionErrors];
+export type PatchSubmissionsBySubmissionIdError = PatchSubmissionsBySubmissionIdErrors[keyof PatchSubmissionsBySubmissionIdErrors];
 
-export type UpdateSubmissionResponses = {
+export type PatchSubmissionsBySubmissionIdResponses = {
     /**
      * Entrega actualizada
      */
     200: SubmissionUpdate;
 };
 
-export type UpdateSubmissionResponse = UpdateSubmissionResponses[keyof UpdateSubmissionResponses];
+export type PatchSubmissionsBySubmissionIdResponse = PatchSubmissionsBySubmissionIdResponses[keyof PatchSubmissionsBySubmissionIdResponses];
 
 export type GetProblemsData = {
     body?: never;
@@ -898,14 +900,14 @@ export type GetProblemsResponses = {
 
 export type GetProblemsResponse = GetProblemsResponses[keyof GetProblemsResponses];
 
-export type CreateProblemData = {
+export type PostProblemsData = {
     body: ProblemCreate;
     path?: never;
     query?: never;
     url: '/problems/';
 };
 
-export type CreateProblemErrors = {
+export type PostProblemsErrors = {
     /**
      * Problema no creado
      */
@@ -916,18 +918,18 @@ export type CreateProblemErrors = {
     422: HttpValidationError;
 };
 
-export type CreateProblemError = CreateProblemErrors[keyof CreateProblemErrors];
+export type PostProblemsError = PostProblemsErrors[keyof PostProblemsErrors];
 
-export type CreateProblemResponses = {
+export type PostProblemsResponses = {
     /**
      * Problema creado
      */
     200: ProblemCreate;
 };
 
-export type CreateProblemResponse = CreateProblemResponses[keyof CreateProblemResponses];
+export type PostProblemsResponse = PostProblemsResponses[keyof PostProblemsResponses];
 
-export type GetProblemByIdData = {
+export type GetProblemsIdByProblemIdData = {
     body?: never;
     path: {
         problem_id: number;
@@ -936,7 +938,7 @@ export type GetProblemByIdData = {
     url: '/problems/id:{problem_id}';
 };
 
-export type GetProblemByIdErrors = {
+export type GetProblemsIdByProblemIdErrors = {
     /**
      * Problema no encontrado
      */
@@ -947,18 +949,18 @@ export type GetProblemByIdErrors = {
     422: HttpValidationError;
 };
 
-export type GetProblemByIdError = GetProblemByIdErrors[keyof GetProblemByIdErrors];
+export type GetProblemsIdByProblemIdError = GetProblemsIdByProblemIdErrors[keyof GetProblemsIdByProblemIdErrors];
 
-export type GetProblemByIdResponses = {
+export type GetProblemsIdByProblemIdResponses = {
     /**
      * Problema encontrado
      */
     200: ProblemRead;
 };
 
-export type GetProblemByIdResponse = GetProblemByIdResponses[keyof GetProblemByIdResponses];
+export type GetProblemsIdByProblemIdResponse = GetProblemsIdByProblemIdResponses[keyof GetProblemsIdByProblemIdResponses];
 
-export type GetProblemsByBlockData = {
+export type GetProblemsBlockByBlockData = {
     body?: never;
     path: {
         block: string;
@@ -967,7 +969,7 @@ export type GetProblemsByBlockData = {
     url: '/problems/block/{block}';
 };
 
-export type GetProblemsByBlockErrors = {
+export type GetProblemsBlockByBlockErrors = {
     /**
      * No se encontraron problemas o no existe el bloque solicitado.
      */
@@ -978,43 +980,43 @@ export type GetProblemsByBlockErrors = {
     422: HttpValidationError;
 };
 
-export type GetProblemsByBlockError = GetProblemsByBlockErrors[keyof GetProblemsByBlockErrors];
+export type GetProblemsBlockByBlockError = GetProblemsBlockByBlockErrors[keyof GetProblemsBlockByBlockErrors];
 
-export type GetProblemsByBlockResponses = {
+export type GetProblemsBlockByBlockResponses = {
     /**
      * Lista de problemas obtenida
      */
     200: Array<ProblemRead>;
 };
 
-export type GetProblemsByBlockResponse = GetProblemsByBlockResponses[keyof GetProblemsByBlockResponses];
+export type GetProblemsBlockByBlockResponse = GetProblemsBlockByBlockResponses[keyof GetProblemsBlockByBlockResponses];
 
-export type GetProblemsBlocksData = {
+export type GetProblemsProblemBlocksData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/problems/problem-blocks';
 };
 
-export type GetProblemsBlocksErrors = {
+export type GetProblemsProblemBlocksErrors = {
     /**
      * No se encontraron bloques de problemas
      */
     404: ErrorResponse;
 };
 
-export type GetProblemsBlocksError = GetProblemsBlocksErrors[keyof GetProblemsBlocksErrors];
+export type GetProblemsProblemBlocksError = GetProblemsProblemBlocksErrors[keyof GetProblemsProblemBlocksErrors];
 
-export type GetProblemsBlocksResponses = {
+export type GetProblemsProblemBlocksResponses = {
     /**
      * Lista de bloques obtenida
      */
     200: Array<string>;
 };
 
-export type GetProblemsBlocksResponse = GetProblemsBlocksResponses[keyof GetProblemsBlocksResponses];
+export type GetProblemsProblemBlocksResponse = GetProblemsProblemBlocksResponses[keyof GetProblemsProblemBlocksResponses];
 
-export type ListProblemsByDifficultyData = {
+export type GetProblemsDifficultyByDifficultyData = {
     body?: never;
     path: {
         difficulty: string;
@@ -1023,7 +1025,7 @@ export type ListProblemsByDifficultyData = {
     url: '/problems/difficulty/{difficulty}';
 };
 
-export type ListProblemsByDifficultyErrors = {
+export type GetProblemsDifficultyByDifficultyErrors = {
     /**
      * No se encontraron problemas con la dificultad especificada
      */
@@ -1034,18 +1036,18 @@ export type ListProblemsByDifficultyErrors = {
     422: HttpValidationError;
 };
 
-export type ListProblemsByDifficultyError = ListProblemsByDifficultyErrors[keyof ListProblemsByDifficultyErrors];
+export type GetProblemsDifficultyByDifficultyError = GetProblemsDifficultyByDifficultyErrors[keyof GetProblemsDifficultyByDifficultyErrors];
 
-export type ListProblemsByDifficultyResponses = {
+export type GetProblemsDifficultyByDifficultyResponses = {
     /**
      * Lista de problemas obtenida
      */
     200: Array<ProblemRead>;
 };
 
-export type ListProblemsByDifficultyResponse = ListProblemsByDifficultyResponses[keyof ListProblemsByDifficultyResponses];
+export type GetProblemsDifficultyByDifficultyResponse = GetProblemsDifficultyByDifficultyResponses[keyof GetProblemsDifficultyByDifficultyResponses];
 
-export type DeleteProblemData = {
+export type DeleteProblemsByProblemIdData = {
     body?: never;
     path: {
         problem_id: number;
@@ -1054,7 +1056,7 @@ export type DeleteProblemData = {
     url: '/problems/{problem_id}';
 };
 
-export type DeleteProblemErrors = {
+export type DeleteProblemsByProblemIdErrors = {
     /**
      * Problema no encontrado
      */
@@ -1065,18 +1067,18 @@ export type DeleteProblemErrors = {
     422: HttpValidationError;
 };
 
-export type DeleteProblemError = DeleteProblemErrors[keyof DeleteProblemErrors];
+export type DeleteProblemsByProblemIdError = DeleteProblemsByProblemIdErrors[keyof DeleteProblemsByProblemIdErrors];
 
-export type DeleteProblemResponses = {
+export type DeleteProblemsByProblemIdResponses = {
     /**
      * Problema eliminado
      */
     200: ProblemRead;
 };
 
-export type DeleteProblemResponse = DeleteProblemResponses[keyof DeleteProblemResponses];
+export type DeleteProblemsByProblemIdResponse = DeleteProblemsByProblemIdResponses[keyof DeleteProblemsByProblemIdResponses];
 
-export type UpdateProblemData = {
+export type PatchProblemsByProblemIdData = {
     body: ProblemUpdate;
     path: {
         problem_id: number;
@@ -1085,7 +1087,7 @@ export type UpdateProblemData = {
     url: '/problems/{problem_id}';
 };
 
-export type UpdateProblemErrors = {
+export type PatchProblemsByProblemIdErrors = {
     /**
      * Problema no encontrado
      */
@@ -1096,16 +1098,16 @@ export type UpdateProblemErrors = {
     422: HttpValidationError;
 };
 
-export type UpdateProblemError = UpdateProblemErrors[keyof UpdateProblemErrors];
+export type PatchProblemsByProblemIdError = PatchProblemsByProblemIdErrors[keyof PatchProblemsByProblemIdErrors];
 
-export type UpdateProblemResponses = {
+export type PatchProblemsByProblemIdResponses = {
     /**
      * Problema actualizado
      */
     200: ProblemUpdate;
 };
 
-export type UpdateProblemResponse = UpdateProblemResponses[keyof UpdateProblemResponses];
+export type PatchProblemsByProblemIdResponse = PatchProblemsByProblemIdResponses[keyof PatchProblemsByProblemIdResponses];
 
 export type GetRolesData = {
     body?: never;
@@ -1132,14 +1134,14 @@ export type GetRolesResponses = {
 
 export type GetRolesResponse = GetRolesResponses[keyof GetRolesResponses];
 
-export type CreateRoleData = {
+export type PostRolesData = {
     body: RoleBase;
     path?: never;
     query?: never;
     url: '/roles/';
 };
 
-export type CreateRoleErrors = {
+export type PostRolesErrors = {
     /**
      * Error en los datos enviados
      */
@@ -1150,18 +1152,18 @@ export type CreateRoleErrors = {
     422: HttpValidationError;
 };
 
-export type CreateRoleError = CreateRoleErrors[keyof CreateRoleErrors];
+export type PostRolesError = PostRolesErrors[keyof PostRolesErrors];
 
-export type CreateRoleResponses = {
+export type PostRolesResponses = {
     /**
      * Rol creado
      */
     200: RoleBase;
 };
 
-export type CreateRoleResponse = CreateRoleResponses[keyof CreateRoleResponses];
+export type PostRolesResponse = PostRolesResponses[keyof PostRolesResponses];
 
-export type DeleteRoleData = {
+export type DeleteRolesByRoleNameData = {
     body?: never;
     path: {
         role_name: string;
@@ -1170,7 +1172,7 @@ export type DeleteRoleData = {
     url: '/roles/{role_name}';
 };
 
-export type DeleteRoleErrors = {
+export type DeleteRolesByRoleNameErrors = {
     /**
      * Rol no encontrado
      */
@@ -1181,18 +1183,18 @@ export type DeleteRoleErrors = {
     422: HttpValidationError;
 };
 
-export type DeleteRoleError = DeleteRoleErrors[keyof DeleteRoleErrors];
+export type DeleteRolesByRoleNameError = DeleteRolesByRoleNameErrors[keyof DeleteRolesByRoleNameErrors];
 
-export type DeleteRoleResponses = {
+export type DeleteRolesByRoleNameResponses = {
     /**
      * Rol eliminado
      */
     200: RoleBase;
 };
 
-export type DeleteRoleResponse = DeleteRoleResponses[keyof DeleteRoleResponses];
+export type DeleteRolesByRoleNameResponse = DeleteRolesByRoleNameResponses[keyof DeleteRolesByRoleNameResponses];
 
-export type GetRoleByNameData = {
+export type GetRolesByRoleNameData = {
     body?: never;
     path: {
         role_name: string;
@@ -1201,7 +1203,7 @@ export type GetRoleByNameData = {
     url: '/roles/{role_name}';
 };
 
-export type GetRoleByNameErrors = {
+export type GetRolesByRoleNameErrors = {
     /**
      * Rol no encontrado
      */
@@ -1212,18 +1214,18 @@ export type GetRoleByNameErrors = {
     422: HttpValidationError;
 };
 
-export type GetRoleByNameError = GetRoleByNameErrors[keyof GetRoleByNameErrors];
+export type GetRolesByRoleNameError = GetRolesByRoleNameErrors[keyof GetRolesByRoleNameErrors];
 
-export type GetRoleByNameResponses = {
+export type GetRolesByRoleNameResponses = {
     /**
      * Rol encontrado
      */
     200: RoleBase;
 };
 
-export type GetRoleByNameResponse = GetRoleByNameResponses[keyof GetRoleByNameResponses];
+export type GetRolesByRoleNameResponse = GetRolesByRoleNameResponses[keyof GetRolesByRoleNameResponses];
 
-export type UpdateRoleData = {
+export type PatchRolesByRoleNameData = {
     body: RoleUpdate;
     path: {
         role_name: string;
@@ -1232,7 +1234,7 @@ export type UpdateRoleData = {
     url: '/roles/{role_name}';
 };
 
-export type UpdateRoleErrors = {
+export type PatchRolesByRoleNameErrors = {
     /**
      * Rol no encontrado
      */
@@ -1243,18 +1245,18 @@ export type UpdateRoleErrors = {
     422: HttpValidationError;
 };
 
-export type UpdateRoleError = UpdateRoleErrors[keyof UpdateRoleErrors];
+export type PatchRolesByRoleNameError = PatchRolesByRoleNameErrors[keyof PatchRolesByRoleNameErrors];
 
-export type UpdateRoleResponses = {
+export type PatchRolesByRoleNameResponses = {
     /**
      * Rol actualizado
      */
     200: RoleUpdate;
 };
 
-export type UpdateRoleResponse = UpdateRoleResponses[keyof UpdateRoleResponses];
+export type PatchRolesByRoleNameResponse = PatchRolesByRoleNameResponses[keyof PatchRolesByRoleNameResponses];
 
-export type AssignRoleData = {
+export type PostRolesByRoleNameAssignByUserIdData = {
     body?: never;
     path: {
         role_name: string;
@@ -1264,7 +1266,7 @@ export type AssignRoleData = {
     url: '/roles/{role_name}/assign/{user_id}';
 };
 
-export type AssignRoleErrors = {
+export type PostRolesByRoleNameAssignByUserIdErrors = {
     /**
      * El usuario ya tiene asignado el rol
      */
@@ -1279,18 +1281,18 @@ export type AssignRoleErrors = {
     422: HttpValidationError;
 };
 
-export type AssignRoleError = AssignRoleErrors[keyof AssignRoleErrors];
+export type PostRolesByRoleNameAssignByUserIdError = PostRolesByRoleNameAssignByUserIdErrors[keyof PostRolesByRoleNameAssignByUserIdErrors];
 
-export type AssignRoleResponses = {
+export type PostRolesByRoleNameAssignByUserIdResponses = {
     /**
      * Rol asignado
      */
     200: UserPublic;
 };
 
-export type AssignRoleResponse = AssignRoleResponses[keyof AssignRoleResponses];
+export type PostRolesByRoleNameAssignByUserIdResponse = PostRolesByRoleNameAssignByUserIdResponses[keyof PostRolesByRoleNameAssignByUserIdResponses];
 
-export type RevokeRoleData = {
+export type PostRolesByRoleNameRevokeByUserIdData = {
     body?: never;
     path: {
         role_name: string;
@@ -1300,7 +1302,7 @@ export type RevokeRoleData = {
     url: '/roles/{role_name}/revoke/{user_id}';
 };
 
-export type RevokeRoleErrors = {
+export type PostRolesByRoleNameRevokeByUserIdErrors = {
     /**
      * El usuario no tiene asignado el rol
      */
@@ -1315,18 +1317,18 @@ export type RevokeRoleErrors = {
     422: HttpValidationError;
 };
 
-export type RevokeRoleError = RevokeRoleErrors[keyof RevokeRoleErrors];
+export type PostRolesByRoleNameRevokeByUserIdError = PostRolesByRoleNameRevokeByUserIdErrors[keyof PostRolesByRoleNameRevokeByUserIdErrors];
 
-export type RevokeRoleResponses = {
+export type PostRolesByRoleNameRevokeByUserIdResponses = {
     /**
      * Rol revocado
      */
     200: UserPublic;
 };
 
-export type RevokeRoleResponse = RevokeRoleResponses[keyof RevokeRoleResponses];
+export type PostRolesByRoleNameRevokeByUserIdResponse = PostRolesByRoleNameRevokeByUserIdResponses[keyof PostRolesByRoleNameRevokeByUserIdResponses];
 
-export type GetUserRolesData = {
+export type GetRolesUserByUserIdData = {
     body?: never;
     path: {
         user_id: number;
@@ -1335,7 +1337,7 @@ export type GetUserRolesData = {
     url: '/roles/user/{user_id}';
 };
 
-export type GetUserRolesErrors = {
+export type GetRolesUserByUserIdErrors = {
     /**
      * Usuario no encontrado
      */
@@ -1346,18 +1348,18 @@ export type GetUserRolesErrors = {
     422: HttpValidationError;
 };
 
-export type GetUserRolesError = GetUserRolesErrors[keyof GetUserRolesErrors];
+export type GetRolesUserByUserIdError = GetRolesUserByUserIdErrors[keyof GetRolesUserByUserIdErrors];
 
-export type GetUserRolesResponses = {
+export type GetRolesUserByUserIdResponses = {
     /**
      * Lista de roles obtenida
      */
     200: Array<UserPublic>;
 };
 
-export type GetUserRolesResponse = GetUserRolesResponses[keyof GetUserRolesResponses];
+export type GetRolesUserByUserIdResponse = GetRolesUserByUserIdResponses[keyof GetRolesUserByUserIdResponses];
 
-export type GetRoleUsersData = {
+export type GetRolesByRoleNameUsersData = {
     body?: never;
     path: {
         role_name: string;
@@ -1366,7 +1368,7 @@ export type GetRoleUsersData = {
     url: '/roles/{role_name}/users';
 };
 
-export type GetRoleUsersErrors = {
+export type GetRolesByRoleNameUsersErrors = {
     /**
      * Rol no encontrado
      */
@@ -1377,16 +1379,16 @@ export type GetRoleUsersErrors = {
     422: HttpValidationError;
 };
 
-export type GetRoleUsersError = GetRoleUsersErrors[keyof GetRoleUsersErrors];
+export type GetRolesByRoleNameUsersError = GetRolesByRoleNameUsersErrors[keyof GetRolesByRoleNameUsersErrors];
 
-export type GetRoleUsersResponses = {
+export type GetRolesByRoleNameUsersResponses = {
     /**
      * Lista de usuarios obtenida
      */
     200: Array<UserPublic>;
 };
 
-export type GetRoleUsersResponse = GetRoleUsersResponses[keyof GetRoleUsersResponses];
+export type GetRolesByRoleNameUsersResponse = GetRolesByRoleNameUsersResponses[keyof GetRolesByRoleNameUsersResponses];
 
 export type GetCommentsData = {
     body?: never;
@@ -1413,14 +1415,14 @@ export type GetCommentsResponses = {
 
 export type GetCommentsResponse = GetCommentsResponses[keyof GetCommentsResponses];
 
-export type CreateCommentData = {
+export type PostCommentsData = {
     body: CommentCreate;
     path?: never;
     query?: never;
     url: '/comments/';
 };
 
-export type CreateCommentErrors = {
+export type PostCommentsErrors = {
     /**
      * No se pudo crear el comentario
      */
@@ -1431,18 +1433,18 @@ export type CreateCommentErrors = {
     422: HttpValidationError;
 };
 
-export type CreateCommentError = CreateCommentErrors[keyof CreateCommentErrors];
+export type PostCommentsError = PostCommentsErrors[keyof PostCommentsErrors];
 
-export type CreateCommentResponses = {
+export type PostCommentsResponses = {
     /**
      * Comentario creado
      */
     200: CommentRead;
 };
 
-export type CreateCommentResponse = CreateCommentResponses[keyof CreateCommentResponses];
+export type PostCommentsResponse = PostCommentsResponses[keyof PostCommentsResponses];
 
-export type DeleteCommentData = {
+export type DeleteCommentsByCommentIdData = {
     body?: never;
     path: {
         comment_id: number;
@@ -1451,7 +1453,7 @@ export type DeleteCommentData = {
     url: '/comments/{comment_id}';
 };
 
-export type DeleteCommentErrors = {
+export type DeleteCommentsByCommentIdErrors = {
     /**
      * El usuario no tiene permisos para acceder a este recurso
      */
@@ -1466,18 +1468,18 @@ export type DeleteCommentErrors = {
     422: HttpValidationError;
 };
 
-export type DeleteCommentError = DeleteCommentErrors[keyof DeleteCommentErrors];
+export type DeleteCommentsByCommentIdError = DeleteCommentsByCommentIdErrors[keyof DeleteCommentsByCommentIdErrors];
 
-export type DeleteCommentResponses = {
+export type DeleteCommentsByCommentIdResponses = {
     /**
      * Comentario eliminado
      */
     200: CommentRead;
 };
 
-export type DeleteCommentResponse = DeleteCommentResponses[keyof DeleteCommentResponses];
+export type DeleteCommentsByCommentIdResponse = DeleteCommentsByCommentIdResponses[keyof DeleteCommentsByCommentIdResponses];
 
-export type GetCommentByIdData = {
+export type GetCommentsByCommentIdData = {
     body?: never;
     path: {
         comment_id: number;
@@ -1486,7 +1488,7 @@ export type GetCommentByIdData = {
     url: '/comments/{comment_id}';
 };
 
-export type GetCommentByIdErrors = {
+export type GetCommentsByCommentIdErrors = {
     /**
      * El comentario no existe
      */
@@ -1497,18 +1499,18 @@ export type GetCommentByIdErrors = {
     422: HttpValidationError;
 };
 
-export type GetCommentByIdError = GetCommentByIdErrors[keyof GetCommentByIdErrors];
+export type GetCommentsByCommentIdError = GetCommentsByCommentIdErrors[keyof GetCommentsByCommentIdErrors];
 
-export type GetCommentByIdResponses = {
+export type GetCommentsByCommentIdResponses = {
     /**
      * Comentario encontrado
      */
     200: CommentRead;
 };
 
-export type GetCommentByIdResponse = GetCommentByIdResponses[keyof GetCommentByIdResponses];
+export type GetCommentsByCommentIdResponse = GetCommentsByCommentIdResponses[keyof GetCommentsByCommentIdResponses];
 
-export type UpdateCommentData = {
+export type PatchCommentsByCommentIdData = {
     body: CommentUpdate;
     path: {
         comment_id: number;
@@ -1517,7 +1519,7 @@ export type UpdateCommentData = {
     url: '/comments/{comment_id}';
 };
 
-export type UpdateCommentErrors = {
+export type PatchCommentsByCommentIdErrors = {
     /**
      * Comentario no encontrado
      */
@@ -1528,18 +1530,18 @@ export type UpdateCommentErrors = {
     422: HttpValidationError;
 };
 
-export type UpdateCommentError = UpdateCommentErrors[keyof UpdateCommentErrors];
+export type PatchCommentsByCommentIdError = PatchCommentsByCommentIdErrors[keyof PatchCommentsByCommentIdErrors];
 
-export type UpdateCommentResponses = {
+export type PatchCommentsByCommentIdResponses = {
     /**
      * Comentario actualizado
      */
     200: CommentRead;
 };
 
-export type UpdateCommentResponse = UpdateCommentResponses[keyof UpdateCommentResponses];
+export type PatchCommentsByCommentIdResponse = PatchCommentsByCommentIdResponses[keyof PatchCommentsByCommentIdResponses];
 
-export type GetCommentsByUserIdData = {
+export type GetCommentsUserByUserIdData = {
     body?: never;
     path: {
         user_id: number;
@@ -1548,7 +1550,7 @@ export type GetCommentsByUserIdData = {
     url: '/comments/user/{user_id}';
 };
 
-export type GetCommentsByUserIdErrors = {
+export type GetCommentsUserByUserIdErrors = {
     /**
      * No se encontraron comentarios
      */
@@ -1559,16 +1561,16 @@ export type GetCommentsByUserIdErrors = {
     422: HttpValidationError;
 };
 
-export type GetCommentsByUserIdError = GetCommentsByUserIdErrors[keyof GetCommentsByUserIdErrors];
+export type GetCommentsUserByUserIdError = GetCommentsUserByUserIdErrors[keyof GetCommentsUserByUserIdErrors];
 
-export type GetCommentsByUserIdResponses = {
+export type GetCommentsUserByUserIdResponses = {
     /**
      * Lista de comentarios obtenida
      */
     200: Array<CommentRead>;
 };
 
-export type GetCommentsByUserIdResponse = GetCommentsByUserIdResponses[keyof GetCommentsByUserIdResponses];
+export type GetCommentsUserByUserIdResponse = GetCommentsUserByUserIdResponses[keyof GetCommentsUserByUserIdResponses];
 
 export type GetNotificationsData = {
     body?: never;
@@ -1595,14 +1597,14 @@ export type GetNotificationsResponses = {
 
 export type GetNotificationsResponse = GetNotificationsResponses[keyof GetNotificationsResponses];
 
-export type CreateNotificationData = {
+export type PostNotificationsData = {
     body: NotificationCreate;
     path?: never;
     query?: never;
     url: '/notifications/';
 };
 
-export type CreateNotificationErrors = {
+export type PostNotificationsErrors = {
     /**
      * Error al crear la notificación
      */
@@ -1613,18 +1615,18 @@ export type CreateNotificationErrors = {
     422: HttpValidationError;
 };
 
-export type CreateNotificationError = CreateNotificationErrors[keyof CreateNotificationErrors];
+export type PostNotificationsError = PostNotificationsErrors[keyof PostNotificationsErrors];
 
-export type CreateNotificationResponses = {
+export type PostNotificationsResponses = {
     /**
      * Notificación creada
      */
     200: NotificationRead;
 };
 
-export type CreateNotificationResponse = CreateNotificationResponses[keyof CreateNotificationResponses];
+export type PostNotificationsResponse = PostNotificationsResponses[keyof PostNotificationsResponses];
 
-export type DeleteNotificationData = {
+export type DeleteNotificationsByNotificationIdData = {
     body?: never;
     path: {
         notification_id: number;
@@ -1633,7 +1635,7 @@ export type DeleteNotificationData = {
     url: '/notifications/{notification_id}';
 };
 
-export type DeleteNotificationErrors = {
+export type DeleteNotificationsByNotificationIdErrors = {
     /**
      * Notificación no encontrada
      */
@@ -1644,18 +1646,18 @@ export type DeleteNotificationErrors = {
     422: HttpValidationError;
 };
 
-export type DeleteNotificationError = DeleteNotificationErrors[keyof DeleteNotificationErrors];
+export type DeleteNotificationsByNotificationIdError = DeleteNotificationsByNotificationIdErrors[keyof DeleteNotificationsByNotificationIdErrors];
 
-export type DeleteNotificationResponses = {
+export type DeleteNotificationsByNotificationIdResponses = {
     /**
      * Notificación eliminada
      */
     200: NotificationRead;
 };
 
-export type DeleteNotificationResponse = DeleteNotificationResponses[keyof DeleteNotificationResponses];
+export type DeleteNotificationsByNotificationIdResponse = DeleteNotificationsByNotificationIdResponses[keyof DeleteNotificationsByNotificationIdResponses];
 
-export type GetNotificationByIdData = {
+export type GetNotificationsByNotificationIdData = {
     body?: never;
     path: {
         notification_id: number;
@@ -1664,7 +1666,7 @@ export type GetNotificationByIdData = {
     url: '/notifications/{notification_id}';
 };
 
-export type GetNotificationByIdErrors = {
+export type GetNotificationsByNotificationIdErrors = {
     /**
      * Notificación no encontrada
      */
@@ -1675,18 +1677,18 @@ export type GetNotificationByIdErrors = {
     422: HttpValidationError;
 };
 
-export type GetNotificationByIdError = GetNotificationByIdErrors[keyof GetNotificationByIdErrors];
+export type GetNotificationsByNotificationIdError = GetNotificationsByNotificationIdErrors[keyof GetNotificationsByNotificationIdErrors];
 
-export type GetNotificationByIdResponses = {
+export type GetNotificationsByNotificationIdResponses = {
     /**
      * Notificación encontrada
      */
     200: NotificationRead;
 };
 
-export type GetNotificationByIdResponse = GetNotificationByIdResponses[keyof GetNotificationByIdResponses];
+export type GetNotificationsByNotificationIdResponse = GetNotificationsByNotificationIdResponses[keyof GetNotificationsByNotificationIdResponses];
 
-export type ChangeStateNotificationData = {
+export type PatchNotificationsByNotificationIdData = {
     body?: never;
     path: {
         notification_id: number;
@@ -1695,7 +1697,7 @@ export type ChangeStateNotificationData = {
     url: '/notifications/{notification_id}';
 };
 
-export type ChangeStateNotificationErrors = {
+export type PatchNotificationsByNotificationIdErrors = {
     /**
      * Notificación no encontrada
      */
@@ -1706,43 +1708,43 @@ export type ChangeStateNotificationErrors = {
     422: HttpValidationError;
 };
 
-export type ChangeStateNotificationError = ChangeStateNotificationErrors[keyof ChangeStateNotificationErrors];
+export type PatchNotificationsByNotificationIdError = PatchNotificationsByNotificationIdErrors[keyof PatchNotificationsByNotificationIdErrors];
 
-export type ChangeStateNotificationResponses = {
+export type PatchNotificationsByNotificationIdResponses = {
     /**
      * Notificación actualizada
      */
     200: NotificationRead;
 };
 
-export type ChangeStateNotificationResponse = ChangeStateNotificationResponses[keyof ChangeStateNotificationResponses];
+export type PatchNotificationsByNotificationIdResponse = PatchNotificationsByNotificationIdResponses[keyof PatchNotificationsByNotificationIdResponses];
 
-export type GetMyNotificationsData = {
+export type GetNotificationsUserMeData = {
     body?: never;
     path?: never;
     query?: never;
     url: '/notifications/user/me';
 };
 
-export type GetMyNotificationsErrors = {
+export type GetNotificationsUserMeErrors = {
     /**
      * No se encontraron notificaciones
      */
     404: ErrorResponse;
 };
 
-export type GetMyNotificationsError = GetMyNotificationsErrors[keyof GetMyNotificationsErrors];
+export type GetNotificationsUserMeError = GetNotificationsUserMeErrors[keyof GetNotificationsUserMeErrors];
 
-export type GetMyNotificationsResponses = {
+export type GetNotificationsUserMeResponses = {
     /**
      * Lista de notificaciones obtenida
      */
     200: NotificationsList;
 };
 
-export type GetMyNotificationsResponse = GetMyNotificationsResponses[keyof GetMyNotificationsResponses];
+export type GetNotificationsUserMeResponse = GetNotificationsUserMeResponses[keyof GetNotificationsUserMeResponses];
 
-export type GetNotificationsByUserIdData = {
+export type GetNotificationsUserByUserIdData = {
     body?: never;
     path: {
         user_id: number;
@@ -1751,7 +1753,7 @@ export type GetNotificationsByUserIdData = {
     url: '/notifications/user/{user_id}';
 };
 
-export type GetNotificationsByUserIdErrors = {
+export type GetNotificationsUserByUserIdErrors = {
     /**
      * No se encontraron notificaciones
      */
@@ -1762,16 +1764,16 @@ export type GetNotificationsByUserIdErrors = {
     422: HttpValidationError;
 };
 
-export type GetNotificationsByUserIdError = GetNotificationsByUserIdErrors[keyof GetNotificationsByUserIdErrors];
+export type GetNotificationsUserByUserIdError = GetNotificationsUserByUserIdErrors[keyof GetNotificationsUserByUserIdErrors];
 
-export type GetNotificationsByUserIdResponses = {
+export type GetNotificationsUserByUserIdResponses = {
     /**
      * Lista de notificaciones obtenida
      */
     200: Array<NotificationRead>;
 };
 
-export type GetNotificationsByUserIdResponse = GetNotificationsByUserIdResponses[keyof GetNotificationsByUserIdResponses];
+export type GetNotificationsUserByUserIdResponse = GetNotificationsUserByUserIdResponses[keyof GetNotificationsUserByUserIdResponses];
 
 export type GetReportsData = {
     body?: never;
@@ -1798,14 +1800,14 @@ export type GetReportsResponses = {
 
 export type GetReportsResponse = GetReportsResponses[keyof GetReportsResponses];
 
-export type CreateReportData = {
+export type PostReportsData = {
     body: ReportCreate;
     path?: never;
     query?: never;
     url: '/reports/';
 };
 
-export type CreateReportErrors = {
+export type PostReportsErrors = {
     /**
      * Error en los datos enviados
      */
@@ -1816,18 +1818,18 @@ export type CreateReportErrors = {
     422: HttpValidationError;
 };
 
-export type CreateReportError = CreateReportErrors[keyof CreateReportErrors];
+export type PostReportsError = PostReportsErrors[keyof PostReportsErrors];
 
-export type CreateReportResponses = {
+export type PostReportsResponses = {
     /**
      * Reporte creado
      */
     200: ReportRead;
 };
 
-export type CreateReportResponse = CreateReportResponses[keyof CreateReportResponses];
+export type PostReportsResponse = PostReportsResponses[keyof PostReportsResponses];
 
-export type GetReportsByProblemIdData = {
+export type GetReportsProblemByProblemIdData = {
     body?: never;
     path: {
         problem_id: number;
@@ -1836,7 +1838,7 @@ export type GetReportsByProblemIdData = {
     url: '/reports/problem/{problem_id}';
 };
 
-export type GetReportsByProblemIdErrors = {
+export type GetReportsProblemByProblemIdErrors = {
     /**
      * No se encontraron reportes
      */
@@ -1847,18 +1849,18 @@ export type GetReportsByProblemIdErrors = {
     422: HttpValidationError;
 };
 
-export type GetReportsByProblemIdError = GetReportsByProblemIdErrors[keyof GetReportsByProblemIdErrors];
+export type GetReportsProblemByProblemIdError = GetReportsProblemByProblemIdErrors[keyof GetReportsProblemByProblemIdErrors];
 
-export type GetReportsByProblemIdResponses = {
+export type GetReportsProblemByProblemIdResponses = {
     /**
      * Listado de reportes
      */
     200: Array<ReportRead>;
 };
 
-export type GetReportsByProblemIdResponse = GetReportsByProblemIdResponses[keyof GetReportsByProblemIdResponses];
+export type GetReportsProblemByProblemIdResponse = GetReportsProblemByProblemIdResponses[keyof GetReportsProblemByProblemIdResponses];
 
-export type DeleteReportData = {
+export type DeleteReportsByReportIdData = {
     body?: never;
     path: {
         report_id: number;
@@ -1867,7 +1869,7 @@ export type DeleteReportData = {
     url: '/reports/{report_id}';
 };
 
-export type DeleteReportErrors = {
+export type DeleteReportsByReportIdErrors = {
     /**
      * Reporte no encontrado
      */
@@ -1878,18 +1880,18 @@ export type DeleteReportErrors = {
     422: HttpValidationError;
 };
 
-export type DeleteReportError = DeleteReportErrors[keyof DeleteReportErrors];
+export type DeleteReportsByReportIdError = DeleteReportsByReportIdErrors[keyof DeleteReportsByReportIdErrors];
 
-export type DeleteReportResponses = {
+export type DeleteReportsByReportIdResponses = {
     /**
      * Reporte eliminado
      */
     200: ReportRead;
 };
 
-export type DeleteReportResponse = DeleteReportResponses[keyof DeleteReportResponses];
+export type DeleteReportsByReportIdResponse = DeleteReportsByReportIdResponses[keyof DeleteReportsByReportIdResponses];
 
-export type ChangeStateReportData = {
+export type PatchReportsByReportIdData = {
     body?: never;
     path: {
         report_id: number;
@@ -1898,7 +1900,7 @@ export type ChangeStateReportData = {
     url: '/reports/{report_id}';
 };
 
-export type ChangeStateReportErrors = {
+export type PatchReportsByReportIdErrors = {
     /**
      * Reporte no encontrado
      */
@@ -1909,16 +1911,16 @@ export type ChangeStateReportErrors = {
     422: HttpValidationError;
 };
 
-export type ChangeStateReportError = ChangeStateReportErrors[keyof ChangeStateReportErrors];
+export type PatchReportsByReportIdError = PatchReportsByReportIdErrors[keyof PatchReportsByReportIdErrors];
 
-export type ChangeStateReportResponses = {
+export type PatchReportsByReportIdResponses = {
     /**
      * Reporte actualizado
      */
     200: ReportRead;
 };
 
-export type ChangeStateReportResponse = ChangeStateReportResponses[keyof ChangeStateReportResponses];
+export type PatchReportsByReportIdResponse = PatchReportsByReportIdResponses[keyof PatchReportsByReportIdResponses];
 
 export type GetTestCasesData = {
     body?: never;
@@ -1945,32 +1947,32 @@ export type GetTestCasesResponses = {
 
 export type GetTestCasesResponse = GetTestCasesResponses[keyof GetTestCasesResponses];
 
-export type CreateTestCaseData = {
+export type PostTestCasesData = {
     body: TestCaseCreate;
     path?: never;
     query?: never;
     url: '/testCases/';
 };
 
-export type CreateTestCaseErrors = {
+export type PostTestCasesErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CreateTestCaseError = CreateTestCaseErrors[keyof CreateTestCaseErrors];
+export type PostTestCasesError = PostTestCasesErrors[keyof PostTestCasesErrors];
 
-export type CreateTestCaseResponses = {
+export type PostTestCasesResponses = {
     /**
      * Caso de prueba creado
      */
     200: TestCaseRead;
 };
 
-export type CreateTestCaseResponse = CreateTestCaseResponses[keyof CreateTestCaseResponses];
+export type PostTestCasesResponse = PostTestCasesResponses[keyof PostTestCasesResponses];
 
-export type DeleteTestCaseData = {
+export type DeleteTestCasesByTestCaseIdData = {
     body?: never;
     path?: never;
     query: {
@@ -1979,7 +1981,7 @@ export type DeleteTestCaseData = {
     url: '/testCases/{testCase_id}';
 };
 
-export type DeleteTestCaseErrors = {
+export type DeleteTestCasesByTestCaseIdErrors = {
     /**
      * Caso de prueba no encontrado
      */
@@ -1990,18 +1992,18 @@ export type DeleteTestCaseErrors = {
     422: HttpValidationError;
 };
 
-export type DeleteTestCaseError = DeleteTestCaseErrors[keyof DeleteTestCaseErrors];
+export type DeleteTestCasesByTestCaseIdError = DeleteTestCasesByTestCaseIdErrors[keyof DeleteTestCasesByTestCaseIdErrors];
 
-export type DeleteTestCaseResponses = {
+export type DeleteTestCasesByTestCaseIdResponses = {
     /**
      * Caso de prueba eliminado
      */
     200: TestCaseRead;
 };
 
-export type DeleteTestCaseResponse = DeleteTestCaseResponses[keyof DeleteTestCaseResponses];
+export type DeleteTestCasesByTestCaseIdResponse = DeleteTestCasesByTestCaseIdResponses[keyof DeleteTestCasesByTestCaseIdResponses];
 
-export type GetTestCaseByIdData = {
+export type GetTestCasesByTestCaseIdData = {
     body?: never;
     path?: never;
     query: {
@@ -2010,7 +2012,7 @@ export type GetTestCaseByIdData = {
     url: '/testCases/{testCase_id}';
 };
 
-export type GetTestCaseByIdErrors = {
+export type GetTestCasesByTestCaseIdErrors = {
     /**
      * Caso de prueba no encontrado
      */
@@ -2021,18 +2023,18 @@ export type GetTestCaseByIdErrors = {
     422: HttpValidationError;
 };
 
-export type GetTestCaseByIdError = GetTestCaseByIdErrors[keyof GetTestCaseByIdErrors];
+export type GetTestCasesByTestCaseIdError = GetTestCasesByTestCaseIdErrors[keyof GetTestCasesByTestCaseIdErrors];
 
-export type GetTestCaseByIdResponses = {
+export type GetTestCasesByTestCaseIdResponses = {
     /**
      * Caso de prueba encontrado
      */
     200: TestCaseRead;
 };
 
-export type GetTestCaseByIdResponse = GetTestCaseByIdResponses[keyof GetTestCaseByIdResponses];
+export type GetTestCasesByTestCaseIdResponse = GetTestCasesByTestCaseIdResponses[keyof GetTestCasesByTestCaseIdResponses];
 
-export type UpdateTestCaseData = {
+export type PatchTestCasesByTestCaseIdData = {
     body: TestCaseUpdate;
     path?: never;
     query: {
@@ -2041,7 +2043,7 @@ export type UpdateTestCaseData = {
     url: '/testCases/{testCase_id}';
 };
 
-export type UpdateTestCaseErrors = {
+export type PatchTestCasesByTestCaseIdErrors = {
     /**
      * Caso de prueba no encontrado
      */
@@ -2052,18 +2054,18 @@ export type UpdateTestCaseErrors = {
     422: HttpValidationError;
 };
 
-export type UpdateTestCaseError = UpdateTestCaseErrors[keyof UpdateTestCaseErrors];
+export type PatchTestCasesByTestCaseIdError = PatchTestCasesByTestCaseIdErrors[keyof PatchTestCasesByTestCaseIdErrors];
 
-export type UpdateTestCaseResponses = {
+export type PatchTestCasesByTestCaseIdResponses = {
     /**
      * Caso de prueba actualizado
      */
     200: TestCaseRead;
 };
 
-export type UpdateTestCaseResponse = UpdateTestCaseResponses[keyof UpdateTestCaseResponses];
+export type PatchTestCasesByTestCaseIdResponse = PatchTestCasesByTestCaseIdResponses[keyof PatchTestCasesByTestCaseIdResponses];
 
-export type GetTestCasesByProblemIdData = {
+export type GetTestCasesProblemByProblemIdData = {
     body?: never;
     path: {
         problem_id: number;
@@ -2072,7 +2074,7 @@ export type GetTestCasesByProblemIdData = {
     url: '/testCases/problem/{problem_id}';
 };
 
-export type GetTestCasesByProblemIdErrors = {
+export type GetTestCasesProblemByProblemIdErrors = {
     /**
      * No se encontraron casos de prueba o no existe el problema solicitado.
      */
@@ -2083,18 +2085,18 @@ export type GetTestCasesByProblemIdErrors = {
     422: HttpValidationError;
 };
 
-export type GetTestCasesByProblemIdError = GetTestCasesByProblemIdErrors[keyof GetTestCasesByProblemIdErrors];
+export type GetTestCasesProblemByProblemIdError = GetTestCasesProblemByProblemIdErrors[keyof GetTestCasesProblemByProblemIdErrors];
 
-export type GetTestCasesByProblemIdResponses = {
+export type GetTestCasesProblemByProblemIdResponses = {
     /**
      * Lista de casos de prueba obtenida
      */
     200: Array<TestCaseRead>;
 };
 
-export type GetTestCasesByProblemIdResponse = GetTestCasesByProblemIdResponses[keyof GetTestCasesByProblemIdResponses];
+export type GetTestCasesProblemByProblemIdResponse = GetTestCasesProblemByProblemIdResponses[keyof GetTestCasesProblemByProblemIdResponses];
 
-export type CodeData = {
+export type PostCodeData = {
     body?: never;
     path?: never;
     query: {
@@ -2103,7 +2105,7 @@ export type CodeData = {
     url: '/code/';
 };
 
-export type CodeErrors = {
+export type PostCodeErrors = {
     /**
      * Error al crear el código
      */
@@ -2114,16 +2116,16 @@ export type CodeErrors = {
     422: HttpValidationError;
 };
 
-export type CodeError = CodeErrors[keyof CodeErrors];
+export type PostCodeError = PostCodeErrors[keyof PostCodeErrors];
 
-export type CodeResponses = {
+export type PostCodeResponses = {
     /**
      * Código creado
      */
     200: Message;
 };
 
-export type CodeResponse = CodeResponses[keyof CodeResponses];
+export type PostCodeResponse = PostCodeResponses[keyof PostCodeResponses];
 
 export type ClientOptions = {
     baseURL: 'http://localhost:8000' | (string & {});

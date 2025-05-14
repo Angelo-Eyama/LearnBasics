@@ -7,7 +7,8 @@
 		"dev": "vite",
 		"build": "tsc -b && vite build",
 		"preview": "vite preview",
-		"generate-client": "openapi-ts --input http://localhost:8000/openapi.json --output ./src/client -c @hey-api/client-axios"
+		"openapi-client": "openapi-ts --input http://localhost:8000/openapi.json --output ./src/client -c @hey-api/client-axios",
+		"generate-client": "npm run openapi-client && node scripts/patchClient.ts"
 	},
 	"dependencies": {
 		"@hey-api/client-axios": "^0.6.1",
