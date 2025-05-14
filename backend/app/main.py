@@ -56,7 +56,7 @@ def read_root():
     response_model=dict,
     responses={404: {"model": ErrorResponse}},
 )
-def openapi():
+def customDocs():
     openapi_schema = app.openapi()
 
     for path_data in openapi_schema["paths"].values():
