@@ -3,7 +3,6 @@ import { BrowserRouter, useRoutes } from 'react-router-dom';
 import { ThemeProvider } from '@/components/theme-provider';
 import NavigationBar from '@/components/nav-bar';
 import Footer from '@/components/footer';
-import { AuthProvider } from '@/context/useAuth';
 import { Toaster } from 'sonner';
 import { Loading } from './components/ui/loading';
 import routes from '@/routes';
@@ -14,7 +13,6 @@ const App = () => {
     const queryClient = new QueryClient()
     return (
         <ThemeProvider defaultTheme='dark' storageKey='vite-ui-theme'>
-            <AuthProvider>
                 <QueryClientProvider client={queryClient}>
                     <BrowserRouter>
                         <Toaster richColors closeButton />
@@ -26,7 +24,6 @@ const App = () => {
                     </BrowserRouter>
                     <ReactQueryDevtools initialIsOpen={false} />
                 </QueryClientProvider>
-            </AuthProvider>
         </ThemeProvider>
     );
 };

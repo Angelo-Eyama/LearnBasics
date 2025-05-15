@@ -22,10 +22,8 @@ import { Eye, Edit, Mail, Award, Code, FileCode, Bell, CheckCircle, CircleX } fr
 import { FaGithub } from "react-icons/fa";
 import useAuth from "@/hooks/useAuth"
 import { parseServerString, decideRank, formatDate } from "@/utils/utils"
-import { readNotification } from "@/client"
-import { useMutation } from "@tanstack/react-query"
-import { toast } from "sonner"
-// Mock user data - in a real app, this would come from your API
+import { useNotifications } from "@/hooks/useNotifications"
+
 const user = {
     id: "1",
     name: "Jane Smith",
@@ -43,7 +41,6 @@ const user = {
     verified: true,
 }
 
-// Mock submissions data
 const submissions = [
     {
         id: "1",
@@ -204,58 +201,22 @@ const submissions = [
 ]
 
 export default function ProfilePage() {
-    const toggleNotificationRead = async (notificationId: number) => {
-        const response = await readNotification({
-            path: {
-                notification_id: notificationId,
-            }
-        })
-        if (!('data' in response)) {
-            toast.error("Error al cambiar el estado de la notificacion")
-            throw new Error("Error al cambiar el estado de la notificacion")
-        }
-    }
-
-    const { mutate: markNotificationAsRead } = useMutation({
-        mutationFn: toggleNotificationRead,
-        onSuccess: () => {
-            toast.success("Notificacion marcada como leida")
-        },
-        onError: () => {
-            toast.error("Error al marcar la notificacion como leida")
-        }
-    })
     const { user: userData } = useAuth()
+    const {
+        notifications,
+        markNotificationAsRead,
+        markAllAsRead,
+    } = useNotifications()
     const [selectedSubmission, setSelectedSubmission] = useState<(typeof submissions)[0] | null>(null)
     const [notificationsTab, setNotificationsTab] = useState("all")
-    const [userNotifications, setUserNotifications] = useState(userData?.notifications || [])
     if (!userData) return null
 
 
     const handleToggleRead = (notificationId: number) => {
         markNotificationAsRead(notificationId)
-        // Actualizamos el estado local de las notificaciones
-        setUserNotifications((prev) =>
-            prev.map((notification) =>
-                notification.id === notificationId ? { ...notification, read: !notification.read } : notification
-            )
-        )
     }
 
-    const markAllAsRead = () => {
-        // Llamamos a la mutación para marcar todas las notificaciones como leídas
-        userNotifications.forEach((notification) => {
-            if (!notification.read) {
-                markNotificationAsRead(notification.id)
-                // Actualizamos el estado local de las notificaciones
-                setUserNotifications((prev) =>
-                    prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
-                )
-            }
-        })
-    }
-
-    const filteredNotifications = userNotifications.filter((notification) => {
+    const filteredNotifications = notifications.filter((notification) => {
         if (notificationsTab === "all") return true
         if (notificationsTab === "unread") return !notification.read
         if (notificationsTab === "read") return notification.read
@@ -503,7 +464,7 @@ export default function ProfilePage() {
                                 variant="outline"
                                 size="sm"
                                 onClick={markAllAsRead}
-                                disabled={!userNotifications.some((n) => !n.read)}
+                                disabled={!notifications.some((n) => !n.read)}
                             >
                                 Marcar todas como leidas
                             </Button>
@@ -514,9 +475,9 @@ export default function ProfilePage() {
                                     <TabsTrigger value="all">Todas</TabsTrigger>
                                     <TabsTrigger value="unread">
                                         No leídas
-                                        {userNotifications.filter((n) => !n.read).length > 0 && (
+                                        {notifications.filter((n) => !n.read).length > 0 && (
                                             <Badge variant="secondary" className="ml-2">
-                                                {userNotifications.filter((n) => !n.read).length}
+                                                {notifications.filter((n) => !n.read).length}
                                             </Badge>
                                         )}
                                     </TabsTrigger>
@@ -556,4 +517,3 @@ export default function ProfilePage() {
         </div>
     )
 }
-
