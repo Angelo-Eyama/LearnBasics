@@ -15,6 +15,7 @@ import { validateRegister } from "@/utils/validation"
 import { isLoggedIn } from "@/hooks/useAuth"
 import { useNavigate } from "react-router-dom"
 import { toast } from "sonner"
+import useAuth from "@/hooks/useAuth"
 
 export function RegisterForm({
     className,
@@ -33,10 +34,24 @@ export function RegisterForm({
             navigate("/")
         }
     })
+    const { signUpMutation, error: signUpError } = useAuth()
 
-    function handleRegister() {
+    const handleRegister = async () => {
         const error = validateRegister(firstName, lastName, username, email, password, confirmPassword)
-        toast.error(error)
+        if (error) {
+            toast.error(error)
+            return
+        }
+        await signUpMutation.mutateAsync({
+            firstName: firstName,
+            lastName: lastName,
+            username: username,
+            email: email,
+            password: password,
+        })
+        setPassword("")
+        setConfirmPassword("")
+        if (signUpError) toast.error("Ups...", { description: signUpError })        
     }
 
     return (

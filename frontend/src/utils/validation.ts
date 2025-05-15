@@ -5,7 +5,7 @@ function isEmailValid(email: string): boolean {
 
 function isPasswordSecure(password: string): boolean {
     // Comprueba si la contraseña tiene al menos 8 caracteres, una letra mayúscula, una letra minúscula y un número
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
     return passwordRegex.test(password);
 }
 

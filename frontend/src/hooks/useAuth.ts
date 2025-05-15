@@ -8,6 +8,7 @@ import {
     loginForAccessToken,
     type UserPublic,
     type UserRegister,
+    type RegisterUserError
 } from "@/client";
 import { toast } from "sonner"
 import { useMutation } from "@tanstack/react-query"
@@ -28,28 +29,36 @@ const useAuth = () => {
             if ('data' in response) {
                 return response.data as UserPublic;
             }
-            toast("Error al obtener el usuario actual")
+            toast("Error al obtener el usuario actual") // Eliminar en produccion
             throw new Error("Error al obtener el usuario actual");
         },
         enabled: isLoggedIn(), // Only fetch if the user is logged in
         
     })
 
+    const register = async (data: UserRegister) => {
+        const response = await registerUser({ body: data });
+        if (response?.data) {
+            return response.data;
+        } else {
+            setError("Error: User registration failed")
+            throw new Error("User registration failed")
+        }
+    }
+
     const signUpMutation = useMutation({
-        mutationFn: (data: UserRegister) => 
-            registerUser({ body: data }),
+        mutationFn: register,
 
         onSuccess: () => {
-            navigate("/auth/login")
+            // navigate("/auth/login")
             toast.success("Cuenta creada", {
                 description: "Su cuenta se ha creado con exito. Inicie sesion con sus credenciales"
             })
         },
-        // onSettled is equivalent to finally in async/await
-        // It runs after the mutation is either successful or fails
-        onSettled: () => {
-            queryClient.invalidateQueries({ queryKey: ["users"]})
-        },
+        onError: (error: RegisterUserError) => {
+            let errorMessage = error?.detail || "Error al crear la cuenta"
+            setError(`Error: ${errorMessage}`)
+        }
     })
 
     const login = async (data: BodyAuthLoginForAccessToken) => {
@@ -74,9 +83,6 @@ const useAuth = () => {
         onError: (error: Error) => {
             let errorMessage = error?.message || "Error al iniciar sesion";
 
-            toast.error("Error", {
-                description: errorMessage
-            })
             // Just in case...
             setError(`Error: ${errorMessage}`)
         },

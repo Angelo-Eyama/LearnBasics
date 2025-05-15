@@ -22,19 +22,21 @@ export function LoginForm({
   const [password, setPassword] = useState("")
   const navigate = useNavigate()
   const { loginMutation } = useAuth()
-  const handleLogin = async () => { try {
-    await loginMutation.mutateAsync({
-      username: username,
-      password: password
-    })
-    setPassword("")
-    navigate("/")
-  } catch (error) {
-    toast.error("Credenciales incorrectas")
-  }}
-  
+  const handleLogin = async () => {
+    try {
+      await loginMutation.mutateAsync({
+        username: username,
+        password: password
+      })
+      setPassword("")
+      navigate("/")
+    } catch (error) {
+      toast.error("Credenciales incorrectas")
+    }
+  }
+
   useEffect(() => {
-    if(isLoggedIn()) {
+    if (isLoggedIn()) {
       navigate("/")
     }
   })
@@ -76,7 +78,7 @@ export function LoginForm({
               </div>
               <div className="flex flex-col gap-3">
                 {
-                  
+
                   <Button type="button" className="w-full" onClick={handleLogin}>
                     Iniciar sesion
                   </Button>
