@@ -106,6 +106,21 @@ def create_user(user: UserCreate, session: SessionDep):
     new_user = users_controller.create_user(session, User.from_orm(user))
     return new_user
 
+@router.patch(
+    "/me",
+    response_model=UserUpdate,
+    summary="Actualizar el usuario actual",
+    description="Actualiza uno o varios campos del usuario que ha iniciado sesión en el sistema.",
+    response_description="El usuario actualizado.",
+    responses={
+        200: {"description": "Usuario actualizado"},
+        403: {"model": ErrorResponse, "description": "No autorizado"},
+    }
+    )
+def update_current_user(user_update: UserUpdate, session: SessionDep, current_user: CurrentUser):
+    updated_user = users_controller.update_user(
+        session=session, db_user=current_user, user_in=user_update)
+    return updated_user
 
 @router.patch(
     "/{user_id}",
@@ -126,22 +141,6 @@ def update_user(user_id: int, user_update: UserUpdate, session: SessionDep):
     
     updated_user = users_controller.update_user(
         session=session, db_user=user, user_in=user_update)
-    return updated_user
-
-@router.patch(
-    "/me",
-    response_model=UserUpdate,
-    summary="Actualizar el usuario actual",
-    description="Actualiza uno o varios campos del usuario que ha iniciado sesión en el sistema.",
-    response_description="El usuario actualizado.",
-    responses={
-        200: {"description": "Usuario actualizado"},
-        403: {"model": ErrorResponse, "description": "No autorizado"},
-    }
-    )
-def update_current_user(user_update: UserUpdate, session: SessionDep, current_user: CurrentUser):
-    updated_user = users_controller.update_user(
-        session=session, db_user=current_user, user_in=user_update)
     return updated_user
 
 @router.delete(

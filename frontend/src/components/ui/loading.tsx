@@ -1,4 +1,5 @@
-export function Loading() {
+export function Loading({message = "Cargando..."} : {message?: string}) {
+
     return (
         <>
         <div
@@ -6,9 +7,11 @@ export function Loading() {
             role="status">
             <span
                 className="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]"
-                >Loading...</span>
+                >Cargando...</span>
         </div>
-        <p>Cargando...</p>
+        <p>
+            {message}
+        </p>
         </>
     );
 }

@@ -1,35 +1,65 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Loading } from "@/components/ui/loading"
 import { toast } from "sonner"
 import { ArrowLeft, Upload, Save } from "lucide-react"
-import {Link} from "react-router-dom"
-
-// Mock user data - in a real app, this would come from your API
-const user = {
-    id: "1",
-    name: "Jane Smith",
-    username: "janesmith",
-    email: "jane.smith@example.com",
-    avatar: "/placeholder.svg?height=100&width=100",
-    location: "San Francisco, CA",
-    bio: "Full-stack developer passionate about solving complex problems and building intuitive user interfaces.",
-    skills: "JavaScript, TypeScript, React, Node.js, Python",
-    githubUsername: "janesmith",
-}
+import { Link, useNavigate } from "react-router-dom"
+import useAuth from "@/hooks/useAuth"
+import { updateCurrentUser, UserUpdate } from "@/client"
+import { useQueryClient, useMutation } from "@tanstack/react-query"
 
 export default function EditProfilePage() {
-    const [formData, setFormData] = useState(user)
-    const [isSubmitting, setIsSubmitting] = useState(false)
+    const navigate = useNavigate()
+    const queryClient = useQueryClient()
+    const { user, isLoading: isLoadingUser, error: isUserError } = useAuth()
+    const [formData, setFormData] = useState<UserUpdate>(() => ({
+        firstName: "",
+        lastName: "",
+        email: "",
+        bio: "",
+        skills: "",
+        github: "",
+    }))
+    //Actualizar el estado del formulario si este cambia
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                firstName: user.firstName ?? "",
+                lastName: user.lastName ?? "",
+                email: user.email ?? "",
+                bio: user.bio ?? "",
+                skills: user.skills ?? "",
+                github: user.github ?? "",
+            })
+        }
+    }, [user])
 
+    const updateProfileMutation = useMutation({
+        mutationFn: async (data: UserUpdate) => {
+            const response = await updateCurrentUser({ body: data })
+            if (response?.data) {
+                return response.data
+            } else {
+                toast.error("Error al actualizar perfil", { description: `${response.error.detail}` })
+                throw response.error
+            }
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["currentUser"] })
+            toast.success("Perfil actualizado con éxito")
+            navigate("/profile")
+        },
+    })
+    const [isSubmitting, setIsSubmitting] = useState(false)
+    if (!user) return null
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
         setFormData((prev) => ({ ...prev, [name]: value }))
@@ -38,13 +68,23 @@ export default function EditProfilePage() {
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault()
         setIsSubmitting(true)
+        updateProfileMutation.mutateAsync(formData)
+        setIsSubmitting(false)
+    }
 
-        // Simulate API call
-        setTimeout(() => {
-            setIsSubmitting(false)
-            toast.success("Perfil actualizado", 
-                {description: "Tu perfil se ha actualizado correctamente"})
-        }, 1000)
+    if (isLoadingUser) return <Loading message="Cargando perfil..." />
+    if (isUserError) {
+        return (
+            <div className="container mx-auto py-12 px-4">
+                <div className="text-center p-6 bg-destructive/10 rounded-lg">
+                    <h2 className="text-2xl font-bold text-destructive mb-2">Error al cargar el perfil</h2>
+                    <p>No se pudieron cargar los datos del usuario. Por favor, inténtalo de nuevo.</p>
+                    <Button onClick={() => navigate('/profile')} className="mt-4">
+                        Volver al perfil
+                    </Button>
+                </div>
+            </div>
+        );
     }
 
     return (
@@ -69,10 +109,10 @@ export default function EditProfilePage() {
                         </CardHeader>
                         <CardContent className="flex flex-col items-center">
                             <Avatar className="h-32 w-32 mb-4">
-                                <AvatarImage src={formData.avatar} alt={formData.name} />
-                                <AvatarFallback>{formData.name.charAt(0)}</AvatarFallback>
+                                <AvatarImage src={`https://randomuser.me/api/portraits/med/men/${Math.floor(Math.random() * 100)}.jpg`} alt={formData.firstName ?? ""} />
+                                <AvatarFallback>{formData.firstName?.charAt(0)}</AvatarFallback>
                             </Avatar>
-                            <Button variant="outline" className="w-full">
+                            <Button variant="outline" className="w-full" onClick={(e) => { e.preventDefault(); }}>
                                 <Upload className="mr-2 h-4 w-4" />
                                 Subir nueva foto
                             </Button>
@@ -87,40 +127,33 @@ export default function EditProfilePage() {
                         <CardContent className="space-y-4">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="name">Nombre completo</Label>
-                                    <Input id="name" name="name" value={formData.name} onChange={handleChange} />
+                                    <Label htmlFor="firstName">Nombre</Label>
+                                    <Input id="firstName" name="firstName" value={formData.firstName ?? ""} onChange={handleChange} required />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="lastName">Apellidos</Label>
+                                    <Input id="lastName" name="lastName" value={formData.lastName ?? ""} onChange={handleChange} required />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="username">Nombre de usuario</Label>
-                                    <Input id="username" name="username" value={formData.username} onChange={handleChange} />
+                                    <Input id="username" name="username" value={user.username} disabled />
                                 </div>
-                            </div>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="email">Correo Electrónico</Label>
-                                    <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="location">Ciudad</Label>
-                                    <Input id="location" name="location" value={formData.location} onChange={handleChange} />
+                                    <Input id="email" name="email" type="email" value={formData.email ?? ""} onChange={handleChange} required />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="bio">Sobre mi</Label>
-                                <Textarea id="bio" name="bio" rows={4} value={formData.bio} onChange={handleChange} />
+                                <Textarea id="bio" name="bio" rows={4} value={formData.bio ?? ""} onChange={handleChange} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="skills">Habilidades (separadas por comas)</Label>
-                                <Input id="skills" name="skills" value={formData.skills} onChange={handleChange} />
+                                <Label htmlFor="skills">Habilidades (separadas por coma y espacio)</Label>
+                                <Input id="skills" name="skills" value={formData.skills ?? ""} onChange={handleChange} required />
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="githubUsername">Nombre de usuario de GitHub</Label>
-                                <Input
-                                    id="githubUsername"
-                                    name="githubUsername"
-                                    value={formData.githubUsername}
-                                    onChange={handleChange}
-                                />
+                                <Label htmlFor="github">Enlace a cuenta de github</Label>
+                                <Input id="github" name="github" value={formData.github ?? ""} onChange={handleChange} required />
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-end gap-4">

@@ -291,7 +291,7 @@ export default function ProfilePage() {
                         <CardContent>
                             <p>{userData?.bio || "Sin descripcion"}</p>
                             <div className="mt-4">
-                                <h3 className="font-medium mb-2">Habilidades</h3>
+                                <h3 className="leading-none font-semibold mb-2">Habilidades</h3>
                                 <div className="flex flex-wrap gap-2">
                                     {parseServerString(userData?.skills).map((skill) => (
                                         <Badge key={skill} variant="secondary">
