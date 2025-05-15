@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { Github} from "lucide-react" //change this to the correct icon library
+import { FaGithub } from "react-icons/fa"
 
 export default function Footer() {
     return (
@@ -14,7 +14,7 @@ export default function Footer() {
                     <div className="flex gap-4 mt-2">
                         <Link to="#">
                             <Button variant="ghost" size="icon" aria-label="GitHub">
-                                <Github className="h-4 w-4" />
+                                <FaGithub className="h-4 w-4" />
                             </Button>
                         </Link>
                     </div>
