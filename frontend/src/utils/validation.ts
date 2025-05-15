@@ -3,12 +3,10 @@ function isEmailValid(email: string): boolean {
     return emailRegex.test(email);
 }
 
-function isPasswordValid(password: string): boolean {
-    return password.length >= 8;
-}
-
-function samePassword(password: string, confirmPassword: string): boolean {
-    return password === confirmPassword;
+function isPasswordSecure(password: string): boolean {
+    // Comprueba si la contraseña tiene al menos 8 caracteres, una letra mayúscula, una letra minúscula y un número
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    return passwordRegex.test(password);
 }
 
 function isUsernameValid(username: string): boolean {
@@ -16,7 +14,7 @@ function isUsernameValid(username: string): boolean {
 }
 
 function isValidName(name: string): boolean {
-    //Verify that the name is not empty, and that it does not contain any numbers
+    // Comprueba si el nombre tiene al menos 3 caracteres y no contiene números
     return name.length > 3 && !/\d/.test(name);
 }
 
@@ -46,10 +44,10 @@ export function validateRegister(
     if (!isEmailValid(email)) {
         return 'El correo electrónico no es válido';
     }
-    if (!isPasswordValid(password)) {
-        return 'La contraseña debe tener al menos 8 caracteres';
+    if (!isPasswordSecure(password)) {
+        return 'La contraseña debe tener al menos 8 caracteres, una letra mayúscula, una letra minúscula y un número';
     }
-    if (!samePassword(password, confirmPassword)) {
+    if (!(password === confirmPassword)) {
         return 'Las contraseñas no coinciden';
     }
     return '';

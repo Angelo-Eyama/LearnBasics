@@ -9,8 +9,6 @@ import {
     type UserPublic,
     type UserRegister,
 } from "@/client";
-
-import { ErrorResponse } from "@/client";
 import { toast } from "sonner"
 import { useMutation } from "@tanstack/react-query"
 
@@ -45,13 +43,6 @@ const useAuth = () => {
             navigate("/auth/login")
             toast.success("Cuenta creada", {
                 description: "Su cuenta se ha creado con exito. Inicie sesion con sus credenciales"
-            })
-        },
-        onError: (error: ErrorResponse) => {
-            let errorMessage = error?.detail || "Error al crear la cuenta";
-
-            toast.error("Error", {
-                description: errorMessage
             })
         },
         // onSettled is equivalent to finally in async/await

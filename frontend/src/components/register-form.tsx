@@ -7,11 +7,14 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Link } from "react-router-dom"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { validateRegister } from "@/utils/validation"
+import { isLoggedIn } from "@/hooks/useAuth"
+import { useNavigate } from "react-router-dom"
+import { toast } from "sonner"
 
 export function RegisterForm({
     className,
@@ -23,18 +26,17 @@ export function RegisterForm({
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
-    const [error, setError] = useState("")
+    const navigate = useNavigate()
+
+    useEffect(() => {
+        if (isLoggedIn()) {
+            navigate("/")
+        }
+    })
 
     function handleRegister() {
-        handleError()
-    }
-
-    function handleError() {
         const error = validateRegister(firstName, lastName, username, email, password, confirmPassword)
-        setError(error)
-        setTimeout(() => {
-            setError("")
-        }, 5000)
+        toast.error(error)
     }
 
     return (
@@ -108,15 +110,6 @@ export function RegisterForm({
                                     Crear nueva cuenta
                                 </Button>
                             </div>
-                            {
-                                error && (
-                                    <div className="flex flex-col gap-3 bg-red-400 p-4 rounded-md">
-                                        <p>
-                                            {error}
-                                        </p>
-                                    </div>
-                                )
-                            }
                         </div>
                         <div className="mt-4 text-center text-sm">
                             ¿Ya tiene una cuenta con nosotros?{" "}
