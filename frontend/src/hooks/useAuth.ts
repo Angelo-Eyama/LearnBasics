@@ -26,14 +26,13 @@ const useAuth = () => {
         queryKey: ["currentUser"],
         queryFn: async () => {
             const response = await getCurrentUser();
-            if ('data' in response) {
+            if (response?.status === 200 && 'data' in response) {
                 return response.data as UserPublic;
             }
             toast("Error al obtener el usuario actual") // Eliminar en produccion
             throw new Error("Error al obtener el usuario actual");
         },
-        enabled: isLoggedIn(), // Only fetch if the user is logged in
-        
+        enabled: isLoggedIn(),
     })
 
     const register = async (data: UserRegister) => {

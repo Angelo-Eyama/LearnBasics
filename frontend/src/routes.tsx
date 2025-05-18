@@ -1,5 +1,6 @@
 import { lazy } from 'react';
 import { RouteObject } from 'react-router-dom';
+import ProtectedRoutes from '@/components/protectedRoutes';
 
 // Importa tus componentes de forma perezosa (lazy loading)
 const Landing = lazy(() => import('@/pages/public/landing'));
@@ -31,32 +32,46 @@ const AdminCommentsPage = lazy(() => import('@/pages/admin/comments/comments-pag
 const NotFound = lazy(() => import('@/pages/public/not-found'));
 
 const routes: RouteObject[] = [
+    // Rutas públicas
     { path: '/', element: <Landing /> },
-    { path: '/playground', element: <PublicPlayground /> },
-    { path: '/private', element: <PrivatePlayground /> },
-    { path: '/profile', element: <ProfilePage /> },
-    { path: '/edit-profile', element: <EditProfilePage /> },
-
     { path: '/auth/login', element: <Login /> },
     { path: '/auth/register', element: <Register /> },
     { path: '/auth/reset-password', element: <ResetPassword /> },
     { path: '/auth/verify-register', element: <VerifyRegister /> },
-    
-    { path: '/problems', element: <ProblemsPage /> },
-    { path: '/problems/:id', element: <ProblemDetailPage /> },
+    { path: '/playground', element: <PublicPlayground /> },
 
-    { path: '/admin/', element: <AdminDashboardPage /> },
 
-    { path: '/admin/users', element: <AdminUsersPage /> },
-    { path: '/admin/users/new', element: <NewUserPage /> },
-    { path: '/admin/users/:id', element: <AdminUserDetailPage /> },
+    // Rutas protegidas
+    // Rutas protegidas para estudiantes
+    {
+        element: <ProtectedRoutes />, children: [
+            { path: '/problems', element: <ProblemsPage /> },
+            { path: '/problems/:id', element: <ProblemDetailPage /> },
+            { path: '/private', element: <PrivatePlayground /> },
+            { path: '/profile', element: <ProfilePage /> },
+            { path: '/edit-profile', element: <EditProfilePage /> },
 
-    { path: '/admin/problems', element: <AdminProblemsPage /> },
-    { path: '/admin/problems/new', element: <NewProblemPage /> },
-    { path: '/admin/problems/:id', element: <EditProblemPage /> },
+        ]
+    },
+    // Rutas protegidas para moderadores
+    {
+        element: <ProtectedRoutes moderatorRoute={true} />, children: [
+            { path: '/admin/', element: <AdminDashboardPage /> },
+            { path: '/admin/problems', element: <AdminProblemsPage /> },
+            { path: '/admin/problems/new', element: <NewProblemPage /> },
+            { path: '/admin/problems/:id', element: <EditProblemPage /> },
+            { path: '/admin/comments', element: <AdminCommentsPage /> },
+        ]
+    },
+    // Rutas protegidas solo para administradores
+    {
+        element: <ProtectedRoutes adminRoute={true} />, children: [
+            { path: '/admin/users', element: <AdminUsersPage /> },
+            { path: '/admin/users/new', element: <NewUserPage /> },
+            { path: '/admin/users/:id', element: <AdminUserDetailPage /> },
+        ]
+    },
 
-    { path: '/admin/comments', element: <AdminCommentsPage /> },
-    
     { path: '*', element: <NotFound /> },
 ];
 
