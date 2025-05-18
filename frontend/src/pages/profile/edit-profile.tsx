@@ -13,8 +13,20 @@ import { toast } from "sonner"
 import { ArrowLeft, Upload, Save } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import useAuth from "@/hooks/useAuth"
-import { updateCurrentUser, UserUpdate } from "@/client"
+import { updateCurrentUser, UserUpdate, deleteCurrentUser } from "@/client"
 import { useQueryClient, useMutation } from "@tanstack/react-query"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 export default function EditProfilePage() {
     const navigate = useNavigate()
@@ -71,6 +83,16 @@ export default function EditProfilePage() {
         updateProfileMutation.mutateAsync(formData)
         setIsSubmitting(false)
     }
+    const handleDelete = () => {
+        try {
+            deleteCurrentUser();
+            queryClient.invalidateQueries({ queryKey: ["currentUser"] })
+            localStorage.removeItem("access_token");
+            navigate("/");
+        } catch (error) {
+            toast.error("Error al eliminar la cuenta", { description: `${error}` })
+        }
+    }
 
     if (isLoadingUser) return <Loading message="Cargando perfil..." />
     if (isUserError) {
@@ -116,6 +138,29 @@ export default function EditProfilePage() {
                                 <Upload className="mr-2 h-4 w-4" />
                                 Subir nueva foto
                             </Button>
+
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" className="w-full mt-4">
+                                        Eliminar cuenta
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Esta acción eliminará permanentemente tu cuenta y no podrás recuperarla.
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleDelete} className="bg-destructive">
+                                            Eliminar cuenta
+                                        </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
+
                         </CardContent>
                     </Card>
 

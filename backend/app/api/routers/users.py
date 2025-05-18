@@ -143,25 +143,6 @@ def update_user(user_id: int, user_update: UserUpdate, session: SessionDep):
         session=session, db_user=user, user_in=user_update)
     return updated_user
 
-@router.delete(
-    "/{user_id}",
-    response_model=UserPublic,
-    summary="Eliminar un usuario",
-    description="Elimina un usuario del sistema utilizando su ID como clave.",
-    response_description="El usuario eliminado.",
-    responses={
-        200: {"description": "Usuario eliminado"},
-        404: {"model": ErrorResponse, "description": "Usuario no encontrado"},
-    },
-    dependencies=[Depends(verify_admin)]
-)
-def delete_user(user_id: int, session: SessionDep):
-    user = users_controller.get_user_by_id(session, user_id)
-    if not user:
-        raise HTTPException(status_code=404, detail="Usuario no encontrado")
-    deleted_user = users_controller.delete_user(session, user_id)
-    return deleted_user
-
 # Eliminar mi propio usuario
 @router.delete(
     "/me",
@@ -181,4 +162,23 @@ def delete_current_user(session: SessionDep, current_user: CurrentUser):
         )
     
     deleted_user = users_controller.delete_user(session, current_user.id)
+    return deleted_user
+
+@router.delete(
+    "/{user_id}",
+    response_model=UserPublic,
+    summary="Eliminar un usuario",
+    description="Elimina un usuario del sistema utilizando su ID como clave.",
+    response_description="El usuario eliminado.",
+    responses={
+        200: {"description": "Usuario eliminado"},
+        404: {"model": ErrorResponse, "description": "Usuario no encontrado"},
+    },
+    dependencies=[Depends(verify_admin)]
+)
+def delete_user(user_id: int, session: SessionDep):
+    user = users_controller.get_user_by_id(session, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    deleted_user = users_controller.delete_user(session, user_id)
     return deleted_user
