@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Search, CheckCircle2, MoreHorizontal, Flag } from "lucide-react"
+import { FaStar } from "react-icons/fa6";
+import { parseServerString } from "@/utils/utils"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -17,7 +19,8 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-
+import { getProblems } from "@/client"
+import { useQuery, useQueryClient } from "@tanstack/react-query"
 // Mock problems data
 const problems = [
     {
@@ -67,26 +70,29 @@ const problems = [
 export default function ProblemsPage() {
     const [searchQuery, setSearchQuery] = useState("")
     const [difficultyFilter, setDifficultyFilter] = useState("all")
-    const [statusFilter, setStatusFilter] = useState("all")
+    const { data: problemsData} = useQuery({
+        queryKey: ["problems"],
+        queryFn: async () => {
+            const response = await getProblems()
+            if(response.status === 200 && 'data' in response) {
+                return response.data
+            }
+            throw new Error("Error al obtener los problemas")
+        }
+    })
+    if (!problemsData) return null
 
-
-    const filteredProblems = problems.filter((problem) => {
+    const filteredProblems = problemsData.filter((problem) => {
         // Search filter
         const matchesSearch =
             problem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            problem.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+            parseServerString(problem.tags).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
         // Difficulty filter
         const matchesDifficulty =
             difficultyFilter === "all" || problem.difficulty.toLowerCase() === difficultyFilter.toLowerCase()
 
-        // Status filter
-        const matchesStatus =
-            statusFilter === "all" ||
-            (statusFilter === "solved" && problem.solved) ||
-            (statusFilter === "unsolved" && !problem.solved)
-
-        return matchesSearch && matchesDifficulty && matchesStatus
+        return matchesSearch && matchesDifficulty
     })
 
     return (
@@ -119,16 +125,6 @@ export default function ProblemsPage() {
                             <SelectItem value="Dificil">Dificil</SelectItem>
                         </SelectContent>
                     </Select>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                        <SelectTrigger className="w-[190px]">
-                            <SelectValue placeholder="Status" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">Todos los problemas</SelectItem>
-                            <SelectItem value="solved">Resueltos</SelectItem>
-                            <SelectItem value="unsolved">Sin resolver</SelectItem>
-                        </SelectContent>
-                    </Select>
                 </div>
             </div>
 
@@ -143,12 +139,15 @@ export default function ProblemsPage() {
                                             <Link to={`/problems/${problem.id}`} className="hover:underline">
                                                 {problem.title}
                                             </Link>
-                                            {problem.solved && <CheckCircle2 className="ml-2 h-5 w-5 text-green-500" />}
+                                            <Badge className="ml-2">
+                                                <FaStar className="h-3 w-3" />
+                                                { problem.score } Puntos
+                                            </Badge>
                                         </CardTitle>
                                         <CardDescription className="mt-1">{problem.description}</CardDescription>
                                     </div>
                                     <Badge
-                                        className={
+                                        className= {
                                             problem.difficulty === "Facil"
                                                 ? "bg-green-500"
                                                 : problem.difficulty === "Normal"
@@ -162,7 +161,7 @@ export default function ProblemsPage() {
                             </CardHeader>
                             <CardContent className="pb-2">
                                 <div className="flex flex-wrap gap-2">
-                                    {problem.tags.map((tag) => (
+                                    {parseServerString(problem.tags).map((tag) => (
                                         <Badge key={tag} variant="outline">
                                             {tag}
                                         </Badge>
@@ -171,7 +170,7 @@ export default function ProblemsPage() {
                             </CardContent>
                             <CardFooter className="flex justify-between items-center">
                                 <Button asChild>
-                                    <Link to={`/problems/${problem.id}`}>{problem.solved ? "Revisar" : "Resolver"}</Link>
+                                    <Link to={`/problems/${problem.id}`}>Resolver</Link>
                                 </Button>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -223,7 +222,6 @@ export default function ProblemsPage() {
                             onClick={() => {
                                 setSearchQuery("")
                                 setDifficultyFilter("all")
-                                setStatusFilter("all")
                             }}
                         >
                             Limpiar filtros

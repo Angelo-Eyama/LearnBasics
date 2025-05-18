@@ -64,7 +64,7 @@ export type NotificationsList = {
 
 export type ProblemCreate = {
     title: string;
-    block: string;
+    tags: string;
     description: string;
     difficulty: string;
     score: number;
@@ -72,7 +72,7 @@ export type ProblemCreate = {
 
 export type ProblemRead = {
     title: string;
-    block: string;
+    tags: string;
     description: string;
     difficulty: string;
     score: number;
@@ -82,7 +82,7 @@ export type ProblemRead = {
 
 export type ProblemUpdate = {
     title?: string | null;
-    block?: string | null;
+    tags?: string | null;
     description?: string | null;
     difficulty?: string | null;
     score?: number | null;
@@ -960,62 +960,6 @@ export type GetProblemByIdResponses = {
 };
 
 export type GetProblemByIdResponse = GetProblemByIdResponses[keyof GetProblemByIdResponses];
-
-export type GetProblemsByBlockData = {
-    body?: never;
-    path: {
-        block: string;
-    };
-    query?: never;
-    url: '/problems/block/{block}';
-};
-
-export type GetProblemsByBlockErrors = {
-    /**
-     * No se encontraron problemas o no existe el bloque solicitado.
-     */
-    404: ErrorResponse;
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type GetProblemsByBlockError = GetProblemsByBlockErrors[keyof GetProblemsByBlockErrors];
-
-export type GetProblemsByBlockResponses = {
-    /**
-     * Lista de problemas obtenida
-     */
-    200: Array<ProblemRead>;
-};
-
-export type GetProblemsByBlockResponse = GetProblemsByBlockResponses[keyof GetProblemsByBlockResponses];
-
-export type GetProblemsBlocksData = {
-    body?: never;
-    path?: never;
-    query?: never;
-    url: '/problems/problem-blocks';
-};
-
-export type GetProblemsBlocksErrors = {
-    /**
-     * No se encontraron bloques de problemas
-     */
-    404: ErrorResponse;
-};
-
-export type GetProblemsBlocksError = GetProblemsBlocksErrors[keyof GetProblemsBlocksErrors];
-
-export type GetProblemsBlocksResponses = {
-    /**
-     * Lista de bloques obtenida
-     */
-    200: Array<string>;
-};
-
-export type GetProblemsBlocksResponse = GetProblemsBlocksResponses[keyof GetProblemsBlocksResponses];
 
 export type ListProblemsByDifficultyData = {
     body?: never;

@@ -36,7 +36,7 @@ class Problem(SQLModel, table=True):
     
     id: Optional[int] = Field(default=None, primary_key=True)
     title: str
-    block: str
+    tags: str
     description: str
     hints: str
     difficulty: str

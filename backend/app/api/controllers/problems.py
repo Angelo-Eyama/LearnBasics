@@ -11,17 +11,9 @@ def get_problem_by_id(session: Session, problem_id: int) -> Problem:
     problem = session.get(Problem, problem_id)
     return problem
 
-def get_problems_by_block(session: Session, block: str) -> List[Problem]:
-    problems = session.exec(select(Problem).where(Problem.block == block)).all()
-    return problems
-
 def get_problems_by_difficulty(session: Session, difficulty: str) -> List[Problem]:
     problems = session.exec(select(Problem).where(Problem.difficulty == difficulty)).all()
     return problems
-
-def get_problems_blocks(session: Session) -> List[str]:
-    blocks = session.exec(select(Problem.block)).distinct().all()
-    return blocks
 
 def create_problem(*, session: Session, new_problem: ProblemCreate, current_user: User) -> Problem:
     problem_db = Problem.model_validate(

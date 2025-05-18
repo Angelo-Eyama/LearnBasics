@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict
 # Esquema Base
 class ProblemBase(BaseModel):
     title: str
-    block: str
+    tags: str
     description: str
     difficulty: str
     score: int
@@ -16,7 +16,7 @@ class ProblemCreate(ProblemBase):
 # Esquema de Actualización
 class ProblemUpdate(BaseModel):
     title: Optional[str] = None
-    block: Optional[str] = None
+    tags: Optional[str] = None
     description: Optional[str] = None
     difficulty: Optional[str] = None
     score: Optional[int] = None

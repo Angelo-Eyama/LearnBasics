@@ -47,38 +47,6 @@ def get_problem_by_id(problem_id: int, session: SessionDep):
     return problem
 
 @router.get(
-    "/block/{block}",
-    response_model=List[ProblemRead],
-    summary="Obtener problemas de un bloque",
-    description="Obtiene una lista con todos los problemas registrados en el sistema de un bloque específico.",
-    response_description="Lista de problemas en ese bloque.",
-    responses={
-        200: {"description": "Lista de problemas obtenida"},
-        404: {"model": ErrorResponse, "description": "No se encontraron problemas o no existe el bloque solicitado."},
-    }
-    )
-def get_problems_by_block(block: str, session: SessionDep):
-    problems = problems_controller.get_problems_by_block(session, block)
-    if not problems:
-        raise HTTPException(status_code=404, detail="No se encontraron problemas o no existe el bloque solicitado.")
-    return problems
-
-@router.get(
-    "/problem-blocks",
-    response_model=List[str],
-    summary="Obtener bloques de problemas",
-    description="Obtiene una lista con todos los bloques de problemas registrados en el sistema.",
-    response_description="Lista de bloques de problemas.",
-    responses={
-        200: {"description": "Lista de bloques obtenida"},
-        404: {"model": ErrorResponse, "description": "No se encontraron bloques de problemas"},
-    }
-    )
-def get_problems_blocks(session: SessionDep):
-    blocks = problems_controller.get_problems_blocks(session)
-    return blocks
-
-@router.get(
     "/difficulty/{difficulty}",
     response_model=List[ProblemRead],
     summary="Obtener problemas por dificultad",
