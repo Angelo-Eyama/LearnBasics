@@ -7,12 +7,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ArrowLeft, ThumbsUp, Send } from "lucide-react"
+import { ArrowLeft, Send } from "lucide-react"
 import Editor from "@/components/editor"
+import { getCommentsByProblemId, type ProblemRead, createComment, CommentCreate, CommentRead } from "@/client"
+import { useLocation } from "react-router-dom"
+import { parseServerString, formatDate } from "@/utils/utils"
+import { useQuery, useMutation, QueryClient } from "@tanstack/react-query"
+import useAuth from "@/hooks/useAuth"
+
 
 // Mock problem data
-const problem = {
+const problema = {
     id: "1",
     title: "Two Sum",
     difficulty: "Easy",
@@ -76,19 +81,47 @@ Constraints:
         },
     ],
 }
+
+const starterCode = {
+    javascript: `function twoSum(nums, target) {
+  // Your code here
+};`,
+    python: `def two_sum(nums, target):
+    # Your code here
+    pass`,
+}
 // Prototipo: export default function ProblemDetailPage({ params }: { params: { id: string } })
 export default function ProblemDetailPage() {
+    const queryClient = new QueryClient()
+    const location = useLocation();
+    const problem: ProblemRead = location.state?.problemData;
+    const { user } = useAuth()
+    const { data: commentsData } = useQuery({
+        queryKey: ["comments", problem.id],
+        queryFn: async () => {
+            const response = await getCommentsByProblemId({
+                path: {
+                    problem_id: problem.id,
+                }
+            })
+            if (response.status === 200 && response.data) {
+                return response.data;
+            }
+            throw new Error("Error al obtener comentarios")
+        },
+
+    })
     const [language, setLanguage] = useState("javascript")
-    const [code, setCode] = useState(problem.starterCode.javascript)
+    const [code, setCode] = useState(starterCode.javascript)
     const [activeTab, setActiveTab] = useState("description")
     const [newComment, setNewComment] = useState("")
-    const [comments, setComments] = useState(problem.comments)
+    const [comments, setComments] = useState(commentsData || [])
     const [output, setOutput] = useState("")
     const [isRunning, setIsRunning] = useState(false)
 
     const handleLanguageChange = (lang: string) => {
         setLanguage(lang)
-        setCode(problem.starterCode[lang as keyof typeof problem.starterCode] || "")
+        setCode(starterCode.python)
     }
 
     const handleRunCode = () => {
@@ -102,22 +135,36 @@ export default function ProblemDetailPage() {
         }, 1000)
     }
 
+    const newCommentMutation = useMutation({
+        mutationFn: async (data: CommentCreate) => {
+            const response = await createComment({
+                body: {
+                    content: data.content,
+                    problemID: problem.id,
+                    userID: user?.id || 4,
+                }
+            })
+            if (response.status === 200 && response.data) {
+                return response.data;
+            }
+        },
+        onSuccess: (newComment) => {
+                console.log("Comentario creado exitosamente:", newComment);
+                queryClient.invalidateQueries({queryKey: ["comments", problem.id]});
+                setComments(commentsData || [])
+                setNewComment("")
+        }
+    })
+
     const handleSubmitComment = () => {
         if (!newComment.trim()) return
-
-        const comment = {
-            id: `${comments.length + 1}`,
-            user: {
-                name: "You",
-                avatar: "/placeholder.svg?height=40&width=40",
-            },
+        const commentData = {
             content: newComment,
-            timestamp: "Just now",
-            likes: 0,
+            problemID: problem.id,
+            userID: user?.id || 4,
         }
-
-        setComments([comment, ...comments])
-        setNewComment("")
+        newCommentMutation.mutate(commentData)
+        
     }
 
     return (
@@ -135,16 +182,16 @@ export default function ProblemDetailPage() {
                     <div className="flex items-center mt-1 space-x-2">
                         <Badge
                             className={
-                                problem.difficulty === "Easy"
+                                problem.difficulty === "Facil"
                                     ? "bg-green-500"
-                                    : problem.difficulty === "Medium"
+                                    : problem.difficulty === "Normal"
                                         ? "bg-yellow-500"
                                         : "bg-red-500"
                             }
                         >
                             {problem.difficulty}
                         </Badge>
-                        {problem.tags.map((tag) => (
+                        {parseServerString(problem.tags).map((tag) => (
                             <Badge key={tag} variant="outline">
                                 {tag}
                             </Badge>
@@ -168,18 +215,16 @@ export default function ProblemDetailPage() {
                         <CardContent>
                             <Tabs defaultValue="hints" value={activeTab}>
                                 <TabsContent value="description" className="mt-0">
-                                    <div className="prose dark:prose-invert max-w-none">
+                                    <div className="prose dark:prose-invert max-w-none max-h-[calc(100vh-300px)] overflow-auto">
                                         <pre className="whitespace-pre-wrap font-sans text-sm">{problem.description}</pre>
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="hints" className="mt-0">
                                     <div className="space-y-4">
-                                        {problem.hints.map((hint, index) => (
-                                            <div key={index} className="p-4 border rounded-md">
-                                                <h3 className="font-medium mb-2">Pista {index + 1}</h3>
-                                                <p>{hint}</p>
-                                            </div>
-                                        ))}
+                                        <div className="p-4 border rounded-md">
+                                            <h3 className="font-medium mb-2">Pista</h3>
+                                            <p>{problem.hints}</p>
+                                        </div>
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="discussion" className="mt-0">
@@ -199,22 +244,12 @@ export default function ProblemDetailPage() {
                                         {comments.map((comment) => (
                                             <div key={comment.id} className="p-4 border rounded-md">
                                                 <div className="flex items-center space-x-2 mb-2">
-                                                    <Avatar className="h-8 w-8">
-                                                        <AvatarImage src={comment.user.avatar} alt={comment.user.name} />
-                                                        <AvatarFallback>{comment.user.name.charAt(0)}</AvatarFallback>
-                                                    </Avatar>
                                                     <div>
-                                                        <p className="font-medium">{comment.user.name}</p>
-                                                        <p className="text-xs text-muted-foreground">{comment.timestamp}</p>
+                                                        <p className="font-medium">{comment.user.username}</p>
+                                                        <p className="text-xs text-muted-foreground">{formatDate(comment.timePosted)}</p>
                                                     </div>
                                                 </div>
                                                 <p className="mb-2">{comment.content}</p>
-                                                <div className="flex items-center text-sm text-muted-foreground">
-                                                    <Button variant="ghost" size="sm" className="h-8 px-2">
-                                                        <ThumbsUp className="h-4 w-4 mr-1" />
-                                                        {comment.likes}
-                                                    </Button>
-                                                </div>
                                             </div>
                                         ))}
                                     </div>

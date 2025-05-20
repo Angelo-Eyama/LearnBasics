@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -19,17 +19,18 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { getProblems } from "@/client"
+import { getProblems, ProblemRead } from "@/client"
 import { useQuery } from "@tanstack/react-query"
 
 export default function ProblemsPage() {
+    const navigate = useNavigate()
     const [searchQuery, setSearchQuery] = useState("")
     const [difficultyFilter, setDifficultyFilter] = useState("all")
-    const { data: problemsData} = useQuery({
+    const { data: problemsData } = useQuery({
         queryKey: ["problems"],
         queryFn: async () => {
             const response = await getProblems()
-            if(response.status === 200 && 'data' in response) {
+            if (response.status === 200 && 'data' in response) {
                 return response.data
             }
             throw new Error("Error al obtener los problemas")
@@ -49,6 +50,13 @@ export default function ProblemsPage() {
 
         return matchesSearch && matchesDifficulty
     })
+    const handleClickProblem = (problemId: number) => {
+        const problem = problemsData.find((problem: ProblemRead) => problem.id === problemId)
+        navigate(`/problems/${problemId}`, {
+            state: { problemData: problem }
+        }
+        )
+    }
 
     return (
         <div className="container mx-auto py-6 px-4">
@@ -91,18 +99,22 @@ export default function ProblemsPage() {
                                 <div className="flex justify-between items-start">
                                     <div>
                                         <CardTitle className="flex items-center">
-                                            <Link to={`/problems/${problem.id}`} className="hover:underline">
+                                            <span
+                                                className="hover:underline cursor-pointer"
+                                                onClick={() => handleClickProblem(problem.id)}
+                                            >
                                                 {problem.title}
-                                            </Link>
+                                            </span>
+                                            
                                             <Badge className="ml-2">
                                                 <FaStar className="h-3 w-3" />
-                                                { problem.score } Puntos
+                                                {problem.score} Puntos
                                             </Badge>
                                         </CardTitle>
                                         <CardDescription className="mt-1">{problem.description}</CardDescription>
                                     </div>
                                     <Badge
-                                        className= {
+                                        className={
                                             problem.difficulty === "Facil"
                                                 ? "bg-green-500"
                                                 : problem.difficulty === "Normal"
@@ -124,8 +136,8 @@ export default function ProblemsPage() {
                                 </div>
                             </CardContent>
                             <CardFooter className="flex justify-between items-center">
-                                <Button asChild>
-                                    <Link to={`/problems/${problem.id}`}>Resolver</Link>
+                                <Button onClick={() => handleClickProblem(problem.id)}>
+                                    Resolver
                                 </Button>
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
@@ -153,7 +165,7 @@ export default function ProblemsPage() {
                                                     <Textarea
                                                         id="description"
                                                         name="description"
-                                                        rows={5}                                                        
+                                                        rows={5}
                                                         required
                                                         placeholder="Describa el problema que ha encontrado, cuanto más detallado mejor. Los administradores revisarán su reporte y tomarán las medidas necesarias. Gracias"
                                                     />

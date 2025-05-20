@@ -7,6 +7,7 @@ class ProblemBase(BaseModel):
     tags: str
     description: str
     difficulty: str
+    hints: str
     score: int
 
 # Esquema de Creación
@@ -19,6 +20,7 @@ class ProblemUpdate(BaseModel):
     tags: Optional[str] = None
     description: Optional[str] = None
     difficulty: Optional[str] = None
+    hints: Optional[str] = None
     score: Optional[int] = None
 
 # Esquema de Lectura

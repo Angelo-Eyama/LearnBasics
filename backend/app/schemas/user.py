@@ -3,7 +3,7 @@ from typing import Optional, List
 from pydantic import BaseModel, EmailStr, ConfigDict, HttpUrl
 from sqlmodel import SQLModel
 from app.schemas.role import RoleNameBase
-from app.schemas.notification import NotificationRead
+
 
 # User schemas
 # Esquema base con los campos comunes
@@ -72,7 +72,6 @@ class UserPublic(BaseModel):
     skills: Optional[str] = None
     profilePicture: Optional[str] = None
     roles: List[RoleNameBase]
-    notifications: List[NotificationRead] = []
     
     model_config = ConfigDict(
         from_attributes=True

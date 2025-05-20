@@ -30,6 +30,21 @@ def get_comments(session: SessionDep):
     comments = comments_controller.get_comments(session)
     return comments
 
+@router.get(
+    "/comments/problem/{problem_id}",
+    response_model=List[CommentRead],
+    description="Obtiene una lista con todos los comentarios registrados en el sistema para un problema específico.",
+    response_description="Lista de comentarios.",
+    responses={
+        200: {"description": "Lista de comentarios obtenida"},
+        404: {"model": ErrorResponse, "description": "No se encontraron comentarios"},
+    }
+)
+def get_comments_by_problem_id(problem_id: int, session: SessionDep):
+    comments = comments_controller.get_comments_by_problem_id(session, problem_id)
+    if not comments:
+        raise HTTPException(status_code=404, detail="No se encontraron comentarios para este problema")
+    return comments
 
 @router.get(
     "/comments/{comment_id}",

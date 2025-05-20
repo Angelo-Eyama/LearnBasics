@@ -24,6 +24,7 @@ export type CommentRead = {
     content: string;
     id: number;
     timePosted: string | null;
+    user: UserBase;
 };
 
 export type CommentUpdate = {
@@ -67,6 +68,7 @@ export type ProblemCreate = {
     tags: string;
     description: string;
     difficulty: string;
+    hints: string;
     score: number;
 };
 
@@ -75,6 +77,7 @@ export type ProblemRead = {
     tags: string;
     description: string;
     difficulty: string;
+    hints: string;
     score: number;
     id: number;
     authorID: number;
@@ -85,6 +88,7 @@ export type ProblemUpdate = {
     tags?: string | null;
     description?: string | null;
     difficulty?: string | null;
+    hints?: string | null;
     score?: number | null;
 };
 
@@ -166,6 +170,15 @@ export type TestCaseUpdate = {
     output?: string | null;
 };
 
+export type UserBase = {
+    username: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    active?: boolean;
+    score?: number | null;
+};
+
 export type UserCreate = {
     username: string;
     firstName: string;
@@ -190,7 +203,6 @@ export type UserPublic = {
     skills?: string | null;
     profilePicture?: string | null;
     roles: Array<RoleNameBase>;
-    notifications?: Array<NotificationRead>;
 };
 
 export type UserRegister = {
@@ -1388,6 +1400,37 @@ export type CreateCommentResponses = {
 };
 
 export type CreateCommentResponse = CreateCommentResponses[keyof CreateCommentResponses];
+
+export type GetCommentsByProblemIdData = {
+    body?: never;
+    path: {
+        problem_id: number;
+    };
+    query?: never;
+    url: '/comments/problem/{problem_id}';
+};
+
+export type GetCommentsByProblemIdErrors = {
+    /**
+     * No se encontraron comentarios
+     */
+    404: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type GetCommentsByProblemIdError = GetCommentsByProblemIdErrors[keyof GetCommentsByProblemIdErrors];
+
+export type GetCommentsByProblemIdResponses = {
+    /**
+     * Lista de comentarios obtenida
+     */
+    200: Array<CommentRead>;
+};
+
+export type GetCommentsByProblemIdResponse = GetCommentsByProblemIdResponses[keyof GetCommentsByProblemIdResponses];
 
 export type DeleteCommentData = {
     body?: never;

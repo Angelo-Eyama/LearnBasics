@@ -19,6 +19,12 @@ def get_comment_by_id(session: Session, comment_id: int):
     comment = session.get(Comment, comment_id)
     return comment
 
+def get_comments_by_problem_id(session: Session, problem_id: int):
+    comments = session.exec(
+        select(Comment).where(Comment.problemID == problem_id)
+    ).all()
+    return comments
+
 
 def create_comment(session: Session, new_comment: CommentCreate):
     comment_db = Comment.model_validate(new_comment)
