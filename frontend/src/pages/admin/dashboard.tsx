@@ -1,9 +1,12 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import {Link} from "react-router-dom"
+import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Users, BookText, MessageSquare } from "lucide-react"
+import useAuth from "@/hooks/useAuth"
 
 export default function AdminDashboardPage() {
+    const { user } = useAuth()
+    const isAdmin = user?.roles?.some(role => role.name === "administrador")
     return (
         <div className="container mx-auto py-6 px-4">
             <title>Panel de administración</title>
@@ -12,33 +15,29 @@ export default function AdminDashboardPage() {
                 <p className="text-muted-foreground">Desde aquí se gestiona el contenido de la aplicación</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <Card>
-                    <CardHeader className="pb-2">
-                        <CardTitle className="text-xl">Usuarios</CardTitle>
-                        <CardDescription>Gestión de cuentas de usuario</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <div className="flex justify-between items-center">
-                            <div className="text-3xl font-bold">128</div>
-                            <Users className="h-8 w-8 text-muted-foreground" />
-                        </div>
-                        <Button asChild className="w-full mt-4">
-                            <Link to="/admin/users">Gestionar usuarios</Link>
-                        </Button>
-                    </CardContent>
-                </Card>
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${isAdmin ? "3" : "2"} gap-6`}>
+                {
+                    isAdmin && <Card>
+                        <CardHeader className="flex justify-between items-center">
+                            <CardTitle className="text-xl">Usuarios</CardTitle>
+                            <CardDescription>Gestión de cuentas de usuario</CardDescription>
+                            <Users className="pt-1 h-8 w-8 text-muted-foreground" />
+                        </CardHeader>
+                        <CardContent>
+                            <Button asChild className="w-full mt-4 focus:outline-none">
+                                <Link to="/admin/users">Gestionar usuarios</Link>
+                            </Button>
+                        </CardContent>
+                    </Card>
+                }
 
                 <Card>
-                    <CardHeader className="pb-2">
+                    <CardHeader className="pb-2 flex justify-between items-center">
                         <CardTitle className="text-xl">Problemas</CardTitle>
                         <CardDescription>Gestión de los problemas de programación</CardDescription>
+                        <BookText className="h-8 w-8 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="flex justify-between items-center">
-                            <div className="text-3xl font-bold">42</div>
-                            <BookText className="h-8 w-8 text-muted-foreground" />
-                        </div>
                         <Button asChild className="w-full mt-4">
                             <Link to="/admin/problems">Gestionar problemas</Link>
                         </Button>
@@ -46,15 +45,12 @@ export default function AdminDashboardPage() {
                 </Card>
 
                 <Card>
-                    <CardHeader className="pb-2">
+                    <CardHeader className="pb-2 flex justify-between items-center">
                         <CardTitle className="text-xl">Comentarios</CardTitle>
                         <CardDescription>Moderación de comentarios de usuarios</CardDescription>
+                        <MessageSquare className="h-8 w-8 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="flex justify-between items-center">
-                            <div className="text-3xl font-bold">256</div>
-                            <MessageSquare className="h-8 w-8 text-muted-foreground" />
-                        </div>
                         <Button asChild className="w-full mt-4">
                             <Link to="/admin/comments">Gestionar comentarios</Link>
                         </Button>

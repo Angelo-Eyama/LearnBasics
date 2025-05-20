@@ -28,9 +28,11 @@ const useAuth = () => {
             const response = await getCurrentUser();
             if (response?.status === 200 && 'data' in response) {
                 return response.data as UserPublic;
-            }
+            } 
+            logout();
             toast("Error al obtener el usuario actual") // Eliminar en produccion
             throw new Error("Error al obtener el usuario actual");
+            return null;
         },
         enabled: isLoggedIn(),
     })
@@ -91,10 +93,9 @@ const useAuth = () => {
         localStorage.removeItem("access_token");
         queryClient.invalidateQueries({
             queryKey: ["currentUser"],
-            // Do not refetch the current user after logging out
             refetchType: "none",
         })
-        navigate("/auth/login")
+        navigate("/")
     }
 
     return {
