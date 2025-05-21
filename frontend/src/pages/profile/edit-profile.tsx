@@ -173,11 +173,11 @@ export default function EditProfilePage() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="firstName">Nombre</Label>
-                                    <Input id="firstName" name="firstName" value={formData.firstName ?? ""} onChange={handleChange} required />
+                                    <Input id="firstName" name="firstName" value={formData.firstName ?? ""} onChange={handleChange}  />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="lastName">Apellidos</Label>
-                                    <Input id="lastName" name="lastName" value={formData.lastName ?? ""} onChange={handleChange} required />
+                                    <Input id="lastName" name="lastName" value={formData.lastName ?? ""} onChange={handleChange}  />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="username">Nombre de usuario</Label>
@@ -185,20 +185,20 @@ export default function EditProfilePage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="email">Correo Electrónico</Label>
-                                    <Input id="email" name="email" type="email" value={formData.email ?? ""} onChange={handleChange} required />
+                                    <Input id="email" name="email" type="email" value={formData.email ?? ""} onChange={handleChange}  />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="bio">Sobre mi</Label>
-                                <Textarea id="bio" name="bio" rows={4} value={formData.bio ?? ""} onChange={handleChange} required />
+                                <Textarea id="bio" name="bio" rows={4} value={formData.bio ?? ""} onChange={handleChange}  />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="skills">Habilidades (separadas por coma y espacio)</Label>
-                                <Input id="skills" name="skills" value={formData.skills ?? ""} onChange={handleChange} required />
+                                <Input id="skills" name="skills" value={formData.skills ?? ""} onChange={handleChange}  />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="github">Enlace a cuenta de github</Label>
-                                <Input id="github" name="github" value={formData.github ?? ""} onChange={handleChange} required />
+                                <Input id="github" name="github" type="url" value={formData.github ?? ""} onChange={handleChange}  />
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-end gap-4">

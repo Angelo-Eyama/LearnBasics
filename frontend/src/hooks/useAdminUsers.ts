@@ -35,8 +35,9 @@ export const useAdminUsers = () => {
             return response.data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["adminUsers"] })
             toast.success("Usuario eliminado con éxito")
+            queryClient.invalidateQueries({ queryKey: ["adminUsers"] })
+            queryClient.invalidateQueries({ queryKey: ["currentUser"]})
         },
         onError: () => {
             toast.error("Error al eliminar el usuario")

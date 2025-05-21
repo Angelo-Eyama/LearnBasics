@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -29,59 +29,6 @@ import { toast } from "sonner"
 import useAdminUsers from "@/hooks/useAdminUsers"
 import { Loading } from "@/components/ui/loading"
 import { formatDate } from "@/utils/utils"
-// Mock users data
-const users = [
-    {
-        id: "1",
-        name: "Jane Smith",
-        email: "jane.smith@example.com",
-        avatar: "/placeholder.svg?height=40&width=40",
-        role: "User",
-        status: "Active",
-        problemsSolved: 42,
-        joinedDate: "Jan 15, 2023",
-    },
-    {
-        id: "2",
-        name: "John Doe",
-        email: "john.doe@example.com",
-        avatar: "/placeholder.svg?height=40&width=40",
-        role: "Admin",
-        status: "Active",
-        problemsSolved: 78,
-        joinedDate: "Mar 3, 2022",
-    },
-    {
-        id: "3",
-        name: "Alice Johnson",
-        email: "alice.johnson@example.com",
-        avatar: "/placeholder.svg?height=40&width=40",
-        role: "User",
-        status: "Inactive",
-        problemsSolved: 15,
-        joinedDate: "Jul 22, 2023",
-    },
-    {
-        id: "4",
-        name: "Bob Williams",
-        email: "bob.williams@example.com",
-        avatar: "/placeholder.svg?height=40&width=40",
-        role: "User",
-        status: "Active",
-        problemsSolved: 31,
-        joinedDate: "Apr 10, 2023",
-    },
-    {
-        id: "5",
-        name: "Carol Martinez",
-        email: "carol.martinez@example.com",
-        avatar: "/placeholder.svg?height=40&width=40",
-        role: "Moderator",
-        status: "Active",
-        problemsSolved: 56,
-        joinedDate: "Feb 5, 2023",
-    },
-]
 
 function getHighestRole(roles: { name: string }[]) {
     if (roles.some(role => role.name.toLowerCase() === "administrador")) return "Administrador"
@@ -90,11 +37,19 @@ function getHighestRole(roles: { name: string }[]) {
 }
 
 export default function AdminUsersPage() {
-    const { users, totalUsers, isLoading, isError, error, deleteUser, changeUserStatus } = useAdminUsers()
+    const { users, isLoading, isError, error, deleteUser, changeUserStatus } = useAdminUsers()
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedUser, setSelectedUser] = useState<(typeof users)[0] | null>(null)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     if (isLoading) return <Loading />
+    if (isError) {
+        toast.error("Error al cargar los usuarios", {
+            description: Array.isArray(error?.message)
+                ? error.message.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
+                : (error?.message || "Error al cargar los usuarios")
+        })
+        return null
+    }
 
     const filteredUsers = users.filter((user) => {
         return (
@@ -105,24 +60,16 @@ export default function AdminUsersPage() {
     })
 
     const handleStatusChange = (userId: number, newStatus: string) => {
+        changeUserStatus(userId)
         toast.success("Estado de usuario actualizado", {
-            description: `El estado del usuario ha cambiado a ${newStatus}.`,
-        })
-    }
-
-    const handleRoleChange = (userId: number, newRole: string) => {
-        toast.success("Rol actualizado", {
-            description: `El rol del usuario ha cambiado a ${newRole}.`,
+            description: `Se ha cambiado el estado del usuario a ${newStatus}.`,
         })
     }
 
     const handleDeleteUser = () => {
         if (!selectedUser) return
-
+        deleteUser(selectedUser.id)
         setIsDeleteDialogOpen(false)
-        toast.success("Usuario eliminado", {
-            description: `El usuario ${selectedUser.username} se ha eliminado.`,
-        })
         setSelectedUser(null)
     }
 
@@ -186,10 +133,10 @@ export default function AdminUsersPage() {
                                             {getHighestRole(user.roles)}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell>
-                                        <Badge variant={user.active === true ? "default" : "destructive"}>{user.active ? "Verificado" : "No verificado"}</Badge>
+                                    <TableCell className="items-center">
+                                        <Badge variant={user.active === true ? "default" : "destructive"}>{user.active ? "Desbloqueado" : "Bloqueado"}</Badge>
                                     </TableCell>
-                                    <TableCell> {formatDate(user.creationDate, { year: '2-digit', month: 'short', day: 'numeric', weekday: 'short'}) } </TableCell>
+                                    <TableCell> {formatDate(user.creationDate, { year: '2-digit', month: 'short', day: 'numeric', weekday: 'short' })} </TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -208,10 +155,10 @@ export default function AdminUsersPage() {
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
-                                                    onClick={() => handleStatusChange(user.id, user.active === true ? "Inactive" : "Active")}
+                                                    onClick={() => handleStatusChange(user.id, user.active === true ? "desbloqueado" : "bloqueado")}
                                                 >
                                                     <Shield className="mr-2 h-4 w-4" />
-                                                    {user.active === true ? "Desactivar" : "Activar"}
+                                                    {user.active === true ? "Bloquear" : "Desbloquear"}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
