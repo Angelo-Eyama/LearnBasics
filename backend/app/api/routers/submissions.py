@@ -4,7 +4,7 @@ from app.api.deps import CurrentUser, SessionDep, get_current_user, verify_admin
 
 from app.models import Submission
 from app.api.controllers import submissions as submissions_controller
-from app.schemas.submission import SubmissionCreate, SubmissionRead, SubmissionUpdate
+from app.schemas.submission import SubmissionCreate, SubmissionRead, SubmissionUpdate, SubmissionList
 from app.schemas.utils import ErrorResponse
 
 router = APIRouter(
@@ -14,7 +14,7 @@ router = APIRouter(
 
 @router.get(
     "/submissions/", 
-    response_model=List[SubmissionRead],
+    response_model=SubmissionList,
     summary="Obtener todas las entregas",
     description="Obtiene una lista con todas las entregas registradas en el sistema.",
     response_description="Lista de entregas.",
@@ -29,19 +29,31 @@ def get_submissions(session: SessionDep):
     return submissions
 
 @router.get(
+    "/submissions/user/me",
+    response_model=SubmissionList,
+    summary="Obtener entregas del usuario autenticado",
+    response_description="Lista de entregas.",
+    responses={
+        200: {"description": "Lista de entregas obtenida"},
+    }
+)
+def get_my_submissions(current_user: CurrentUser, session: SessionDep):
+    submissions = submissions_controller.get_submissions_by_user_id(session, current_user.id)
+    return submissions
+
+@router.get(
     "/submissions/user/{user_id}",
-    response_model=List[SubmissionRead],
+    response_model=SubmissionList,
     summary="Obtener entregas por ID de usuario",
     description="Obtiene una lista con todas las entregas registradas en el sistema realizadas por un usuario.",
     response_description="Lista de entregas.",
     responses={
         200: {"description": "Lista de entregas obtenida"},
         403: {"model": ErrorResponse, "description": "No se puede acceder a las entregas de otro usuario"}
-    }
+    },
+    dependencies=[Depends(verify_admin)]
     )
-def get_submissions_by_user_id(user_id: int, session: SessionDep, current_user: CurrentUser):
-    if current_user.id != user_id:
-        raise HTTPException(status_code=403, detail="No tienes permiso para acceder a este recurso")
+def get_submissions_by_user_id(user_id: int, session: SessionDep):
     submissions = submissions_controller.get_submissions_by_user_id(session, user_id)
     return submissions
 

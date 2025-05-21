@@ -1,10 +1,11 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
 from app.models import Submission
-from app.schemas.submission import SubmissionCreate, SubmissionUpdate
+from app.schemas.submission import SubmissionCreate, SubmissionUpdate, SubmissionList
 
 def get_submissions(session: Session):
     submissions = session.exec(select(Submission)).all()
-    return submissions
+    count = session.exec(select(func.count(Submission.id))).one()
+    return SubmissionList(total=count, submissions=submissions)
 
 def get_submission_by_id(session: Session, submission_id: int):
     submission = session.get(Submission, submission_id)
@@ -20,7 +21,8 @@ def get_submissions_by_problem_id(session: Session, problem_id: int):
 #Funcion que devuelve todas las entregas de un usuario concreto
 def get_submissions_by_user_id(session: Session, user_id: int):
     submissions = session.exec(select(Submission).where(Submission.userID == user_id)).all()
-    return submissions
+    count = session.exec(select(func.count(Submission.id))).one()
+    return SubmissionList(total=count, submissions=submissions)
 
 def create_submission(session: Session, new_submission: SubmissionCreate):
     submission_db = Submission.model_validate(new_submission)

@@ -4,7 +4,6 @@ from pydantic import BaseModel, EmailStr, ConfigDict, HttpUrl
 from sqlmodel import SQLModel
 from app.schemas.role import RoleNameBase
 
-
 # User schemas
 # Esquema base con los campos comunes
 class UserBase(BaseModel):
@@ -14,6 +13,7 @@ class UserBase(BaseModel):
     email: EmailStr
     active: bool = True
     score: Optional[int] = 0
+    isVerified: bool
 
 # Esquema para el registro de usuarios
 class UserRegister(SQLModel):
@@ -26,23 +26,7 @@ class UserRegister(SQLModel):
 # Esquema para crear un usuario (solo para admins)
 class UserCreate(UserBase):
     password: str 
-    roles: List[str]
-
-# Esquema para lectura detallada de un usuario
-class UserRead(UserBase):
-    id: int
-    creationDate: Optional[datetime]
-    bio: Optional[str] = None
-    github: Optional[HttpUrl] = None
-    profilePicture: Optional[str] = None
-    isVerified: bool = False
-    skills: Optional[str] = None
-    roles: List[RoleNameBase]
-    notifications: List[str] = []
-    
-    model_config = ConfigDict(
-        from_attributes=True
-    )
+    roles: List[RoleNameBase] = []
 
 
 # Esquema para la actualización de un usuario (todos los campos opcionales)
@@ -59,14 +43,7 @@ class UserUpdate(BaseModel):
     )
 
 # Propiedades a devolver en la respuesta de la autenticación
-class UserPublic(BaseModel):
-    id: int
-    username: str
-    firstName: str
-    lastName: str
-    email: EmailStr
-    isVerified: bool
-    score: int
+class UserPublic(UserBase):
     bio: Optional[str] = None
     github: Optional[HttpUrl] = None
     skills: Optional[str] = None
@@ -77,10 +54,18 @@ class UserPublic(BaseModel):
         from_attributes=True
     )
 
+# Esquema para lectura detallada de un usuario
+class UserRead(UserPublic):
+    id: int
+    creationDate: Optional[datetime]
+    
+    model_config = ConfigDict(
+        from_attributes=True
+    )
 
-class UsersPublic(SQLModel):
+class UsersRead(SQLModel):
     total: int
-    users: List[UserPublic]
+    users: List[UserRead]
     model_config = ConfigDict(
         from_attributes=True
     )

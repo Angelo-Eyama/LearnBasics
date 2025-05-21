@@ -43,6 +43,12 @@ export type Message = {
     message: string;
 };
 
+export type NotificationBase = {
+    title: string;
+    description: string;
+    read: boolean;
+};
+
 export type NotificationCreate = {
     title: string;
     description: string;
@@ -135,6 +141,11 @@ export type SubmissionCreate = {
     userID: number;
 };
 
+export type SubmissionList = {
+    total: number;
+    submissions: Array<SubmissionRead>;
+};
+
 export type SubmissionRead = {
     code: string;
     language: string;
@@ -177,6 +188,7 @@ export type UserBase = {
     email: string;
     active?: boolean;
     score?: number | null;
+    isVerified: boolean;
 };
 
 export type UserCreate = {
@@ -186,23 +198,45 @@ export type UserCreate = {
     email: string;
     active?: boolean;
     score?: number | null;
+    isVerified: boolean;
     password: string;
-    roles: Array<string>;
+    roles?: Array<RoleNameBase>;
 };
 
 export type UserPublic = {
-    id: number;
     username: string;
     firstName: string;
     lastName: string;
     email: string;
+    active?: boolean;
+    score?: number | null;
     isVerified: boolean;
-    score: number;
     bio?: string | null;
     github?: string | null;
     skills?: string | null;
     profilePicture?: string | null;
     roles: Array<RoleNameBase>;
+    submissions?: SubmissionList | Array<unknown>;
+    notifications?: Array<string | NotificationBase>;
+};
+
+export type UserRead = {
+    username: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    active?: boolean;
+    score?: number | null;
+    isVerified: boolean;
+    bio?: string | null;
+    github?: string | null;
+    skills?: string | null;
+    profilePicture?: string | null;
+    roles: Array<RoleNameBase>;
+    submissions?: SubmissionList | Array<unknown>;
+    notifications?: Array<string | NotificationBase>;
+    id: number;
+    creationDate: string | null;
 };
 
 export type UserRegister = {
@@ -223,9 +257,9 @@ export type UserUpdate = {
     skills?: string | null;
 };
 
-export type UsersPublic = {
+export type UsersRead = {
     total: number;
-    users: Array<UserPublic>;
+    users: Array<UserRead>;
 };
 
 export type ValidationError = {
@@ -493,7 +527,7 @@ export type GetUsersResponses = {
     /**
      * Lista de usuarios obtenida
      */
-    200: UsersPublic;
+    200: UsersRead;
 };
 
 export type GetUsersResponse = GetUsersResponses[keyof GetUsersResponses];
@@ -730,6 +764,37 @@ export type UpdateUserResponses = {
 
 export type UpdateUserResponse = UpdateUserResponses[keyof UpdateUserResponses];
 
+export type ChangeUserStatusData = {
+    body?: never;
+    path: {
+        user_id: number;
+    };
+    query?: never;
+    url: '/users/change-status/{user_id}';
+};
+
+export type ChangeUserStatusErrors = {
+    /**
+     * Usuario no encontrado
+     */
+    404: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ChangeUserStatusError = ChangeUserStatusErrors[keyof ChangeUserStatusErrors];
+
+export type ChangeUserStatusResponses = {
+    /**
+     * Estado del usuario cambiado
+     */
+    200: UserPublic;
+};
+
+export type ChangeUserStatusResponse = ChangeUserStatusResponses[keyof ChangeUserStatusResponses];
+
 export type GetSubmissionsData = {
     body?: never;
     path?: never;
@@ -750,7 +815,7 @@ export type GetSubmissionsResponses = {
     /**
      * Lista de entregas obtenida
      */
-    200: Array<SubmissionRead>;
+    200: SubmissionList;
 };
 
 export type GetSubmissionsResponse = GetSubmissionsResponses[keyof GetSubmissionsResponses];
@@ -784,6 +849,22 @@ export type CreateSubmissionResponses = {
 
 export type CreateSubmissionResponse = CreateSubmissionResponses[keyof CreateSubmissionResponses];
 
+export type GetMySubmissionsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/submissions/user/me';
+};
+
+export type GetMySubmissionsResponses = {
+    /**
+     * Lista de entregas obtenida
+     */
+    200: SubmissionList;
+};
+
+export type GetMySubmissionsResponse = GetMySubmissionsResponses[keyof GetMySubmissionsResponses];
+
 export type GetSubmissionsByUserIdData = {
     body?: never;
     path: {
@@ -810,7 +891,7 @@ export type GetSubmissionsByUserIdResponses = {
     /**
      * Lista de entregas obtenida
      */
-    200: Array<SubmissionRead>;
+    200: SubmissionList;
 };
 
 export type GetSubmissionsByUserIdResponse = GetSubmissionsByUserIdResponses[keyof GetSubmissionsByUserIdResponses];

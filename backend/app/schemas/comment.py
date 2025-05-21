@@ -20,3 +20,10 @@ class CommentRead(CommentBase):
     model_config = ConfigDict(
         from_attributes=True
     )
+
+class CommentList(CommentRead):
+    total: int
+    comments: list[CommentRead]
+    model_config = ConfigDict(
+        from_attributes=True
+    )

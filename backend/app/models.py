@@ -1,5 +1,5 @@
 from typing import List, Optional
-from sqlmodel import SQLModel, Field, Relationship, Column, LargeBinary
+from sqlmodel import SQLModel, Field, Relationship
 from datetime import datetime, timezone
 
 class UserRole(SQLModel, table=True):
@@ -30,6 +30,7 @@ class User(SQLModel, table=True):
     comments: List["Comment"] = Relationship(back_populates="user")
     notifications: List["Notification"] = Relationship(back_populates="user")
     tokens: List["Token"] = Relationship(back_populates="user")
+    submissions: List["Submission"] = Relationship(back_populates="user")
 
 class Problem(SQLModel, table=True):
     __tablename__ = "problems"
@@ -43,7 +44,9 @@ class Problem(SQLModel, table=True):
     score: int
     tags: str
     authorID: int = Field(foreign_key="users.id")
+    
     testCases: List["TestCase"] = Relationship(back_populates="problem", cascade_delete=True)
+    submissions: List["Submission"] = Relationship(back_populates="problem", cascade_delete=True)
     
 class Submission(SQLModel, table=True):
     __tablename__ = "submissions"
@@ -57,6 +60,8 @@ class Submission(SQLModel, table=True):
     suggestions: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
     userID: int = Field(foreign_key="users.id")
+    user: User = Relationship(back_populates="submissions")
+    problem: Problem = Relationship(back_populates="submissions")
     
 class Role(SQLModel, table=True):
     __tablename__ = "roles"

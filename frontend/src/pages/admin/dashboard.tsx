@@ -24,7 +24,7 @@ export default function AdminDashboardPage() {
                             <Users className="pt-1 h-8 w-8 text-muted-foreground" />
                         </CardHeader>
                         <CardContent>
-                            <Button asChild className="w-full mt-4 focus:outline-none">
+                            <Button asChild className="w-full mt-2 focus:outline-none">
                                 <Link to="/admin/users">Gestionar usuarios</Link>
                             </Button>
                         </CardContent>
@@ -32,13 +32,13 @@ export default function AdminDashboardPage() {
                 }
 
                 <Card>
-                    <CardHeader className="pb-2 flex justify-between items-center">
+                    <CardHeader className="flex justify-between items-center">
                         <CardTitle className="text-xl">Problemas</CardTitle>
                         <CardDescription>Gestión de los problemas de programación</CardDescription>
                         <BookText className="h-8 w-8 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <Button asChild className="w-full mt-4">
+                        <Button asChild className="w-full mt-2">
                             <Link to="/admin/problems">Gestionar problemas</Link>
                         </Button>
                     </CardContent>
@@ -51,7 +51,7 @@ export default function AdminDashboardPage() {
                         <MessageSquare className="h-8 w-8 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <Button asChild className="w-full mt-4">
+                        <Button asChild className="w-full mt-2">
                             <Link to="/admin/comments">Gestionar comentarios</Link>
                         </Button>
                     </CardContent>

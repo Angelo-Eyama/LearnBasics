@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, ConfigDict
 
 # Esquema Base
@@ -28,6 +28,13 @@ class SubmissionRead(SubmissionBase):
     timeSubmitted: Optional[datetime] = None
     timeUpdated: Optional[datetime] = None
 
+    model_config = ConfigDict(
+        from_attributes=True
+    )
+
+class SubmissionList(BaseModel):
+    total: int
+    submissions: List[SubmissionRead]
     model_config = ConfigDict(
         from_attributes=True
     )

@@ -4,7 +4,8 @@ export function parseServerString(str: string | null | undefined): Array<string>
     return str.split(', ').map(part => part.trim());
 }
 
-export function decideRank(score: number ): string {
+export function decideRank(score: number | null | undefined): string {
+    if (score === null || score === undefined) return 'Sin definir';
     if (score >= 0 && score <= 20)  return 'Novato';
     else if (score > 20 && score <= 40)  return 'Principiante';
     else if (score > 40 && score <= 60)  return 'Intermedio';
@@ -13,7 +14,7 @@ export function decideRank(score: number ): string {
     else return 'Sin definir';
 }
 
-export const formatDate = (dateStr : string | null) => {
+export const formatDate = (dateStr : string | null, options_?: Intl.DateTimeFormatOptions) => {
     if (!dateStr) return "";
     
     const [date, time] = dateStr.split("T");
@@ -21,14 +22,15 @@ export const formatDate = (dateStr : string | null) => {
     const [year, month, day] = date.split("-");
     const [hour, minute, seconds] = time.split(":");
     let dateObj = new Date(Date.UTC(parseInt(year), parseInt(month) - 1, parseInt(day), parseInt(hour), parseInt(minute), parseInt(seconds)));
-    const options: Intl.DateTimeFormatOptions = {
+    const DefaultOptions: Intl.DateTimeFormatOptions = {
         year: '2-digit',
-        month: '2-digit',
+        month: 'short',
         day: 'numeric',        
         hour: "numeric",
         minute: "numeric",
         weekday: "short",
         
     };
-    return dateObj.toLocaleString('es-ES', options);
+    if(!options_) return dateObj.toLocaleString('es-ES', DefaultOptions);
+    return dateObj.toLocaleString('es-ES', options_);
 };

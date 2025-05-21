@@ -3,7 +3,7 @@ from app.api.deps import SessionDep, CurrentUser, verify_admin
 
 from app.models import User
 from app.api.controllers import users as users_controller
-from app.schemas.user import UserCreate, UserUpdate, UserPublic, UserRegister, UsersPublic
+from app.schemas.user import UserCreate, UserUpdate, UserPublic, UsersRead
 from app.schemas.utils import ErrorResponse
 from app.core.utils import RoleType
 
@@ -15,12 +15,12 @@ router = APIRouter(
 
 @router.get(
     "/",
-    response_model=UsersPublic,
+    response_model=UsersRead,
     summary="Obtener todos los usuarios",
     description="Obtiene una lista con todos los usuarios registrados en el sistema.",
     response_description="Lista de usuarios.",
     responses={
-        200: {"description": "Lista de usuarios obtenida", "model": UsersPublic},
+        200: {"description": "Lista de usuarios obtenida", "model": UsersRead},
         404: {"description": "No se encontraron usuarios", "model": ErrorResponse},
         401: {"description": "No autorizado", "model": ErrorResponse},
         403: {"description": "No tiene permisos para realizar esta acción","model": ErrorResponse},
@@ -103,7 +103,7 @@ def create_user(user: UserCreate, session: SessionDep):
     if db_user:
         raise HTTPException(
             status_code=400, detail="Nombre de usuario ya existente")
-    new_user = users_controller.create_user(session, User.from_orm(user))
+    new_user = users_controller.create_user(session, User.model_validate(user))
     return new_user
 
 @router.patch(
@@ -182,3 +182,20 @@ def delete_user(user_id: int, session: SessionDep):
         raise HTTPException(status_code=404, detail="Usuario no encontrado")
     deleted_user = users_controller.delete_user(session, user_id)
     return deleted_user
+
+@router.patch(
+    "/change-status/{user_id}",
+    response_model=UserPublic,
+    summary="Cambiar el estado de un usuario",
+    responses={
+        200: {"description": "Estado del usuario cambiado"},
+        404: {"model": ErrorResponse, "description": "Usuario no encontrado"},
+    },
+    dependencies=[Depends(verify_admin)]
+)
+def change_user_status(user_id: int, session: SessionDep):
+    user = users_controller.get_user_by_id(session, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    updated_user = users_controller.change_user_status(session, user)
+    return updated_user

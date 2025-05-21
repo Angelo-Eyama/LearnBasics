@@ -1,18 +1,20 @@
-from sqlmodel import Session, select
+from sqlmodel import Session, select, func
 from app.models import Comment
-from app.schemas.comment import CommentCreate, CommentUpdate
+from app.schemas.comment import CommentCreate, CommentUpdate, CommentList
 
 
 def get_comments_by_user_id(session: Session, user_id: int):
     comments = session.exec(
         select(Comment).where(Comment.userID == user_id)
     ).all()
-    return comments
+    count = session.exec(select(func.count(Comment.id))).one()
+    return CommentList(total=count, comments=comments)
 
 
 def get_comments(session: Session):
     comments = session.exec(select(Comment)).all()
-    return comments
+    count = session.exec(select(func.count(Comment.id))).one()
+    return CommentList(total=count, comments=comments)
 
 
 def get_comment_by_id(session: Session, comment_id: int):
@@ -23,7 +25,8 @@ def get_comments_by_problem_id(session: Session, problem_id: int):
     comments = session.exec(
         select(Comment).where(Comment.problemID == problem_id)
     ).all()
-    return comments
+    count = session.exec(select(func.count(Comment.id))).one()
+    return CommentList(total=count, comments=comments)
 
 
 def create_comment(session: Session, new_comment: CommentCreate):

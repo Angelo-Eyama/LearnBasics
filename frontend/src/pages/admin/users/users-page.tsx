@@ -24,9 +24,11 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Search, MoreHorizontal, Shield, UserCog, Ban, Eye } from "lucide-react"
+import { Search, MoreHorizontal, Shield, Ban, Eye } from "lucide-react"
 import { toast } from "sonner"
-
+import useAdminUsers from "@/hooks/useAdminUsers"
+import { Loading } from "@/components/ui/loading"
+import { formatDate } from "@/utils/utils"
 // Mock users data
 const users = [
     {
@@ -81,26 +83,34 @@ const users = [
     },
 ]
 
+function getHighestRole(roles: { name: string }[]) {
+    if (roles.some(role => role.name.toLowerCase() === "administrador")) return "Administrador"
+    if (roles.some(role => role.name.toLowerCase() === "moderador")) return "Moderador"
+    return "Estudiante"
+}
+
 export default function AdminUsersPage() {
+    const { users, totalUsers, isLoading, isError, error, deleteUser, changeUserStatus } = useAdminUsers()
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedUser, setSelectedUser] = useState<(typeof users)[0] | null>(null)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+    if (isLoading) return <Loading />
 
     const filteredUsers = users.filter((user) => {
         return (
-            user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            user.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
             user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            user.role.toLowerCase().includes(searchQuery.toLowerCase())
+            user.roles.some((role) => role.name.toLowerCase().includes(searchQuery.toLowerCase()))
         )
     })
 
-    const handleStatusChange = (userId: string, newStatus: string) => {
+    const handleStatusChange = (userId: number, newStatus: string) => {
         toast.success("Estado de usuario actualizado", {
             description: `El estado del usuario ha cambiado a ${newStatus}.`,
         })
     }
 
-    const handleRoleChange = (userId: string, newRole: string) => {
+    const handleRoleChange = (userId: number, newRole: string) => {
         toast.success("Rol actualizado", {
             description: `El rol del usuario ha cambiado a ${newRole}.`,
         })
@@ -111,7 +121,7 @@ export default function AdminUsersPage() {
 
         setIsDeleteDialogOpen(false)
         toast.success("Usuario eliminado", {
-            description: `El usuario ${selectedUser.name} se ha eliminado.`,
+            description: `El usuario ${selectedUser.username} se ha eliminado.`,
         })
         setSelectedUser(null)
     }
@@ -151,7 +161,6 @@ export default function AdminUsersPage() {
                                 <TableHead>Usuario</TableHead>
                                 <TableHead>Rol</TableHead>
                                 <TableHead>Estado</TableHead>
-                                <TableHead>Problemas Resueltos</TableHead>
                                 <TableHead>Registrado desde</TableHead>
                                 <TableHead className="text-right">Acciones</TableHead>
                             </TableRow>
@@ -162,27 +171,25 @@ export default function AdminUsersPage() {
                                     <TableCell>
                                         <div className="flex items-center space-x-3">
                                             <Avatar className="h-8 w-8">
-                                                <AvatarImage src={user.avatar} alt={user.name} />
-                                                <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                                                <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div>
-                                                <p className="font-medium">{user.name}</p>
+                                                <p className="font-medium">{user.username}</p>
                                                 <p className="text-sm text-muted-foreground">{user.email}</p>
                                             </div>
                                         </div>
                                     </TableCell>
                                     <TableCell>
                                         <Badge
-                                            variant={user.role === "Admin" ? "default" : user.role === "Moderator" ? "outline" : "secondary"}
+                                            variant={getHighestRole(user.roles) === "Administrador" ? "default" : getHighestRole(user.roles) === "Moderador" ? "outline" : "secondary"}
                                         >
-                                            {user.role}
+                                            {getHighestRole(user.roles)}
                                         </Badge>
                                     </TableCell>
                                     <TableCell>
-                                        <Badge variant={user.status === "Active" ? "default" : "destructive"}>{user.status}</Badge>
+                                        <Badge variant={user.active === true ? "default" : "destructive"}>{user.active ? "Verificado" : "No verificado"}</Badge>
                                     </TableCell>
-                                    <TableCell className="text-center">{user.problemsSolved}</TableCell>
-                                    <TableCell>{user.joinedDate}</TableCell>
+                                    <TableCell> {formatDate(user.creationDate, { year: '2-digit', month: 'short', day: 'numeric', weekday: 'short'}) } </TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -201,16 +208,10 @@ export default function AdminUsersPage() {
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
-                                                    onClick={() => handleRoleChange(user.id, user.role === "Admin" ? "User" : "Admin")}
-                                                >
-                                                    <UserCog className="mr-2 h-4 w-4" />
-                                                    {user.role === "Admin" ? "Quitar Admin" : "Hacer Admin"}
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem
-                                                    onClick={() => handleStatusChange(user.id, user.status === "Active" ? "Inactive" : "Active")}
+                                                    onClick={() => handleStatusChange(user.id, user.active === true ? "Inactive" : "Active")}
                                                 >
                                                     <Shield className="mr-2 h-4 w-4" />
-                                                    {user.status === "Active" ? "Desactivar" : "Activar"}
+                                                    {user.active === true ? "Desactivar" : "Activar"}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
@@ -238,7 +239,7 @@ export default function AdminUsersPage() {
                     <DialogHeader>
                         <DialogTitle>Eliminar usuario</DialogTitle>
                         <DialogDescription>
-                            ¿Estás seguro de que quieres eliminar la cuenta de {selectedUser?.name}? <br /> <b>Esta acción no se puede deshacer.</b>
+                            ¿Estás seguro de que quieres eliminar la cuenta de {selectedUser?.username}? <br /> <b>Esta acción no se puede deshacer.</b>
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>

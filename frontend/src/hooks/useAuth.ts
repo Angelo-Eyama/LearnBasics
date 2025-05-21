@@ -35,6 +35,7 @@ const useAuth = () => {
             return null;
         },
         enabled: isLoggedIn(),
+        retry: 2
     })
 
     const register = async (data: UserRegister) => {

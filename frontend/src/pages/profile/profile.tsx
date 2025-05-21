@@ -245,7 +245,7 @@ export default function ProfilePage() {
                         <CardTitle>{`${userData?.firstName} ${userData?.lastName}`}</CardTitle>
                         <CardDescription>@{userData?.username}</CardDescription>
                         <div className="flex gap-2 mt-2">
-                            <Badge className="mt-2">{decideRank(userData.score)}</Badge>
+                            <Badge className="mt-2">{decideRank(userData?.score)}</Badge>
                             {userData?.isVerified ? (
                                 <Badge variant="default" className="mt-2 flex items-center gap-1 bg-green-500">
                                     <CheckCircle className="h-3 w-3" />
@@ -311,7 +311,7 @@ export default function ProfilePage() {
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
                                     <Award className="h-8 w-8 mb-2 text-primary" />
-                                    <span className="text-2xl font-bold">{decideRank(userData?.score)}</span>
+                                    <span className="text-2xl font-bold">{decideRank(userData.score)}</span>
                                     <span className="text-sm text-muted-foreground">Rango actual</span>
                                 </div>
                                 <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
