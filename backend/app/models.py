@@ -47,6 +47,7 @@ class Problem(SQLModel, table=True):
     
     testCases: List["TestCase"] = Relationship(back_populates="problem", cascade_delete=True)
     submissions: List["Submission"] = Relationship(back_populates="problem", cascade_delete=True)
+    comments: List["Comment"] = Relationship(back_populates="problem", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
     
 class Submission(SQLModel, table=True):
     __tablename__ = "submissions"
@@ -92,6 +93,7 @@ class Comment(SQLModel, table=True):
     userID: int = Field(foreign_key="users.id")
     
     user: User = Relationship(back_populates="comments")
+    problem: Problem = Relationship(back_populates="comments")
     
 class Notification(SQLModel, table=True):
     __tablename__ = "notifications"

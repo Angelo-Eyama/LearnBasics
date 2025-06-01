@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useEffect } from "react"
-import { Link, useParams } from "react-router-dom"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -22,6 +22,8 @@ import { Badge } from "@/components/ui/badge"
 
 export default function ProblemDetailPage() {
     const { id } = useParams<{ id: string }>()
+    console.log("ID del problema:", id)
+    const navigate = useNavigate()
     const queryClient = useQueryClient()
 
     // Query para obtener los datos del usuario seleccionado
@@ -151,11 +153,9 @@ export default function ProblemDetailPage() {
         <div className="container mx-auto py-6 px-4">
             <title>Nuevo problema</title>
             <div className="flex items-center mb-6">
-                <Button variant="ghost" size="sm" asChild className="mr-2">
-                    <Link to="/admin/problems">
-                        <ArrowLeft className="h-4 w-4 mr-1" />
-                        Volver
-                    </Link>
+                <Button variant="ghost" size="sm" className="mr-2" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    Volver
                 </Button>
                 <h1 className="text-3xl font-bold">Crear nuevo problema</h1>
             </div>

@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState } from "react"
-import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -87,11 +86,9 @@ export default function NewProblemPage() {
         <div className="container mx-auto py-6 px-4">
             <title>Nuevo problema</title>
             <div className="flex items-center mb-6">
-                <Button variant="ghost" size="sm" asChild className="mr-2">
-                    <Link to="/admin/problems">
-                        <ArrowLeft className="h-4 w-4 mr-1" />
-                        Volver
-                    </Link>
+                <Button variant="ghost" size="sm" className="mr-2" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    Volver
                 </Button>
                 <h1 className="text-3xl font-bold">Crear nuevo problema</h1>
             </div>

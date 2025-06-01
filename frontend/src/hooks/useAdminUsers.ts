@@ -5,11 +5,11 @@ import { toast } from "sonner";
 export const useAdminUsers = () => {
     const queryClient = useQueryClient();
 
-    const { data: users, isLoading, isError, error} = useQuery({
+    const { data: users, isLoading, isError, error } = useQuery({
         queryKey: ["adminUsers"],
         queryFn: async () => {
             const response = await getUsers();
-            if( response.status !== 200 || !("data" in response)){
+            if (response.status !== 200 || !("data" in response)) {
                 toast.error(`Error ${response.status} al obtener los usuarios`)
                 throw new Error(`{Error ${response.status} al obtener los usuarios}`);
             }
@@ -26,10 +26,10 @@ export const useAdminUsers = () => {
             })
             if (response.status !== 200 || !("data" in response)) {
                 toast.error(`Error ${response.status}`, {
-                        description: Array.isArray(response.error?.detail)
-                            ? response.error.detail.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
-                            : (response.error?.detail || "Error al eliminar el usuario")
-                    })
+                    description: Array.isArray(response.error?.detail)
+                        ? response.error.detail.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
+                        : (response.error?.detail || "Error al eliminar el usuario")
+                })
                 throw new Error(`Error ${response.status} al eliminar el usuario`)
             }
             return response.data;
@@ -37,7 +37,7 @@ export const useAdminUsers = () => {
         onSuccess: () => {
             toast.success("Usuario eliminado con éxito")
             queryClient.invalidateQueries({ queryKey: ["adminUsers"] })
-            queryClient.invalidateQueries({ queryKey: ["currentUser"]})
+            queryClient.invalidateQueries({ queryKey: ["currentUser"] })
         },
         onError: () => {
             toast.error("Error al eliminar el usuario")
@@ -47,15 +47,15 @@ export const useAdminUsers = () => {
     const { mutate: chageUserStatusMutation } = useMutation({
         mutationFn: async (userId: number) => {
             const response = await changeUserStatus({
-                path: {user_id: userId}
+                path: { user_id: userId }
             })
 
             if (response.status !== 200 || !("data" in response)) {
                 toast.error(`Error ${response.status}`, {
-                        description: Array.isArray(response.error?.detail)
-                            ? response.error.detail.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
-                            : (response.error?.detail || "Error al cambiar el estado del usuario")
-                    })
+                    description: Array.isArray(response.error?.detail)
+                        ? response.error.detail.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
+                        : (response.error?.detail || "Error al cambiar el estado del usuario")
+                })
                 throw new Error(`Error ${response.status} al cambiar el estado del usuario`)
             }
             return response.data;

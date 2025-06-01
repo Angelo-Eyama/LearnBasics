@@ -57,7 +57,7 @@ export default function AdminProblemsPage() {
         setSelectedProblem(null)
     }
     const navigate = useNavigate()
-    if (isError){
+    if (isError) {
         return (
             <div className="container mx-auto py-6 px-4">
                 <h1 className="text-3xl font-bold mb-4">Error al cargar los problemas</h1>
@@ -80,11 +80,9 @@ export default function AdminProblemsPage() {
         <div className="container mx-auto py-6 px-4">
             <title>Gestion de problemas</title>
             <div className="flex items-center mb-6">
-                <Button variant="ghost" size="sm" asChild className="mr-2">
-                    <Link to="/admin/">
-                        <ArrowLeft className="h-4 w-4 mr-1" />
-                        Volver
-                    </Link>
+                <Button variant="ghost" size="sm" asChild className="mr-2" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    Volver
                 </Button>
                 <h1 className="text-3xl font-bold">Gestión de problemas</h1>
             </div>

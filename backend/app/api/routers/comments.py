@@ -5,7 +5,7 @@ from app.api.deps import CurrentUser, SessionDep, get_current_user, verify_role
 from app.api.controllers import comments as comments_controller
 
 from app.models import User
-from app.schemas.comment import CommentCreate, CommentRead, CommentUpdate
+from app.schemas.comment import CommentCreate, CommentRead, CommentUpdate, CommentList
 from app.schemas.utils import ErrorResponse
 from app.core.utils import RoleType
 
@@ -17,7 +17,7 @@ router = APIRouter(
 
 @router.get(
     "/comments/",
-    response_model=List[CommentRead],
+    response_model=CommentList,
     summary="Obtener todos los comentarios",
     description="Obtiene una lista con todos los comentarios registrados en el sistema.",
     response_description="Lista de comentarios.",
@@ -32,7 +32,7 @@ def get_comments(session: SessionDep):
 
 @router.get(
     "/comments/problem/{problem_id}",
-    response_model=List[CommentRead],
+    response_model=CommentList,
     description="Obtiene una lista con todos los comentarios registrados en el sistema para un problema específico.",
     response_description="Lista de comentarios.",
     responses={
@@ -66,7 +66,7 @@ def get_comment_by_id(comment_id: int, session: SessionDep):
 
 @router.get(
     "/comments/user/{user_id}",
-    response_model=List[CommentRead],
+    response_model=CommentList,
     summary="Obtener comentarios por ID de usuario",
     description="Obtiene una lista con todos los comentarios registrados en el sistema realizados por un usuario.",
     response_description="Lista de comentarios.",
@@ -92,7 +92,7 @@ def get_comments_by_user_id(user_id: int, session: SessionDep):
     description="Crea un nuevo comentario en el sistema.",
     response_description="El comentario creado.",
     responses={
-        200: {"description": "Comentario creado"},
+        201: {"description": "Comentario creado"},
         404: {"model": ErrorResponse, "description": "No se pudo crear el comentario"},
     }
 )
@@ -121,6 +121,24 @@ def update_comment(comment_id: int, comment_update: CommentUpdate, session: Sess
     updated_comment = comments_controller.update_comment(session=session, db_comment=comment, comment_in=comment_update)
     return updated_comment
 
+@router.patch(
+    "/comments/approval/{comment_id}",
+    response_model=CommentRead,
+    summary="Aprobar/Desaprobar un comentario",
+    response_description="El comentario actualizado.",
+    responses={
+        200: {"description": "Comentario actualizado"},
+        404: {"model": ErrorResponse, "description": "Comentario no encontrado"},
+    }
+)
+def change_comment_approval(comment_id: int, session: SessionDep, current_user: CurrentUser):
+    comment = comments_controller.get_comment_by_id(session, comment_id)
+    if not comment:
+        raise HTTPException(status_code=404, detail="Comentario no encontrado")
+    if not verify_role(current_user, [RoleType.ADMIN, RoleType.EDITOR]):
+        raise HTTPException(status_code=403, detail="No tienes permiso para acceder a este recurso")
+    updated_comment = comments_controller.change_comment_approval(session, comment_id)
+    return updated_comment
 
 @router.delete(
     "/comments/{comment_id}",

@@ -45,6 +45,16 @@ def update_comment(session: Session, db_comment: Comment, comment_in: CommentUpd
     session.refresh(db_comment)
     return db_comment
 
+def change_comment_approval(session: Session, comment_id: int):
+    comment = session.get(Comment, comment_id)
+    if not comment:
+        return None
+    comment.isApproved = not comment.isApproved
+    session.add(comment)
+    session.commit()
+    session.refresh(comment)
+    return comment
+
 def delete_comment(session: Session, comment_id: int):
     comment = session.get(Comment, comment_id)
     session.delete(comment)

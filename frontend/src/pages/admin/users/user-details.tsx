@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect, useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -36,6 +36,7 @@ import { Loading } from "@/components/ui/loading"
 export default function UserDetailPage() {
     const { id } = useParams<{ id: string }>()
     const queryClient = useQueryClient()
+    const navigate = useNavigate()
 
     // Query para obtener los datos del usuario seleccionado
     const { data: user, isLoading, isError } = useQuery({
@@ -260,11 +261,9 @@ export default function UserDetailPage() {
         <div className="container mx-auto py-6 px-4">
             <title>{user.username}</title>
             <div className="flex items-center mb-6">
-                <Button variant="ghost" size="sm" asChild className="mr-2">
-                    <Link to="/admin/users">
-                        <ArrowLeft className="h-4 w-4 mr-1" />
-                        Volver
-                    </Link>
+                <Button variant="ghost" size="sm" className="mr-2" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    Volver
                 </Button>
                 <h1 className="text-3xl font-bold">Detalles de usuario</h1>
             </div>

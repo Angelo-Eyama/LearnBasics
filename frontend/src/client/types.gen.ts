@@ -21,6 +21,11 @@ export type CommentCreate = {
     userID: number;
 };
 
+export type CommentList = {
+    total: number;
+    comments: Array<CommentRead>;
+};
+
 export type CommentRead = {
     content: string;
     isApproved?: boolean;
@@ -28,7 +33,8 @@ export type CommentRead = {
     userID: number;
     problemID: number;
     timePosted: string | null;
-    user: UserBase;
+    user: UserRead;
+    problem: ProblemRead;
 };
 
 export type CommentUpdate = {
@@ -179,16 +185,6 @@ export type TestCaseRead = {
 export type TestCaseUpdate = {
     input?: string | null;
     output?: string | null;
-};
-
-export type UserBase = {
-    username: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-    active?: boolean;
-    score?: number | null;
-    isVerified: boolean;
 };
 
 export type UserCreate = {
@@ -1479,7 +1475,7 @@ export type GetCommentsResponses = {
     /**
      * Lista de comentarios obtenida
      */
-    200: Array<CommentRead>;
+    200: CommentList;
 };
 
 export type GetCommentsResponse = GetCommentsResponses[keyof GetCommentsResponses];
@@ -1506,9 +1502,13 @@ export type CreateCommentError = CreateCommentErrors[keyof CreateCommentErrors];
 
 export type CreateCommentResponses = {
     /**
-     * Comentario creado
+     * El comentario creado.
      */
     200: CommentRead;
+    /**
+     * Comentario creado
+     */
+    201: unknown;
 };
 
 export type CreateCommentResponse = CreateCommentResponses[keyof CreateCommentResponses];
@@ -1539,7 +1539,7 @@ export type GetCommentsByProblemIdResponses = {
     /**
      * Lista de comentarios obtenida
      */
-    200: Array<CommentRead>;
+    200: CommentList;
 };
 
 export type GetCommentsByProblemIdResponse = GetCommentsByProblemIdResponses[keyof GetCommentsByProblemIdResponses];
@@ -1667,10 +1667,41 @@ export type GetCommentsByUserIdResponses = {
     /**
      * Lista de comentarios obtenida
      */
-    200: Array<CommentRead>;
+    200: CommentList;
 };
 
 export type GetCommentsByUserIdResponse = GetCommentsByUserIdResponses[keyof GetCommentsByUserIdResponses];
+
+export type ChangeCommentApprovalData = {
+    body?: never;
+    path: {
+        comment_id: number;
+    };
+    query?: never;
+    url: '/comments/approval/{comment_id}';
+};
+
+export type ChangeCommentApprovalErrors = {
+    /**
+     * Comentario no encontrado
+     */
+    404: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type ChangeCommentApprovalError = ChangeCommentApprovalErrors[keyof ChangeCommentApprovalErrors];
+
+export type ChangeCommentApprovalResponses = {
+    /**
+     * Comentario actualizado
+     */
+    200: CommentRead;
+};
+
+export type ChangeCommentApprovalResponse = ChangeCommentApprovalResponses[keyof ChangeCommentApprovalResponses];
 
 export type GetNotificationsData = {
     body?: never;

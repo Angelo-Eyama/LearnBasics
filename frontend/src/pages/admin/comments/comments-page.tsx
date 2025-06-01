@@ -1,13 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -24,122 +24,81 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Search, MoreHorizontal, Eye, Check, X, MessageSquare } from "lucide-react"
-import { toast } from "sonner"
+import { Search, MoreHorizontal, Eye, Check, X, MessageSquare, ArrowLeft } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { useAdminComments } from "@/hooks/useAdminComments"
+import { formatDate } from "@/utils/utils"
+import { Loading } from "@/components/ui/loading"
 
-// Mock comments data
-const comments = [
-    {
-        id: "1",
-        content: "I found it helpful to use a hash map to store the numbers I've seen so far, along with their indices.",
-        user: {
-            name: "Alex Johnson",
-            avatar: "/placeholder.svg?height=40&width=40",
-        },
-        problem: "Two Sum",
-        problemId: "1",
-        status: "Approved",
-        createdAt: "2023-10-15T14:30:00Z",
-    },
-    {
-        id: "2",
-        content: "Watch out for edge cases like duplicate numbers in the array!",
-        user: {
-            name: "Maria Garcia",
-            avatar: "/placeholder.svg?height=40&width=40",
-        },
-        problem: "Two Sum",
-        problemId: "1",
-        status: "Approved",
-        createdAt: "2023-10-12T09:15:00Z",
-    },
-    {
-        id: "3",
-        content: "This problem is too easy, needs more challenging test cases.",
-        user: {
-            name: "John Smith",
-            avatar: "/placeholder.svg?height=40&width=40",
-        },
-        problem: "Two Sum",
-        problemId: "1",
-        status: "Pending",
-        createdAt: "2023-10-18T11:45:00Z",
-    },
-    {
-        id: "4",
-        content: "The time complexity of my solution is O(n) and space complexity is O(n).",
-        user: {
-            name: "Emily Chen",
-            avatar: "/placeholder.svg?height=40&width=40",
-        },
-        problem: "Binary Tree Level Order Traversal",
-        problemId: "3",
-        status: "Approved",
-        createdAt: "2023-10-10T16:20:00Z",
-    },
-    {
-        id: "5",
-        content: "This is spam content that should be removed.",
-        user: {
-            name: "Spam User",
-            avatar: "/placeholder.svg?height=40&width=40",
-        },
-        problem: "LRU Cache",
-        problemId: "5",
-        status: "Rejected",
-        createdAt: "2023-10-05T08:30:00Z",
-    },
-]
 
 export default function AdminCommentsPage() {
+    const { comments, changeCommentApproval, deleteComment, isError, isLoading } = useAdminComments()
     const [searchQuery, setSearchQuery] = useState("")
-    const [statusFilter, setStatusFilter] = useState("all")
+    const [approvalFilter, setApprovalFilter] = useState("all")
     const [selectedComment, setSelectedComment] = useState<(typeof comments)[0] | null>(null)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
     const [isViewDialogOpen, setIsViewDialogOpen] = useState(false)
-
+    const navigate = useNavigate()
     const filteredComments = comments.filter((comment) => {
-        // Search filter
         const matchesSearch =
             comment.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            comment.user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            comment.problem.toLowerCase().includes(searchQuery.toLowerCase())
+            comment.user.username.toLowerCase().includes(searchQuery.toLowerCase())
+        //|| comment.problem.toLowerCase().includes(searchQuery.toLowerCase())
 
-        // Status filter
-        const matchesStatus = statusFilter === "all" || comment.status.toLowerCase() === statusFilter.toLowerCase()
+        const matchesStatus = approvalFilter === "all"
+            || (approvalFilter === "approved" && comment.isApproved)
+            || (approvalFilter === "rejected" && !comment.isApproved)
 
         return matchesSearch && matchesStatus
     })
 
-    const handleStatusChange = (commentId: string, newStatus: string) => {
-        toast.success("Comentario actualizado", {
-            description: `El estado del comentario ha cambiado a ${newStatus}.`,
-        })
+    const handleApprovalFilter = (value: string) => {
+        setApprovalFilter(value)
+    }
+
+    const handleStatusChange = (commentId: number) => {
+        changeCommentApproval(commentId)
     }
 
     const handleDeleteComment = () => {
         if (!selectedComment) return
 
         setIsDeleteDialogOpen(false)
-        toast.success("Comentario eliminado",{
-            description: "El comentario ha sido eliminado correctamente.",
-        })
+        deleteComment(selectedComment.id)
         setSelectedComment(null)
     }
 
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleString()
+    if (isError) {
+        return (
+            <div className="container mx-auto py-6 px-4">
+                <h1 className="text-3xl font-bold mb-4">Error al cargar los comentarios</h1>
+                <p className="text-red-500">No se pudieron cargar los comentarios. Por favor, inténtalo de nuevo más tarde.</p>
+                <Button variant="outline">
+                    <Link to="/admin">Volver al panel de administración</Link>
+                </Button>
+            </div>
+        )
+    }
+    if (isLoading) {
+        return (
+            <div className="container mx-auto py-6 px-4">
+                <Loading message="Cargando comentarios... Espere un momento" />
+            </div>
+        )
     }
 
     return (
         <div className="container mx-auto py-6 px-4">
             <title>Gestion de comentarios</title>
-            <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold">Moderación de comentarios</h1>
-                    <p className="text-muted-foreground">Revisar y gestionar los comentarios de los usuarios</p>
-                </div>
+            <div className="flex items-center mb-6">
+                <Button variant="ghost" size="sm" className="mr-2" onClick={() => navigate(-1)}>
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    Volver
+                </Button>
+                <h1 className="text-3xl font-bold">Gestión de comentarios</h1>
+            </div>
+            <div className="mb-6">
+                <p className="text-muted-foreground">Gestiona los comentarios y su visibilidad</p>
             </div>
 
             <Card>
@@ -161,14 +120,13 @@ export default function AdminCommentsPage() {
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
                             </div>
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
+                            <Select value={approvalFilter} onValueChange={handleApprovalFilter}>
                                 <SelectTrigger className="w-[150px]">
                                     <SelectValue placeholder="Estado" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">Todos</SelectItem>
                                     <SelectItem value="approved">Aprobados</SelectItem>
-                                    <SelectItem value="pending">Pendientes</SelectItem>
                                     <SelectItem value="rejected">Rechazados</SelectItem>
                                 </SelectContent>
                             </Select>
@@ -193,34 +151,27 @@ export default function AdminCommentsPage() {
                                     <TableCell>
                                         <div className="flex items-center space-x-3">
                                             <Avatar className="h-8 w-8">
-                                                <AvatarImage src={comment.user.avatar} alt={comment.user.name} />
-                                                <AvatarFallback>{comment.user.name.charAt(0)}</AvatarFallback>
+                                                <AvatarFallback>{comment.user.username.charAt(0)}</AvatarFallback>
                                             </Avatar>
-                                            <span className="font-medium">{comment.user.name}</span>
+                                            <span className="font-medium">{comment.user.username}</span>
                                         </div>
                                     </TableCell>
                                     <TableCell>
                                         <div className="max-w-xs truncate">{comment.content}</div>
                                     </TableCell>
                                     <TableCell>
-                                        <Link to={`/problems/${comment.problemId}`} className="text-primary hover:underline">
-                                            {comment.problem}
+                                        <Link to={`/admin/problems/${comment.problemID}`} className="text-primary hover:underline max-w-xs truncate">
+                                            {comment.problem.title}
                                         </Link>
                                     </TableCell>
                                     <TableCell>
                                         <Badge
-                                            variant={
-                                                comment.status === "Approved"
-                                                    ? "default"
-                                                    : comment.status === "Pending"
-                                                        ? "outline"
-                                                        : "destructive"
-                                            }
+                                            variant={comment.isApproved ? "default" : "destructive"}
                                         >
-                                            {comment.status}
+                                            {comment.isApproved ? "Aprobado" : "Rechazado"}
                                         </Badge>
                                     </TableCell>
-                                    <TableCell>{formatDate(comment.createdAt)}</TableCell>
+                                    <TableCell>{formatDate(comment.timePosted)}</TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -241,18 +192,18 @@ export default function AdminCommentsPage() {
                                                     Ver comentario completo
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                {comment.status !== "Approved" && (
-                                                    <DropdownMenuItem onClick={() => handleStatusChange(comment.id, "Approved")}>
-                                                        <Check className="mr-2 h-4 w-4" />
-                                                        Aprobar
-                                                    </DropdownMenuItem>
-                                                )}
-                                                {comment.status !== "Rejected" && (
-                                                    <DropdownMenuItem onClick={() => handleStatusChange(comment.id, "Rejected")}>
-                                                        <X className="mr-2 h-4 w-4" />
-                                                        Rechazar
-                                                    </DropdownMenuItem>
-                                                )}
+                                                <DropdownMenuItem onClick={() => handleStatusChange(comment.id)}>
+                                                    {
+                                                        comment.isApproved ?
+                                                            (<>
+                                                                <X className="mr-2 h-4 w-4" /> Rechazar
+                                                            </>)
+                                                            :
+                                                            (<>
+                                                                <Check className="mr-2 h-4 w-4" /> Aprobar
+                                                            </>)
+                                                    }
+                                                </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
                                                     className="text-destructive focus:text-destructive"
@@ -279,7 +230,7 @@ export default function AdminCommentsPage() {
                     <DialogHeader>
                         <DialogTitle>Eliminar comentario</DialogTitle>
                         <DialogDescription>
-                            ¿ Está seguro de querer eliminar este comentario ? <br /> 
+                            ¿ Está seguro de querer eliminar este comentario ? <br />
                             <b>Esta accion no puede ser revertida </b>
                         </DialogDescription>
                     </DialogHeader>
@@ -303,12 +254,11 @@ export default function AdminCommentsPage() {
                         <div className="space-y-4">
                             <div className="flex items-center space-x-3">
                                 <Avatar className="h-10 w-10">
-                                    <AvatarImage src={selectedComment.user.avatar} alt={selectedComment.user.name} />
-                                    <AvatarFallback>{selectedComment.user.name.charAt(0)}</AvatarFallback>
+                                    <AvatarFallback>{selectedComment.user.username.charAt(0)}</AvatarFallback>
                                 </Avatar>
                                 <div>
-                                    <p className="font-medium">{selectedComment.user.name}</p>
-                                    <p className="text-xs text-muted-foreground">{formatDate(selectedComment.createdAt)}</p>
+                                    <p className="font-medium">{selectedComment.user.username}</p>
+                                    <p className="text-xs text-muted-foreground">{formatDate(selectedComment.timePosted)}</p>
                                 </div>
                             </div>
                             <div className="p-4 border rounded-md">
@@ -318,34 +268,31 @@ export default function AdminCommentsPage() {
                                 <MessageSquare className="h-4 w-4 text-muted-foreground" />
                                 <p className="text-sm">
                                     Problema relacionado:{" "}
-                                    <Link to={`/problems/${selectedComment.problemId}`} className="text-primary hover:underline">
-                                        {selectedComment.problem}
+                                    <Link to={`/admin/problems/${selectedComment.problemID}`} className="text-primary hover:underline max-w-xs truncate">
+                                        {selectedComment.problem.title}
                                     </Link>
                                 </p>
                             </div>
                             <div className="flex items-center space-x-2">
                                 <Badge
                                     variant={
-                                        selectedComment.status === "Approved"
+                                        selectedComment.isApproved
                                             ? "default"
-                                            : selectedComment.status === "Pending"
-                                                ? "outline"
-                                                : "destructive"
-                                    }
-                                >
-                                    {selectedComment.status}
+                                            : "destructive"
+                                    }>
+                                    {selectedComment.isApproved ? "Aprobado" : "Rechazado"}
                                 </Badge>
                             </div>
                         </div>
                     )}
                     <DialogFooter className="flex justify-between sm:justify-between">
                         <div className="flex gap-2">
-                            {selectedComment && selectedComment.status !== "Approved" && (
+                            {selectedComment && !selectedComment.isApproved && (
                                 <Button
                                     variant="default"
                                     size="sm"
                                     onClick={() => {
-                                        handleStatusChange(selectedComment.id, "Approved")
+                                        handleStatusChange(selectedComment.id)
                                         setIsViewDialogOpen(false)
                                     }}
                                 >
@@ -353,12 +300,12 @@ export default function AdminCommentsPage() {
                                     Aprobar
                                 </Button>
                             )}
-                            {selectedComment && selectedComment.status !== "Rejected" && (
+                            {selectedComment && selectedComment.isApproved && (
                                 <Button
                                     variant="outline"
                                     size="sm"
                                     onClick={() => {
-                                        handleStatusChange(selectedComment.id, "Rejected")
+                                        handleStatusChange(selectedComment.id)
                                         setIsViewDialogOpen(false)
                                     }}
                                 >

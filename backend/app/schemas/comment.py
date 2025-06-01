@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
-from app.schemas.user import UserBase
+from app.schemas.problem import ProblemRead
+from app.schemas.user import UserRead
 
 class CommentBase(BaseModel):
     content: str
@@ -20,12 +21,13 @@ class CommentRead(CommentBase):
     userID: int
     problemID: int
     timePosted: Optional[datetime]
-    user: UserBase
+    user: UserRead
+    problem: ProblemRead
     model_config = ConfigDict(
         from_attributes=True
     )
 
-class CommentList(CommentRead):
+class CommentList(BaseModel):
     total: int
     comments: list[CommentRead]
     model_config = ConfigDict(
