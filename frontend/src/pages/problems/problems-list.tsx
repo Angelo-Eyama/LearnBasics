@@ -19,7 +19,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { getProblems, ProblemRead } from "@/client"
+import { getProblems } from "@/client"
 import { useQuery } from "@tanstack/react-query"
 
 export default function ProblemsPage() {
@@ -49,11 +49,7 @@ export default function ProblemsPage() {
         return matchesSearch && matchesDifficulty
     })
     const handleClickProblem = (problemId: number) => {
-        const problem = problemsData.find((problem: ProblemRead) => problem.id === problemId)
-        navigate(`/problems/${problemId}`, {
-            state: { problemData: problem }
-        }
-        )
+        navigate(`/problems/${problemId}`)
     }
 
     return (

@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Link } from "react-router-dom"
+import { useEffect, useState } from "react"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -9,78 +9,11 @@ import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft, Send } from "lucide-react"
 import Editor from "@/components/editor"
-import { getCommentsByProblemId, type ProblemRead, createComment, CommentCreate, CommentRead } from "@/client"
-import { useLocation } from "react-router-dom"
+import { getProblemById, getCommentsByProblemId, createComment, CommentCreate } from "@/client"
 import { parseServerString, formatDate } from "@/utils/utils"
-import { useQuery, useMutation, QueryClient } from "@tanstack/react-query"
-import useAuth from "@/hooks/useAuth"
-
-
-// Mock problem data
-const problema = {
-    id: "1",
-    title: "Two Sum",
-    difficulty: "Easy",
-    tags: ["Arrays", "Hash Table"],
-    description: `
-Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
-
-You may assume that each input would have exactly one solution, and you may not use the same element twice.
-
-Example 1:
-Input: nums = [2,7,11,15], target = 9
-Output: [0,1]
-Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].
-
-Example 2:
-Input: nums = [3,2,4], target = 6
-Output: [1,2]
-
-Example 3:
-Input: nums = [3,3], target = 6
-Output: [0,1]
-
-Constraints:
-- 2 <= nums.length <= 10^4
-- -10^9 <= nums[i] <= 10^9
-- -10^9 <= target <= 10^9
-- Only one valid answer exists.
-  `,
-    hints: [
-        "A really brute force way would be to search for all possible pairs of numbers but that would be too slow.",
-        "Try to use the fact that the complement of the number we need is already in the hash table.",
-    ],
-    starterCode: {
-        javascript: `function twoSum(nums, target) {
-  // Your code here
-};`,
-        python: `def two_sum(nums, target):
-    # Your code here
-    pass`,
-    },
-    comments: [
-        {
-            id: "1",
-            user: {
-                name: "Alex Johnson",
-                avatar: "/placeholder.svg?height=40&width=40",
-            },
-            content: "I found it helpful to use a hash map to store the numbers I've seen so far, along with their indices.",
-            timestamp: "2 days ago",
-            likes: 5,
-        },
-        {
-            id: "2",
-            user: {
-                name: "Maria Garcia",
-                avatar: "/placeholder.svg?height=40&width=40",
-            },
-            content: "Watch out for edge cases like duplicate numbers in the array!",
-            timestamp: "1 week ago",
-            likes: 3,
-        },
-    ],
-}
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
+import { Loading } from "@/components/ui/loading"
 
 const starterCode = {
     javascript: `function twoSum(nums, target) {
@@ -92,25 +25,68 @@ const starterCode = {
 }
 // Prototipo: export default function ProblemDetailPage({ params }: { params: { id: string } })
 export default function ProblemDetailPage() {
-    const queryClient = new QueryClient()
-    const location = useLocation();
-    const problem: ProblemRead = location.state?.problemData;
-    const { user } = useAuth()
-    const { data: commentsData } = useQuery({
-        queryKey: ["comments", problem.id],
-        queryFn: async () => {
-            const response = await getCommentsByProblemId({
-                path: {
-                    problem_id: problem.id,
-                }
-            })
-            if (response.status === 200 && response.data) {
-                return response.data;
-            }
-            throw new Error("Error al obtener comentarios")
-        },
+    const { id } = useParams<{ id: string }>()
+    console.log("ID del problema:", id)
+    const queryClient = useQueryClient()
 
+    // Query para obtener el problema por ID
+    const { data: problem, isLoading, isError } = useQuery({
+        queryKey: ["adminProblems", id],
+        queryFn: async () => {
+            if (!id) throw new Error("ID del problema no proporcionado")
+            const response = await getProblemById({
+                path: { problem_id: parseInt(id) }
+            })
+            if (response.status !== 200 || !("data" in response)) {
+                toast.error(`Error ${response.status} al obtener el problema`)
+                throw new Error(`Error ${response.status} al obtener el problema`)
+            }
+            return response.data
+        },
+        enabled: !!id,
+        retry: false
     })
+
+    // Query para obtener los comentarios del problema
+    const { data: commentsData, isLoading: commentsLoading, isError: commentsError } = useQuery({
+        queryKey: ["commentsProblem", id],
+        queryFn: async () => {
+            if (!id) throw new Error("ID del problema no proporcionado")
+            const response = await getCommentsByProblemId({
+                path: { problem_id: parseInt(id!) }
+            })
+            if (response.status !== 200 || !("data" in response)) {
+                toast.error(`Error ${response.status} al obtener los comentarios`)
+                throw new Error(`Error ${response.status} al obtener los comentarios`)
+            }
+            return response.data?.comments
+        }
+    })
+
+    // Mutacion para crear un nuevo comentario
+    const newCommentMutation = useMutation({
+        mutationFn: async (data: CommentCreate) => {
+            const response = await createComment({
+                body: data
+            })
+            if (response.status !== 200 && !("data" in response)) {
+                toast.error(`Error al crear el comentario`)
+                throw new Error(`Error al crear el comentario`)
+            }
+            return response.data;
+        },
+        onSuccess: (newComment) => {
+            console.log("Comentario creado exitosamente:", newComment);
+            queryClient.invalidateQueries({ queryKey: ["commentsProblem", id] });
+            setComments(commentsData || [])
+            setNewComment("")
+        },
+        onError: (error) => {
+            console.error("Error al crear el comentario:", error);
+            toast.error("Error al crear el comentario")
+        }
+    })
+
     const [language, setLanguage] = useState("javascript")
     const [code, setCode] = useState(starterCode.javascript)
     const [activeTab, setActiveTab] = useState("description")
@@ -118,6 +94,13 @@ export default function ProblemDetailPage() {
     const [comments, setComments] = useState(commentsData || [])
     const [output, setOutput] = useState("")
     const [isRunning, setIsRunning] = useState(false)
+
+    // useEffect para actualizar los comentarios cuando cambian los datos
+    useEffect(() => {
+        if (commentsData) {
+            setComments(commentsData)
+        }
+    }, [commentsData])
 
     const handleLanguageChange = (lang: string) => {
         setLanguage(lang)
@@ -135,37 +118,36 @@ export default function ProblemDetailPage() {
         }, 1000)
     }
 
-    const newCommentMutation = useMutation({
-        mutationFn: async (data: CommentCreate) => {
-            const response = await createComment({
-                body: {
-                    content: data.content,
-                    problemID: problem.id,
-                    userID: user?.id || 4,
-                }
-            })
-            if (response.status === 200 && response.data) {
-                return response.data;
-            }
-        },
-        onSuccess: (newComment) => {
-                console.log("Comentario creado exitosamente:", newComment);
-                queryClient.invalidateQueries({queryKey: ["comments", problem.id]});
-                setComments(commentsData || [])
-                setNewComment("")
-        }
-    })
-
     const handleSubmitComment = () => {
         if (!newComment.trim()) return
         const commentData = {
             content: newComment,
-            problemID: problem.id,
-            userID: user?.id || 4,
+            problemID: parseInt(id!),
+            userID:  4,
         }
         newCommentMutation.mutate(commentData)
-        
     }
+    const navigate = useNavigate();
+
+    if (isLoading || commentsLoading) {
+        return (
+            <div className="container mx-auto py-6 px-4">
+                <h1 className="text-3xl font-bold mb-4">Error al cargar los detalles del problema</h1>
+                <p className="text-red-500">No se pudieron cargar los detalles del problema. Por favor, inténtalo de nuevo más tarde.</p>
+                <Button variant="outline" onClick={() => navigate(-1)}>
+                    Volver
+                </Button>
+            </div>
+        )
+    }
+    if (isError || commentsError) {
+            return (
+                <div className="container mx-auto py-6 px-4">
+                    <Loading message="Cargando detalles... Espere un momento" />
+                </div>
+            )
+        }
+    if (!problem || !id) return <div>Problema no encontrado</div>
 
     return (
         <div className="container mx-auto py-6 px-4">
@@ -241,7 +223,7 @@ export default function ProblemDetailPage() {
                                             </Button>
                                         </div>
 
-                                        {comments.map((comment) => (
+                                        {comments?.map((comment) => (
                                             <div key={comment.id} className="p-4 border rounded-md">
                                                 <div className="flex items-center space-x-2 mb-2">
                                                     <div>

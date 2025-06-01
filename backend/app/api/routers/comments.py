@@ -96,7 +96,8 @@ def get_comments_by_user_id(user_id: int, session: SessionDep):
         404: {"model": ErrorResponse, "description": "No se pudo crear el comentario"},
     }
 )
-def create_comment(comment: CommentCreate, session: SessionDep):
+def create_comment(comment: CommentCreate, session: SessionDep, current_user: CurrentUser):
+    comment.userID = current_user.id
     comment = comments_controller.create_comment(session, comment)
     return comment
 
