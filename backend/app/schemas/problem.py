@@ -12,7 +12,7 @@ class ProblemBase(BaseModel):
 
 # Esquema de Creación
 class ProblemCreate(ProblemBase):
-    pass
+    authorID: int
 
 # Esquema de Actualización
 class ProblemUpdate(BaseModel):

@@ -70,15 +70,16 @@ def list_problems_by_difficulty(difficulty: str, session: SessionDep):
     description="Crea un nuevo problema en el sistema.",
     response_description="El problema creado.",
     responses={
-        200: {"description": "Problema creado"},
+        201: {"description": "Problema creado"},
         404: {"model": ErrorResponse, "description": "Problema no creado"},
     },
     dependencies=[Depends(verify_admin)]
     )
 def create_problem(problem: ProblemCreate, session: SessionDep, current_user: CurrentUser):
+    problem.authorID = current_user.id
     new_problem = problems_controller.create_problem(
         session=session,
-        new_problem=Problem.from_orm(problem),
+        new_problem=Problem.model_validate(problem),
         current_user=current_user
         )
     return new_problem

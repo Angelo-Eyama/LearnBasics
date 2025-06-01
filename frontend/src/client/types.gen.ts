@@ -70,6 +70,7 @@ export type ProblemCreate = {
     difficulty: string;
     hints: string;
     score: number;
+    authorID: number;
 };
 
 export type ProblemRead = {
@@ -1037,9 +1038,13 @@ export type CreateProblemError = CreateProblemErrors[keyof CreateProblemErrors];
 
 export type CreateProblemResponses = {
     /**
-     * Problema creado
+     * El problema creado.
      */
     200: ProblemCreate;
+    /**
+     * Problema creado
+     */
+    201: unknown;
 };
 
 export type CreateProblemResponse = CreateProblemResponses[keyof CreateProblemResponses];

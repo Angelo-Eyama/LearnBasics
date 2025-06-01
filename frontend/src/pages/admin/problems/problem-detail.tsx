@@ -189,7 +189,14 @@ export default function ProblemDetailPage() {
 
                                 <div className="space-y-2">
                                     <Label htmlFor="hints">Pista</Label>
-                                    <Input id="hints" name="hints" value={formData.hints} onChange={handleFormChange} required />
+                                    <Input
+                                        id="hints"
+                                        name="hints"
+                                        placeholder="Añada pistas para ayudar a los usuarios a resolver el problema"
+                                        value={formData.hints}
+                                        onChange={handleFormChange}
+                                        required
+                                    />
                                 </div>
                             </CardContent>
                         </Card>
@@ -251,45 +258,58 @@ Output: [1,2]"
                                 <CardDescription>Configura los detalles del problema</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <div className="text-sm text-muted-foreground mb-2">
-                                        <Button
-                                            variant="secondary"
-                                            size="sm"
-                                            asChild
-                                            className="ml-2"
+                                <div className="text-sm text-muted-foreground mb-2">
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        asChild
+                                        className="ml-2"
+                                    >
+                                        <Link to={`/admin/users/${formData.authorID}`}>
+                                            <Eye className="h-4 w-4 mr-1" />
+                                            Ver autor
+                                        </Link>
+                                    </Button>
+                                </div>
+                                <div className="space-y-2 grid grid-cols-2 gap-4">
+                                    <div>
+                                        <Label htmlFor="difficulty" className="font-semibold my-2">Dificultad</Label>
+                                        <Badge
+                                            className={
+                                                problem?.difficulty === "Facil"
+                                                    ? "bg-green-500"
+                                                    : problem?.difficulty === "Normal"
+                                                        ? "bg-yellow-500"
+                                                        : "bg-red-500"
+                                            }
                                         >
-                                            <Link to={`/admin/users/${formData.authorID}`}>
-                                                <Eye className="h-4 w-4 mr-1" />
-                                                Ver autor
-                                            </Link>
-                                        </Button>
+                                            {problem?.difficulty}
+                                        </Badge>
+                                        <Select
+                                            value={formData?.difficulty}
+                                            onValueChange={(value) => handleSelectChange("difficulty", value)}
+                                        >
+                                            <SelectTrigger className="mt-2">
+                                                <SelectValue placeholder="Nueva dificultad" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="Facil">Facil</SelectItem>
+                                                <SelectItem value="Normal">Normal</SelectItem>
+                                                <SelectItem value="Dificil">Dificil</SelectItem>
+                                            </SelectContent>
+                                        </Select>
                                     </div>
-                                    <Label htmlFor="difficulty" className="font-semibold mt-4">Dificultad</Label>
-                                    <Badge
-                                        className={
-                                            problem?.difficulty === "Facil"
-                                                ? "bg-green-500"
-                                                : problem?.difficulty === "Normal"
-                                                    ? "bg-yellow-500"
-                                                    : "bg-red-500"
-                                        }
-                                    >
-                                        {problem?.difficulty}
-                                    </Badge>
-                                    <Select
-                                        value={formData?.difficulty}
-                                        onValueChange={(value) => handleSelectChange("difficulty", value)}
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Nueva dificultad" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Facil">Facil</SelectItem>
-                                            <SelectItem value="Normal">Normal</SelectItem>
-                                            <SelectItem value="Dificil">Dificil</SelectItem>
-                                        </SelectContent>
-                                    </Select>
+                                    <div>
+                                        <Label htmlFor="score" className="font-semibold my-2">Puntuacion</Label>
+                                        <Input
+                                            id="score"
+                                            name="score"
+                                            type="number"
+                                            value={formData.score}
+                                            onChange={handleFormChange}
+                                            placeholder="Puntuación del problema"
+                                        />
+                                    </div>
                                 </div>
 
                                 <div className="space-y-2">
