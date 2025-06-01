@@ -87,6 +87,7 @@ class Comment(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     content: str
     timePosted: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"nullable": True})
+    isApproved: bool = Field(default=False, sa_column_kwargs={"comment": "Indica si el comentario ha sido aprobado o no"})
     problemID: int = Field(foreign_key="problems.id")
     userID: int = Field(foreign_key="users.id")
     

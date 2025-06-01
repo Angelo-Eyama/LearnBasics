@@ -16,19 +16,24 @@ export type BodyAuthLoginForAccessToken = {
 
 export type CommentCreate = {
     content: string;
+    isApproved?: boolean;
     problemID: number;
     userID: number;
 };
 
 export type CommentRead = {
     content: string;
+    isApproved?: boolean;
     id: number;
+    userID: number;
+    problemID: number;
     timePosted: string | null;
     user: UserBase;
 };
 
 export type CommentUpdate = {
     content?: string | null;
+    isApproved?: boolean | null;
 };
 
 export type ErrorResponse = {
