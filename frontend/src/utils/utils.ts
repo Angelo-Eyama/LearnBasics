@@ -33,3 +33,9 @@ export const formatDate = (dateStr : string | null, options_?: Intl.DateTimeForm
     if(!options_) return dateObj.toLocaleString('es-ES', DefaultOptions);
     return dateObj.toLocaleString('es-ES', options_);
 };
+
+export function getHighestRole(roles: { name: string }[]) {
+    if (roles.some(role => role.name.toLowerCase() === "administrador")) return "Administrador"
+    if (roles.some(role => role.name.toLowerCase() === "moderador")) return "Moderador"
+    return "Estudiante"
+}

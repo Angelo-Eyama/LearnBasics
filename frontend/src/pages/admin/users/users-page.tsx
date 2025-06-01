@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -28,27 +28,32 @@ import { Search, MoreHorizontal, Shield, Ban, Eye, ArrowLeft } from "lucide-reac
 import { toast } from "sonner"
 import useAdminUsers from "@/hooks/useAdminUsers"
 import { Loading } from "@/components/ui/loading"
-import { formatDate } from "@/utils/utils"
+import { formatDate, getHighestRole } from "@/utils/utils"
 
-function getHighestRole(roles: { name: string }[]) {
-    if (roles.some(role => role.name.toLowerCase() === "administrador")) return "Administrador"
-    if (roles.some(role => role.name.toLowerCase() === "moderador")) return "Moderador"
-    return "Estudiante"
-}
 
 export default function AdminUsersPage() {
-    const { users, isLoading, isError, error, deleteUser, changeUserStatus } = useAdminUsers()
+    const { users, isLoading, isError, deleteUser, changeUserStatus } = useAdminUsers()
+    const navigate = useNavigate()
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedUser, setSelectedUser] = useState<(typeof users)[0] | null>(null)
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-    if (isLoading) return <Loading />
+    if (isLoading){
+        return (
+            <div className="container mx-auto py-6 px-4">
+                <Loading message="Cargando usuarios... Espere un momento" />
+            </div>
+        )
+    }
     if (isError) {
-        toast.error("Error al cargar los usuarios", {
-            description: Array.isArray(error?.message)
-                ? error.message.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
-                : (error?.message || "Error al cargar los usuarios")
-        })
-        return null
+        return (
+            <div className="container mx-auto py-6 px-4">
+                <h1 className="text-3xl font-bold mb-4">Error al cargar los usuarios</h1>
+                <p className="text-red-500">No se pudieron cargar los usuarios. Por favor, inténtalo de nuevo más tarde.</p>
+                <Button variant="outline" onClick={() => navigate("/admin/")}>
+                    Volver al panel de administración
+                </Button>
+            </div>
+        )
     }
 
     const filteredUsers = users.filter((user) => {

@@ -29,13 +29,14 @@ import { createNotification, getUserById, UserRead, assignRole, verifyUser, revo
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import NotFound from "@/pages/public/not-found"
 import BadgeClosable from "@/components/ui/badge-closable"
-import { formatDate } from "@/utils/utils"
+import { formatDate, getHighestRole } from "@/utils/utils"
 import { Loading } from "@/components/ui/loading"
 
 
 export default function UserDetailPage() {
     const { id } = useParams<{ id: string }>()
     const queryClient = useQueryClient()
+
     // Query para obtener los datos del usuario seleccionado
     const { data: user, isLoading, isError } = useQuery({
         queryKey: ["adminUsers", id],
@@ -70,6 +71,7 @@ export default function UserDetailPage() {
             bio: "",
         }
     )
+
     // Estado para la notificación
     const [notificationTitle, setNotificationTitle] = useState("")
     const [notificationMessage, setNotificationMessage] = useState("")
@@ -177,7 +179,6 @@ export default function UserDetailPage() {
         }
     })
 
-
     const sendNotificationMutation = useMutation({
         mutationFn: async ({ title, description }: { title: string, description: string }) => {
             await createNotification({
@@ -248,12 +249,6 @@ export default function UserDetailPage() {
             title: notificationTitle,
             description: notificationMessage,
         })
-    }
-
-    const getHighestRole = (roles: { name: string }[]) => {
-        if (roles.some(role => role.name.toLowerCase() === "administrador")) return "Administrador"
-        if (roles.some(role => role.name.toLowerCase() === "moderador")) return "Moderador"
-        return "Estudiante"
     }
 
     // Estados de carga y error

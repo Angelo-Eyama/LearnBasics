@@ -2,50 +2,108 @@
 
 import type React from "react"
 
-import { useState } from "react"
-import {Link} from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Save, Plus, X } from "lucide-react"
+import { ArrowLeft, Save, Plus, Eye } from "lucide-react"
 import { toast } from "sonner"
-import { useNavigate } from "react-router-dom"
+import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query"
+import { getProblemById, ProblemRead, ProblemUpdate, updateProblem } from "@/client"
+import { parseServerString } from "@/utils/utils"
+import BadgeClosable from "@/components/ui/badge-closable"
+import NotFound from "@/pages/public/not-found"
+import { Loading } from "@/components/ui/loading"
 import { Badge } from "@/components/ui/badge"
 
 export default function ProblemDetailPage() {
-    const navigate = useNavigate()
-    const [isSubmitting, setIsSubmitting] = useState(false)
-    const [newTag, setNewTag] = useState("")
-    const [formData, setFormData] = useState({
-        id: 1,
-        title: "Two Sum",
-        description: "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.",
-        difficulty: "Medium",
-        tags: ["Array", "Hash Table"] as string[],
-        starterCode: {
-            javascript: "function twoSum(nums, target) {\n  // Your code here\n}",
-            python: "def twoSum(nums, target):\n    # Your code here\n    pass",
+    const { id } = useParams<{ id: string }>()
+    const queryClient = useQueryClient()
+
+    // Query para obtener los datos del usuario seleccionado
+    const { data: problem, isLoading, isError } = useQuery({
+        queryKey: ["adminProblems", id],
+        queryFn: async () => {
+            if (!id) throw new Error("ID del problema no proporcionado")
+            const response = await getProblemById({
+                path: { problem_id: parseInt(id) }
+            })
+            if (response.status !== 200 || !("data" in response)) {
+                toast.error(`Error ${response.status} al obtener el problema`)
+                throw new Error(`Error ${response.status} al obtener el problema`)
+            }
+            return response.data
         },
-        testCases: `Input: nums = [2,7,11,15], target = 9`,
-        status: "Draft",
+        enabled: !!id,
+        retry: false
     })
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    // Estado local para manejar el formulario
+    const [formData, setFormData] = useState<ProblemRead>({
+        id: 0,
+        title: "",
+        description: "",
+        difficulty: "",
+        tags: "",
+        authorID: 0,
+        hints: "",
+        score: 0,
+    })
+    // Inicializar el formulario con los datos del problema
+    useEffect(() => {
+        if (problem) {
+            setFormData({
+                id: problem.id,
+                title: problem.title,
+                description: problem.description,
+                difficulty: problem.difficulty,
+                tags: problem.tags || "",
+                authorID: problem.authorID,
+                hints: problem.hints || "",
+                score: problem.score || 0,
+            })
+        }
+    }, [problem])
+
+    const [newTag, setNewTag] = useState("")
+
+    // Mutaciones para actualizar el problema
+    const updateProblemMutation = useMutation({
+        mutationFn: async (updatedData: ProblemUpdate) => {
+            const response = await updateProblem({
+                body: updatedData,
+                path: { problem_id: parseInt(id!) }
+            })
+            if (response.status !== 200 || !("data" in response)) {
+                toast.error("Ha ocurrido un error al actualizar el problema")
+                throw new Error(`Error ${response.status} al actualizar el problema`)
+            }
+        },
+        onSuccess: () => {
+            toast.success("Problema actualizado exitosamente")
+            queryClient.invalidateQueries({ queryKey: ["adminProblems", id] })
+        },
+        onError: (error) => {
+            toast.error(`Error al actualizar el problema: ${error instanceof Error ? error.message : "Error desconocido"}`)
+        }
+    })
+
+    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
         setFormData((prev) => ({ ...prev, [name]: value }))
     }
 
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        updateProblemMutation.mutateAsync(formData)
+    }
+
     const handleCodeChange = (language: string, code: string) => {
-        setFormData((prev) => ({
-            ...prev,
-            starterCode: {
-                ...prev.starterCode,
-                [language]: code,
-            },
-        }))
+        console.log(`Código actualizado para ${language}:`, code)
     }
 
     const handleSelectChange = (name: string, value: string) => {
@@ -56,7 +114,7 @@ export default function ProblemDetailPage() {
         if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
             setFormData((prev) => ({
                 ...prev,
-                tags: [...prev.tags, newTag.trim()],
+                tags: prev.tags ? prev.tags.concat(', ', newTag.trim()) : newTag.trim(),
             }))
             setNewTag("")
         }
@@ -65,22 +123,28 @@ export default function ProblemDetailPage() {
     const removeTag = (tagToRemove: string) => {
         setFormData((prev) => ({
             ...prev,
-            tags: prev.tags.filter((tag) => tag !== tagToRemove),
+            tags: prev.tags.split(', ').filter(tag => tag !== tagToRemove).join(', ')
         }))
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        setIsSubmitting(true)
-
-        // Simulate API call
-        setTimeout(() => {
-            setIsSubmitting(false)
-            toast.success("Problema creado",{
-                description: "El problema ha sido creado exitosamente",
-            })
-            navigate("/admin/problems")
-        }, 1000)
+    if (!id) return <NotFound />
+    if (isLoading) {
+        return (
+            <div className="container mx-auto py-6 px-4">
+                <Loading message="Cargando problema... Espere un momento" />
+            </div>
+        )
+    }
+    if (isError) {
+        return (
+            <div className="container mx-auto py-6 px-4">
+                <h1 className="text-3xl font-bold mb-4">Error al cargar los usuarios</h1>
+                <p className="text-red-500">No se pudieron cargar los usuarios. Por favor, inténtalo de nuevo más tarde.</p>
+                <Link to="/admin/problems" className="text-blue-500 hover:underline mt-4 inline-block">
+                    Volver a la lista de problemas
+                </Link>
+            </div>
+        )
     }
 
     return (
@@ -107,7 +171,7 @@ export default function ProblemDetailPage() {
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="title">Titulo</Label>
-                                    <Input id="title" name="title" value={formData.title} onChange={handleChange} required />
+                                    <Input id="title" name="title" value={formData.title} onChange={handleFormChange} required />
                                 </div>
 
                                 <div className="space-y-2">
@@ -117,10 +181,15 @@ export default function ProblemDetailPage() {
                                         name="description"
                                         rows={10}
                                         value={formData.description}
-                                        onChange={handleChange}
+                                        onChange={handleFormChange}
                                         required
                                         placeholder="Proporcione una descripción detallada del problema, con ejemplos de entrada y salida, y restricciones."
                                     />
+                                </div>
+
+                                <div className="space-y-2">
+                                    <Label htmlFor="hints">Pista</Label>
+                                    <Input id="hints" name="hints" value={formData.hints} onChange={handleFormChange} required />
                                 </div>
                             </CardContent>
                         </Card>
@@ -136,7 +205,7 @@ export default function ProblemDetailPage() {
                                     <Textarea
                                         id="javascript"
                                         rows={6}
-                                        value={formData.starterCode.javascript}
+                                        value={"formData.starterCode.javascript"}
                                         onChange={(e) => handleCodeChange("javascript", e.target.value)}
                                     />
                                 </div>
@@ -146,7 +215,7 @@ export default function ProblemDetailPage() {
                                     <Textarea
                                         id="python"
                                         rows={6}
-                                        value={formData.starterCode.python}
+                                        value={"formData.starterCode.python}"}
                                         onChange={(e) => handleCodeChange("python", e.target.value)}
                                     />
                                 </div>
@@ -163,8 +232,8 @@ export default function ProblemDetailPage() {
                                     id="testCases"
                                     name="testCases"
                                     rows={6}
-                                    value={formData.testCases}
-                                    onChange={handleChange}
+                                    value={"formData.testCases"}
+
                                     placeholder="Input: nums = [2,7,11,15], target = 9
 Output: [0,1]
 
@@ -183,49 +252,56 @@ Output: [1,2]"
                             </CardHeader>
                             <CardContent className="space-y-4">
                                 <div className="space-y-2">
-                                    <Label htmlFor="difficulty">Dificultad</Label>
+                                    <div className="text-sm text-muted-foreground mb-2">
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            asChild
+                                            className="ml-2"
+                                        >
+                                            <Link to={`/admin/users/${formData.authorID}`}>
+                                                <Eye className="h-4 w-4 mr-1" />
+                                                Ver autor
+                                            </Link>
+                                        </Button>
+                                    </div>
+                                    <Label htmlFor="difficulty" className="font-semibold mt-4">Dificultad</Label>
+                                    <Badge
+                                        className={
+                                            problem?.difficulty === "Facil"
+                                                ? "bg-green-500"
+                                                : problem?.difficulty === "Normal"
+                                                    ? "bg-yellow-500"
+                                                    : "bg-red-500"
+                                        }
+                                    >
+                                        {problem?.difficulty}
+                                    </Badge>
                                     <Select
-                                        value={formData.difficulty}
+                                        value={formData?.difficulty}
                                         onValueChange={(value) => handleSelectChange("difficulty", value)}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue placeholder="Indique la dificultad" />
+                                            <SelectValue placeholder="Nueva dificultad" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="Easy">Facil</SelectItem>
-                                            <SelectItem value="Medium">Medio</SelectItem>
-                                            <SelectItem value="Hard">Dificil</SelectItem>
+                                            <SelectItem value="Facil">Facil</SelectItem>
+                                            <SelectItem value="Normal">Normal</SelectItem>
+                                            <SelectItem value="Dificil">Dificil</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label htmlFor="status">Estado</Label>
-                                    <Select value={formData.status} onValueChange={(value) => handleSelectChange("status", value)}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Indique estado" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Draft">Borrador</SelectItem>
-                                            <SelectItem value="Published">Publicado</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label>Etiquetas</Label>
+                                    <Label className="font-semibold">Etiquetas</Label>
                                     <div className="flex flex-wrap gap-2 mb-2">
-                                        {formData.tags.map((tag) => (
-                                            <Badge key={tag} variant="secondary" className="flex items-center gap-1">
-                                                {tag}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeTag(tag)}
-                                                    className="text-muted-foreground hover:text-foreground"
-                                                >
-                                                    <X className="h-3 w-3" />
-                                                </button>
-                                            </Badge>
+                                        {parseServerString(formData.tags).map((tag) => (
+                                            <BadgeClosable
+                                                key={tag}
+                                                text={tag}
+                                                roleName={tag}
+                                                onClickEvent={removeTag}
+                                            />
                                         ))}
                                     </div>
                                     <div className="flex gap-2">
@@ -250,17 +326,14 @@ Output: [1,2]"
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Publicar</CardTitle>
-                                <CardDescription>Guarde un borrador o publique su problema</CardDescription>
+                                <CardTitle>Guardar</CardTitle>
+                                <CardDescription>Al hacer clic al boton, el problema estará publicado en la plataforma con los nuevos cambios.</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <p className="text-sm text-muted-foreground mb-4">
-                                    Puedes guardar como borrador para continuar editando más tarde, o publicar inmediatamente para que esté disponible para los usuarios.
-                                </p>
                                 <div className="flex gap-2">
-                                    <Button type="submit" disabled={isSubmitting} className="flex-1">
+                                    <Button type="submit" disabled={updateProblemMutation.isPending} className="flex-1">
                                         <Save className="mr-2 h-4 w-4" />
-                                        {isSubmitting ? "Guardando..." : "Guardar"}
+                                        {updateProblemMutation.isPending ? "Guardando..." : "Guardar"}
                                     </Button>
                                 </div>
                             </CardContent>

@@ -1,8 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import {Link} from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
+import { Loading } from "@/components/ui/loading"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -23,99 +24,72 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Search, MoreHorizontal, Eye, Edit, Trash, PlusCircle } from "lucide-react"
+import { Search, MoreHorizontal, Edit, Trash, PlusCircle, ArrowLeft } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { toast } from "sonner"
-
-// Mock problems data
-const problems = [
-    {
-        id: "1",
-        title: "Two Sum",
-        difficulty: "Easy",
-        tags: ["Arrays", "Hash Table"],
-        status: "Published",
-        createdAt: "2023-01-15",
-    },
-    {
-        id: "2",
-        title: "Reverse Linked List",
-        difficulty: "Easy",
-        tags: ["Linked List", "Recursion"],
-        status: "Published",
-        createdAt: "2023-02-20",
-    },
-    {
-        id: "3",
-        title: "Binary Tree Level Order Traversal",
-        difficulty: "Medium",
-        tags: ["Tree", "BFS", "Binary Tree"],
-        status: "Published",
-        createdAt: "2023-03-10",
-    },
-    {
-        id: "4",
-        title: "Merge K Sorted Lists",
-        difficulty: "Hard",
-        tags: ["Linked List", "Divide and Conquer", "Heap"],
-        status: "Draft",
-        createdAt: "2023-04-05",
-    },
-    {
-        id: "5",
-        title: "LRU Cache",
-        difficulty: "Medium",
-        tags: ["Hash Table", "Linked List", "Design"],
-        status: "Published",
-        createdAt: "2023-05-12",
-    },
-]
+import { useAdminProblems } from "@/hooks/useAdminProblems"
+import { parseServerString } from "@/utils/utils"
 
 export default function AdminProblemsPage() {
+    const { problems: fetchedProblems, deleteProblemMutation, isLoading, isError } = useAdminProblems()
     const [searchQuery, setSearchQuery] = useState("")
-    const [difficultyFilter, setDifficultyFilter] = useState("all")
-    const [statusFilter, setStatusFilter] = useState("all")
-    const [selectedProblem, setSelectedProblem] = useState<(typeof problems)[0] | null>(null)
+    const [selectedProblem, setSelectedProblem] = useState<(typeof fetchedProblems)[0] | null>(null)
+    const [difficultyFilter, setDifficultyFilter] = useState("Todas")
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-    const filteredProblems = problems.filter((problem) => {
-        // Search filter
+    const filteredProblems = fetchedProblems.filter((problem) => {
+        // Filtro de busqueda
         const matchesSearch =
             problem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            problem.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+            parseServerString(problem.tags).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
-        // Difficulty filter
+        // Filtro de dificultad
         const matchesDifficulty =
-            difficultyFilter === "all" || problem.difficulty.toLowerCase() === difficultyFilter.toLowerCase()
+            difficultyFilter === "Todas" || problem.difficulty.toLowerCase() === difficultyFilter.toLowerCase()
 
-        // Status filter
-        const matchesStatus = statusFilter === "all" || problem.status.toLowerCase() === statusFilter.toLowerCase()
-
-        return matchesSearch && matchesDifficulty && matchesStatus
+        return matchesSearch && matchesDifficulty
     })
-
-    const handleStatusChange = (problemId: string, newStatus: string) => {
-        toast.success("Problema actualizado", {
-            description: `El estado del problema ha cambiado a ${newStatus}.`,
-        })
-    }
 
     const handleDeleteProblem = () => {
         if (!selectedProblem) return
 
         setIsDeleteDialogOpen(false)
-        toast.success("Problema eliminado", {
-            description: `El problema "${selectedProblem.title}" ha sido eliminado.`,
-        })
+        deleteProblemMutation(selectedProblem.id)
         setSelectedProblem(null)
+    }
+    const navigate = useNavigate()
+    if (isError){
+        return (
+            <div className="container mx-auto py-6 px-4">
+                <h1 className="text-3xl font-bold mb-4">Error al cargar los problemas</h1>
+                <p className="text-red-500">No se pudieron cargar los problemas. Por favor, inténtalo de nuevo más tarde.</p>
+                <Button variant="outline" onClick={() => navigate("/admin/")}>
+                    Volver al panel de administración
+                </Button>
+            </div>
+        )
+    }
+    if (isLoading) {
+        return (
+            <div className="container mx-auto py-6 px-4">
+                <Loading message="Cargando problemas... Espere un momento" />
+            </div>
+        )
     }
 
     return (
         <div className="container mx-auto py-6 px-4">
             <title>Gestion de problemas</title>
+            <div className="flex items-center mb-6">
+                <Button variant="ghost" size="sm" asChild className="mr-2">
+                    <Link to="/admin/">
+                        <ArrowLeft className="h-4 w-4 mr-1" />
+                        Volver
+                    </Link>
+                </Button>
+                <h1 className="text-3xl font-bold">Gestión de problemas</h1>
+            </div>
             <div className="flex justify-between items-center mb-6">
-                <div>
-                    <h1 className="text-3xl font-bold">Gestión de problemas</h1>
+                <div className="mb-6 mx-4">
                     <p className="text-muted-foreground">Crea y gestiona los problemas de la aplicación</p>
                 </div>
                 <Button asChild>
@@ -132,7 +106,7 @@ export default function AdminProblemsPage() {
                         <div>
                             <CardTitle>Problemas</CardTitle>
                             <CardDescription>
-                                Mostrando {filteredProblems.length} de {problems.length} problemas
+                                Mostrando {filteredProblems.length} de {fetchedProblems.length} problemas
                             </CardDescription>
                         </div>
                         <div className="flex flex-col md:flex-row gap-2">
@@ -150,20 +124,10 @@ export default function AdminProblemsPage() {
                                     <SelectValue placeholder="Dificultad" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all">Todas</SelectItem>
-                                    <SelectItem value="easy">Facil</SelectItem>
-                                    <SelectItem value="medium">Medio</SelectItem>
-                                    <SelectItem value="hard">Dificil</SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <Select value={statusFilter} onValueChange={setStatusFilter}>
-                                <SelectTrigger className="w-[150px]">
-                                    <SelectValue placeholder="Estado" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="all">Todos</SelectItem>
-                                    <SelectItem value="published">Publicados</SelectItem>
-                                    <SelectItem value="draft">Borrador</SelectItem>
+                                    <SelectItem value="Todas">Todas</SelectItem>
+                                    <SelectItem value="Facil">Facil</SelectItem>
+                                    <SelectItem value="Normal">Normal</SelectItem>
+                                    <SelectItem value="Dificil">Dificil</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -176,21 +140,19 @@ export default function AdminProblemsPage() {
                                 <TableHead>Titulo</TableHead>
                                 <TableHead>Dificultad</TableHead>
                                 <TableHead>Etiquetas</TableHead>
-                                <TableHead>Estado</TableHead>
-                                <TableHead>Fecha de creación</TableHead>
                                 <TableHead className="text-right">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {filteredProblems.map((problem) => (
                                 <TableRow key={problem.id}>
-                                    <TableCell className="font-medium">{problem.title}</TableCell>
+                                    <TableCell className="font-medium hover:underline">{<Link to={`/admin/problems/${problem.id}`}> {problem.title}</Link>}</TableCell>
                                     <TableCell>
                                         <Badge
                                             className={
-                                                problem.difficulty === "Easy"
+                                                problem.difficulty === "Facil"
                                                     ? "bg-green-500"
-                                                    : problem.difficulty === "Medium"
+                                                    : problem.difficulty === "Normal"
                                                         ? "bg-yellow-500"
                                                         : "bg-red-500"
                                             }
@@ -200,17 +162,13 @@ export default function AdminProblemsPage() {
                                     </TableCell>
                                     <TableCell>
                                         <div className="flex flex-wrap gap-1">
-                                            {problem.tags.map((tag) => (
+                                            {parseServerString(problem.tags).map((tag) => (
                                                 <Badge key={tag} variant="outline" className="text-xs">
                                                     {tag}
                                                 </Badge>
                                             ))}
                                         </div>
                                     </TableCell>
-                                    <TableCell>
-                                        <Badge variant={problem.status === "Published" ? "default" : "secondary"}>{problem.status}</Badge>
-                                    </TableCell>
-                                    <TableCell>{problem.createdAt}</TableCell>
                                     <TableCell className="text-right">
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
@@ -220,26 +178,12 @@ export default function AdminProblemsPage() {
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+                                                <DropdownMenuLabel className="text-center">Acciones</DropdownMenuLabel>
                                                 <DropdownMenuItem asChild>
                                                     <Link to={`/admin/problems/${problem.id}`}>
-                                                        <Eye className="mr-2 h-4 w-4" />
-                                                        Ver problema
-                                                    </Link>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuItem asChild>
-                                                    <Link to={`/admin/problems/${problem.id}/edit`}>
                                                         <Edit className="mr-2 h-4 w-4" />
                                                         Editar problema
                                                     </Link>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem
-                                                    onClick={() =>
-                                                        handleStatusChange(problem.id, problem.status === "Published" ? "Borrador" : "Publicado")
-                                                    }
-                                                >
-                                                    {problem.status === "Published" ? "Borrador" : "Publicado"}
                                                 </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem

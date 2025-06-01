@@ -25,7 +25,7 @@ import { useQuery } from "@tanstack/react-query"
 export default function ProblemsPage() {
     const navigate = useNavigate()
     const [searchQuery, setSearchQuery] = useState("")
-    const [difficultyFilter, setDifficultyFilter] = useState("all")
+    const [difficultyFilter, setDifficultyFilter] = useState("Todas")
     const { data: problemsData } = useQuery({
         queryKey: ["problems"],
         queryFn: async () => {
@@ -39,14 +39,12 @@ export default function ProblemsPage() {
     if (!problemsData) return null
 
     const filteredProblems = problemsData.filter((problem) => {
-        // Search filter
         const matchesSearch =
             problem.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             parseServerString(problem.tags).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase()))
 
-        // Difficulty filter
         const matchesDifficulty =
-            difficultyFilter === "all" || problem.difficulty.toLowerCase() === difficultyFilter.toLowerCase()
+            difficultyFilter === "Todas" || problem.difficulty.toLowerCase() === difficultyFilter.toLowerCase()
 
         return matchesSearch && matchesDifficulty
     })
@@ -82,7 +80,7 @@ export default function ProblemsPage() {
                             <SelectValue placeholder="Dificultad" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all">Todas las dificultades</SelectItem>
+                            <SelectItem value="Todas">Todas las dificultades</SelectItem>
                             <SelectItem value="Facil">Facil</SelectItem>
                             <SelectItem value="Normal">Normal</SelectItem>
                             <SelectItem value="Dificil">Dificil</SelectItem>
@@ -188,7 +186,7 @@ export default function ProblemsPage() {
                             variant="link"
                             onClick={() => {
                                 setSearchQuery("")
-                                setDifficultyFilter("all")
+                                setDifficultyFilter("Todas")
                             }}
                         >
                             Limpiar filtros
