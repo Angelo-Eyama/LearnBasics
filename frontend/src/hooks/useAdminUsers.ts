@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
-import { getUsers, deleteUser, changeUserStatus  } from "@/client";
+import { getUsers, deleteUser, changeUserStatus } from "@/client";
 import { toast } from "sonner";
 
 export const useAdminUsers = () => {
@@ -79,5 +79,4 @@ export const useAdminUsers = () => {
         changeUserStatus: chageUserStatusMutation
     }
 }
-
 export default useAdminUsers;

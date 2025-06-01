@@ -52,6 +52,12 @@ def delete_user(session: Session, user_id: int) -> User:
     session.commit()
     return user
 
+def verify_user(session: Session, db_user: User) -> User:
+    db_user.isVerified = True
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
+    return db_user
 
 def change_user_status(session: Session, db_user: User) -> User:
     db_user.active = not db_user.active

@@ -1,6 +1,5 @@
 export function parseServerString(str: string | null | undefined): Array<string> {
     if (!str) return [];
-    // Split the string by commas and trim each part
     return str.split(', ').map(part => part.trim());
 }
 

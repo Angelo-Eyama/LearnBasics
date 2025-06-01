@@ -3,7 +3,7 @@ from app.api.deps import SessionDep, CurrentUser, verify_admin
 
 from app.models import User
 from app.api.controllers import users as users_controller
-from app.schemas.user import UserCreate, UserUpdate, UserPublic, UsersRead
+from app.schemas.user import UserCreate, UserRead, UserUpdate, UserPublic, UsersRead
 from app.schemas.utils import ErrorResponse
 from app.core.utils import RoleType
 
@@ -51,7 +51,7 @@ def get_current_user(current_user: CurrentUser):
 
 @router.get(
     "/id:{user_id}",
-    response_model=UserPublic,
+    response_model=UserRead,
     summary="Obtener un usuario por su ID",
     description="Obtiene un usuario del sistema utilizando su ID como clave.",
     response_description="El usuario obtenido.",
@@ -70,7 +70,7 @@ def get_user_by_id(user_id: int, session: SessionDep):
 
 @router.get(
     "/{username}",
-    response_model=UserPublic,
+    response_model=UserRead,
     summary="Obtener un usuario por su nombre de usuario",
     description="Obtiene un usuario del sistema utilizando su nombre de usuario como clave.",
     response_description="El usuario obtenido.",
@@ -142,6 +142,24 @@ def update_user(user_id: int, user_update: UserUpdate, session: SessionDep):
     updated_user = users_controller.update_user(
         session=session, db_user=user, user_in=user_update)
     return updated_user
+
+@router.patch(
+    "/verify/{user_id}",
+    response_model=UserUpdate,
+    summary="Verificar un usuario",
+    response_description="El usuario actualizado.",
+    responses={
+        200: {"description": "Usuario actualizado"},
+        404: {"model": ErrorResponse, "description": "Usuario no encontrado"},
+    },
+    dependencies=[Depends(verify_admin)]
+)
+def verify_user(user_id: int, session: SessionDep):
+    user = users_controller.get_user_by_id(session, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+    verified_user = users_controller.verify_user(session, user)
+    return verified_user
 
 # Eliminar mi propio usuario
 @router.delete(

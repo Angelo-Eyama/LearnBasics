@@ -24,7 +24,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Search, MoreHorizontal, Shield, Ban, Eye } from "lucide-react"
+import { Search, MoreHorizontal, Shield, Ban, Eye, ArrowLeft } from "lucide-react"
 import { toast } from "sonner"
 import useAdminUsers from "@/hooks/useAdminUsers"
 import { Loading } from "@/components/ui/loading"
@@ -76,8 +76,16 @@ export default function AdminUsersPage() {
     return (
         <div className="container mx-auto py-6 px-4">
             <title>Gestion de usuarios</title>
-            <div className="mb-6">
+            <div className="flex items-center mb-6">
+                <Button variant="ghost" size="sm" asChild className="mr-2">
+                    <Link to="/admin/">
+                        <ArrowLeft className="h-4 w-4 mr-1" />
+                        Volver
+                    </Link>
+                </Button>
                 <h1 className="text-3xl font-bold">Gestion de usuarios</h1>
+            </div>
+            <div className="mb-6">
                 <p className="text-muted-foreground">Gestiona a los usuarios y sus permisos</p>
             </div>
 
@@ -121,7 +129,7 @@ export default function AdminUsersPage() {
                                                 <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div>
-                                                <p className="font-medium">{user.username}</p>
+                                                <Link to={`/admin/users/${user.id}`} className="text-sm font-medium hover:underline">{user.username}</Link>
                                                 <p className="text-sm text-muted-foreground">{user.email}</p>
                                             </div>
                                         </div>

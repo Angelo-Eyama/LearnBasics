@@ -1,15 +1,14 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -22,108 +21,249 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Save, Ban, Shield, CheckCircle, CircleX, Activity, Bell, Send } from "lucide-react"
+import { ArrowLeft, Save, Ban, CheckCircle, CircleX, Bell, Send } from "lucide-react"
 import { toast } from "sonner"
 import { Textarea } from "@/components/ui/textarea"
+import { useParams } from "react-router-dom"
+import { createNotification, getUserById, UserRead, assignRole, verifyUser, revokeRole, changeUserStatus, updateUser, UserUpdate } from "@/client"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import NotFound from "@/pages/public/not-found"
+import BadgeClosable from "@/components/ui/badge-closable"
+import { formatDate } from "@/utils/utils"
+import { Loading } from "@/components/ui/loading"
 
-// Mock user data
-const user = {
-    id: "1",
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    avatar: "/placeholder.svg?height=100&width=100",
-    role: "Estudiante",
-    status: "Active",
-    problemsSolved: 42,
-    submissions: 78,
-    joinedDate: "January 15, 2023",
-    lastActive: "2 hours ago",
-    location: "San Francisco, CA",
-    bio: "Full-stack developer passionate about solving complex problems and building intuitive user interfaces.",
-    recentActivity: [
-        {
-            id: "1",
-            type: "problem_solved",
-            problem: "Two Sum",
-            date: "2023-10-15T14:30:00Z",
-        },
-        {
-            id: "2",
-            type: "comment",
-            problem: "Binary Tree Level Order Traversal",
-            date: "2023-10-12T09:15:00Z",
-        },
-        {
-            id: "3",
-            type: "problem_attempted",
-            problem: "LRU Cache",
-            date: "2023-10-10T16:45:00Z",
-        },
-    ],
-    verified: false,
-}
 
-// TODO: Modificar el componente para que muestre la información del usuario con el id que se recibe en los parámetros de la URL
-// y permita editar la información del usuario. La información del usuario debe ser obtenida de un API REST.
-// Prototipo: export default function UserDetailPage({ params }: { params: { id: string } })
 export default function UserDetailPage() {
+    const { id } = useParams<{ id: string }>()
+    const queryClient = useQueryClient()
+    // Query para obtener los datos del usuario seleccionado
+    const { data: user, isLoading, isError } = useQuery({
+        queryKey: ["adminUsers", id],
 
-    const [userData, setUserData] = useState(user)
-    const [isSubmitting, setIsSubmitting] = useState(false)
+        queryFn: async () => {
+            if (!id) throw new Error("ID de usuario no proporcionado");
+            const response = await getUserById({
+                path: { user_id: parseInt(id) }
+            });
+            if (response.status !== 200 || !("data" in response)) {
+                throw new Error(`Error ${response.status} al obtener el usuario`);
+            }
+            return response.data;
+        },
+        enabled: !!id,
+        retry: false
+    })
+
+    // Estado local para almacenar los datos del formulario del usuario
+    const [formData, setFormData] = useState<UserRead>(
+        {
+            id: 0,
+            username: "",
+            firstName: "",
+            lastName: "",
+            email: "",
+            creationDate: "",
+            roles: [],
+            active: true,
+            isVerified: false,
+            score: 0,
+            bio: "",
+        }
+    )
+    // Estado para la notificación
+    const [notificationTitle, setNotificationTitle] = useState("")
     const [notificationMessage, setNotificationMessage] = useState("")
-    const [isSendingNotification, setIsSendingNotification] = useState(false)
+    // Inicializar el formulario con los datos del usuario
+    useEffect(() => {
+        if (user) {
+            setFormData({
+                id: user.id,
+                username: user.username,
+                firstName: user.firstName,
+                lastName: user.lastName,
+                email: user.email,
+                creationDate: user.creationDate,
+                roles: user.roles || [],
+                active: user.active,
+                isVerified: user.isVerified,
+                score: user.score || 0,
+                bio: user.bio || "",
+            })
+        }
+    }, [user]);
+
+    // Mutaciones con React Query
+    const updateUserMutation = useMutation({
+        mutationFn: async (updatedData: UserUpdate) => {
+            updateUser({
+                body: updatedData,
+                path: { user_id: parseInt(id!) }
+            })
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["adminUsers", id] })
+            toast.success("Usuario actualizado correctamente")
+        },
+    })
+
+    const assignRoleMutation = useMutation({
+        mutationFn: async (roleName: string) => {
+            await assignRole({
+                path: {
+                    user_id: parseInt(id!),
+                    role_name: roleName,
+                }
+            })
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["adminUsers", id] })
+            toast.success("Rol asignado correctamente")
+        },
+        onError: (error) => {
+            console.error("Error al asignar el rol:", error)
+            toast.error("Error al asignar el rol")
+        }
+    })
+
+    const revokeRoleMutation = useMutation({
+        mutationFn: async (roleName: string) => {
+            await revokeRole({
+                path: {
+                    user_id: parseInt(id!),
+                    role_name: roleName,
+                }
+            })
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["adminUsers", id] })
+            toast.success("Rol revocado correctamente")
+        },
+        onError: (error) => {
+            console.error("Error al revocar el rol:", error)
+            toast.error("Error al revocar el rol")
+        }
+    })
+
+    const changeStatusMutation = useMutation({
+        mutationFn: async () => {
+            await changeUserStatus({
+                path: { user_id: parseInt(id!) }
+            })
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["adminUsers", id] })
+            toast.success("Estado del usuario actualizado correctamente")
+        },
+        onError: (error) => {
+            console.error("Error al cambiar el estado del usuario:", error)
+            toast.error("Error al cambiar el estado del usuario")
+        }
+    })
+
+    const verifyUserMutation = useMutation({
+        mutationFn: async () => {
+            const response = await verifyUser({
+                path: { user_id: parseInt(id!) }
+            })
+            if (response.status !== 200) {
+                toast.error("Error al verificar el usuario")
+                throw new Error(`Error ${response.status} al verificar el usuario`)
+            }
+            return response.data
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ["adminUsers", id] })
+            toast.success("Usuario verificado correctamente")
+        }
+    })
 
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const sendNotificationMutation = useMutation({
+        mutationFn: async ({ title, description }: { title: string, description: string }) => {
+            await createNotification({
+                body: {
+                    title,
+                    description,
+                    userID: parseInt(id!),
+                    read: false,
+                },
+            })
+        },
+        onSuccess: () => {
+            toast.success("Notificación enviada correctamente")
+        },
+        onError: (error) => {
+            console.error("Error al enviar la notificación:", error)
+            toast.error("Error al enviar la notificación")
+        }
+    })
+
+    if (!user) return <NotFound />;
+
+    // Handlers para los cambios
+    const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target
-        setUserData((prev) => ({ ...prev, [name]: value }))
+        setFormData((prev) => ({ ...prev, [name]: value }))
     }
 
-    const handleSelectChange = (name: string, value: string) => {
-        setUserData((prev) => ({ ...prev, [name]: value }))
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        updateUserMutation.mutateAsync(formData)
+    }
+
+    const handleAssignRole = (roleName: string) => {
+        assignRoleMutation.mutateAsync(roleName)
+        setFormData((prev) => ({
+            ...prev,
+            roles: [...prev.roles, { name: roleName }]
+        }))
+    }
+
+    const handleRevokeRole = (roleName: string) => {
+        revokeRoleMutation.mutateAsync(roleName)
+        setFormData((prev) => ({
+            ...prev,
+            roles: prev.roles.filter(role => role.name !== roleName)
+        }))
     }
 
     const handleVerifyUser = () => {
-        setUserData((prev) => ({ ...prev, verified: true }))
-        toast.success("Usuario verificado", {
-            description: "El usuario ha sido verificado correctamente.",
-        })
+        verifyUserMutation.mutateAsync()
+        setFormData((prev) => ({ ...prev, isVerified: true }))
+    }
+
+    const handleToggleStatus = () => {
+        changeStatusMutation.mutateAsync()
+        setFormData((prev) => ({ ...prev, active: !prev.active }))
     }
 
     const handleSendNotification = () => {
-        if (!notificationMessage.trim()) {
+        if (!notificationMessage.trim() || !notificationTitle.trim()) {
             toast.error("Mensaje vacío", {
-                description: "Por favor, escribe un mensaje antes de enviar la notificación.",
+                description: "Por favor, completa los campos antes de enviar la notificación.",
             })
             return
         }
-        setIsSendingNotification(true)
-        // Simulate API call
-        setTimeout(() => {
-            setIsSendingNotification(false)
-            setNotificationMessage("")
-            toast.success("Notificación enviada", {
-                description: "La notificación ha sido enviada correctamente.",
-            })
-        }, 1000)
+        sendNotificationMutation.mutateAsync({
+            title: notificationTitle,
+            description: notificationMessage,
+        })
     }
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        setIsSubmitting(true)
-
-        // Simulate API call
-        setTimeout(() => {
-            setIsSubmitting(false)
-            toast.success("Usuario actualizado", {
-                description: "La información del usuario ha sido actualizada correctamente.",
-            })
-        }, 1000)
+    const getHighestRole = (roles: { name: string }[]) => {
+        if (roles.some(role => role.name.toLowerCase() === "administrador")) return "Administrador"
+        if (roles.some(role => role.name.toLowerCase() === "moderador")) return "Moderador"
+        return "Estudiante"
     }
+
+    // Estados de carga y error
+    if (!id || isError) return <NotFound />
+    if (isLoading) return <Loading />
+    if (!user) return <NotFound />
 
     return (
         <div className="container mx-auto py-6 px-4">
-            <title>{user.name}</title>
+            <title>{user.username}</title>
             <div className="flex items-center mb-6">
                 <Button variant="ghost" size="sm" asChild className="mr-2">
                     <Link to="/admin/users">
@@ -138,21 +278,21 @@ export default function UserDetailPage() {
                 <Card className="md:col-span-1">
                     <CardHeader className="flex flex-col items-center text-center">
                         <Avatar className="h-24 w-24 mb-4">
-                            <AvatarImage src={userData.avatar} alt={userData.name} />
-                            <AvatarFallback>{userData.name.charAt(0)}</AvatarFallback>
+                            <AvatarFallback>{formData.username.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        <CardTitle>{userData.name}</CardTitle>
-                        <CardDescription>{userData.email}</CardDescription>
+                        <CardTitle>{formData.username}</CardTitle>
+                        <CardDescription>{formData.email}</CardDescription>
                         <div className="flex space-x-2 mt-2">
                             <Badge
                                 variant={
-                                    userData.role === "Admin" ? "default" : userData.role === "Moderator" ? "outline" : "secondary"
+                                    getHighestRole(formData.roles) === "Administrador" ? "default" : getHighestRole(user.roles) === "Moderador" ? "outline" : "secondary"
                                 }
                             >
-                                {userData.role}
+                                {getHighestRole(formData.roles)}
                             </Badge>
-                            <Badge variant={userData.status === "Active" ? "default" : "destructive"}>{userData.status}</Badge>
-                            {userData.verified ? (
+                            <Badge variant={formData.active === true ? "default" : "destructive"}>{user.active ? "Desbloqueado" : "Bloqueado"}</Badge>
+
+                            {formData.isVerified ? (
                                 <Badge variant="default" className="flex items-center gap-1 bg-green-500">
                                     <CheckCircle className="h-3 w-3" />
                                     Verificado
@@ -169,37 +309,17 @@ export default function UserDetailPage() {
                         <div className="grid grid-cols-2 gap-4">
                             <div className="flex flex-col">
                                 <span className="text-sm text-muted-foreground">Registrado desde</span>
-                                <span>{userData.joinedDate}</span>
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-sm text-muted-foreground">Última conexión</span>
-                                <span>{userData.lastActive}</span>
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-sm text-muted-foreground">Problemas resueltos</span>
-                                <span>{userData.problemsSolved}</span>
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-sm text-muted-foreground">Entregas</span>
-                                <span>{userData.submissions}</span>
+                                <span>{formatDate(formData.creationDate)}</span>
                             </div>
                         </div>
                         <div className="pt-4 border-t">
                             <h3 className="font-medium mb-2">Acciones rápidas</h3>
                             <div className="flex flex-col space-y-2">
-                                <Button variant="outline" className="justify-start">
-                                    <Shield className="mr-2 h-4 w-4" />
-                                    {userData.role === "Admin" ? "Quitar rol de Admin." : "Hacer Admin."}
-                                </Button>
-                                <Button variant="outline" className="justify-start">
+                                <Button variant="outline" className="justify-start cursor-pointer hover:bg-amber-800" onClick={handleToggleStatus}>
                                     <Ban className="mr-2 h-4 w-4" />
-                                    {userData.status === "Active" ? "Bloquear cuenta" : "Desbloqueear cuenta"}
+                                    {formData.active === true ? "Bloquear cuenta" : "Desbloquear cuenta"}
                                 </Button>
-                                <Button variant="outline" className="justify-start">
-                                    <Activity className="mr-2 h-4 w-4" />
-                                    Ver registro de actividad
-                                </Button>
-                                {!userData.verified && (
+                                {!formData.isVerified && (
                                     <Button variant="default" className="justify-start" onClick={handleVerifyUser}>
                                         <CheckCircle className="mr-2 h-4 w-4" />
                                         Verificar usuario
@@ -216,14 +336,21 @@ export default function UserDetailPage() {
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Enviar notificación</AlertDialogTitle>
                                             <AlertDialogDescription>
-                                                Enviar notificación a {userData.name}. Esta notificación aparecerá en la bandeja de entrada del usuario.
+                                                Enviar notificación a {formData.firstName}. Esta notificación aparecerá en la bandeja de entrada del usuario.
                                             </AlertDialogDescription>
                                         </AlertDialogHeader>
                                         <div className="space-y-4 py-4">
                                             <div className="space-y-2">
-                                                <Label htmlFor="notification">Mensaje</Label>
+                                                <Label htmlFor="notification-title">Título</Label>
+                                                <Input
+                                                    id="notification-title"
+                                                    placeholder="Introduzca aquí el título de la notificación..."
+                                                    value={notificationTitle}
+                                                    onChange={(e) => setNotificationTitle(e.target.value)}
+                                                />
+                                                <Label htmlFor="notification-message">Mensaje</Label>
                                                 <Textarea
-                                                    id="notification"
+                                                    id="notification-message"
                                                     placeholder="Introduzca aquí la descripción de la notificación..."
                                                     value={notificationMessage}
                                                     onChange={(e) => setNotificationMessage(e.target.value)}
@@ -235,10 +362,10 @@ export default function UserDetailPage() {
                                             <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                             <AlertDialogAction
                                                 onClick={handleSendNotification}
-                                                disabled={isSendingNotification || !notificationMessage.trim()}
+                                                disabled={sendNotificationMutation.isPending}
                                             >
                                                 <Send className="mr-2 h-4 w-4" />
-                                                {isSendingNotification ? "Enviando..." : "Enviar notificación"}
+                                                {sendNotificationMutation.isPending ? "Enviando..." : "Enviar notificación"}
                                             </AlertDialogAction>
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
@@ -258,81 +385,70 @@ export default function UserDetailPage() {
                             <CardContent className="space-y-4">
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="name">Nombre completo</Label>
-                                        <Input id="name" name="name" value={userData.name} onChange={handleChange} />
+                                        <Label htmlFor="id">Identificador</Label>
+                                        <Input id="id" name="id" value={formData.id} disabled />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="firstName">Nombre</Label>
+                                        <Input id="firstName" name="firstName" value={formData.firstName} onChange={handleFormChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="lastName">Apellidos</Label>
+                                        <Input id="lastName" name="lastName" value={formData.lastName} onChange={handleFormChange} />
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="email">Correo electrónico</Label>
-                                        <Input id="email" name="email" type="email" value={userData.email} onChange={handleChange} />
+                                        <Input id="email" name="email" type="email" value={formData.email} onChange={handleFormChange} />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="username">Nombre de usuario</Label>
+                                        <Input id="username" name="username" value={formData.username} onChange={handleFormChange} />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="role">Rol</Label>
-                                        <Select value={userData.role} onValueChange={(value) => handleSelectChange("role", value)}>
+                                        <Label htmlFor="role">Roles</Label>
+                                        {
+                                            formData.roles.length > 0 ? (
+                                                formData.roles.map((role) => (
+                                                    <BadgeClosable
+                                                        key={role.name}
+                                                        text={role.name}
+                                                        roleName={role.name}
+                                                        onClickEvent={handleRevokeRole}
+                                                    />
+                                                ))
+                                            ) : (
+                                                <span className="text-sm text-muted-foreground">No tiene roles asignados</span>
+                                            )
+                                        }
+                                        <Select onValueChange={(value) => handleAssignRole(value)}>
                                             <SelectTrigger>
-                                                <SelectValue placeholder="Select role" />
+                                                <SelectValue placeholder="Asignar nuevo rol" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="Estudiante">Estudiante</SelectItem>
-                                                <SelectItem value="Moderator">Moderador</SelectItem>
-                                                <SelectItem value="Admin">Admin</SelectItem>
+                                                <SelectItem value="estudiante">Estudiante</SelectItem>
+                                                <SelectItem value="moderator">Moderador</SelectItem>
+                                                <SelectItem value="administrador">Administrador</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="status">Estado</Label>
-                                        <Select value={userData.status} onValueChange={(value) => handleSelectChange("status", value)}>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select status" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Active">Activo</SelectItem>
-                                                <SelectItem value="Inactive">Suspendido</SelectItem>
-                                                <SelectItem value="Suspended">Bloqueado</SelectItem>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-                                </div>
-                                <div className="space-y-2">
-                                    <Label htmlFor="location">Location</Label>
-                                    <Input id="location" name="location" value={userData.location} onChange={handleChange} />
                                 </div>
                             </CardContent>
                             <CardFooter>
-                                <Button type="submit" disabled={isSubmitting} className="mt-4 hover:bg-gray-500">
+                                <Button type="submit" disabled={updateUserMutation.isPending} className="mt-4 hover:bg-gray-500">
                                     <Save className="mr-2 h-4 w-4" />
-                                    {isSubmitting ? "Guardando..." : "Guardar cambios"}
+                                    {updateUserMutation.isPending ? "Guardando..." : "Guardar cambios"}
                                 </Button>
+                                <Button className="mt-4 ml-2 hover:bg-gray-500" variant="secondary">
+                                    <Link to="/admin/users">Volver</Link>
+                                </Button>
+
                             </CardFooter>
                         </form>
-                    </Card>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Actividad reciente</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="space-y-4">
-                                {userData.recentActivity.map((activity) => (
-                                    <div key={activity.id} className="flex items-start space-x-4 p-3 border rounded-md">
-                                        <div className="min-w-0 flex-1">
-                                            <p className="text-sm font-medium">
-                                                {activity.type === "problem_solved" && "Solved problem: "}
-                                                {activity.type === "comment" && "Commented on: "}
-                                                {activity.type === "problem_attempted" && "Attempted problem: "}
-                                                <span className="font-semibold">{activity.problem}</span>
-                                            </p>
-                                            <p className="text-xs text-muted-foreground">{new Date(activity.date).toLocaleString()}</p>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </CardContent>
                     </Card>
                 </div>
             </div>
         </div>
     )
 }
-

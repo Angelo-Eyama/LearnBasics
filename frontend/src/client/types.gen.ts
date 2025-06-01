@@ -43,12 +43,6 @@ export type Message = {
     message: string;
 };
 
-export type NotificationBase = {
-    title: string;
-    description: string;
-    read: boolean;
-};
-
 export type NotificationCreate = {
     title: string;
     description: string;
@@ -216,8 +210,6 @@ export type UserPublic = {
     skills?: string | null;
     profilePicture?: string | null;
     roles: Array<RoleNameBase>;
-    submissions?: SubmissionList | Array<unknown>;
-    notifications?: Array<string | NotificationBase>;
 };
 
 export type UserRead = {
@@ -233,8 +225,6 @@ export type UserRead = {
     skills?: string | null;
     profilePicture?: string | null;
     roles: Array<RoleNameBase>;
-    submissions?: SubmissionList | Array<unknown>;
-    notifications?: Array<string | NotificationBase>;
     id: number;
     creationDate: string | null;
 };
@@ -666,7 +656,7 @@ export type GetUserByIdResponses = {
     /**
      * Usuario encontrado
      */
-    200: UserPublic;
+    200: UserRead;
 };
 
 export type GetUserByIdResponse = GetUserByIdResponses[keyof GetUserByIdResponses];
@@ -697,7 +687,7 @@ export type GetUserByUsernameResponses = {
     /**
      * Usuario encontrado
      */
-    200: UserPublic;
+    200: UserRead;
 };
 
 export type GetUserByUsernameResponse = GetUserByUsernameResponses[keyof GetUserByUsernameResponses];
@@ -763,6 +753,37 @@ export type UpdateUserResponses = {
 };
 
 export type UpdateUserResponse = UpdateUserResponses[keyof UpdateUserResponses];
+
+export type VerifyUserData = {
+    body?: never;
+    path: {
+        user_id: number;
+    };
+    query?: never;
+    url: '/users/verify/{user_id}';
+};
+
+export type VerifyUserErrors = {
+    /**
+     * Usuario no encontrado
+     */
+    404: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type VerifyUserError = VerifyUserErrors[keyof VerifyUserErrors];
+
+export type VerifyUserResponses = {
+    /**
+     * Usuario actualizado
+     */
+    200: UserUpdate;
+};
+
+export type VerifyUserResponse = VerifyUserResponses[keyof VerifyUserResponses];
 
 export type ChangeUserStatusData = {
     body?: never;
