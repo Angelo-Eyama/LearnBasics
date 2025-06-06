@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Play, Download, Copy, MessageSquare } from "lucide-react";
 import Editor from "@/components/editor";
+import { useMutation } from "@tanstack/react-query";
 const languages = [
     { value: "javascript", label: "JavaScript", extension: "js" },
     { value: "typescript", label: "TypeScript", extension: "ts" },
@@ -17,6 +18,36 @@ const themes = [
     { value: "vs-dark", label: "Oscuro" },
 ]
 
+// Interfaces para las estructuras JSON
+interface ExecuteRequest {
+    code: string;
+    input_data?: string;
+}
+
+interface ExecuteResult {
+    success: boolean;
+    output: string;
+    error?: string;
+    execution_time: number;
+}
+
+// Función para ejecutar código
+const executeCode = async (request: ExecuteRequest, port: Number): Promise<ExecuteResult> => {
+    const response = await fetch(`http://localhost:${port}/execute`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    return response.json();
+};
+
 // TODO: Crear un componente de editor de código reutilizable
 // - Refactorizar los dos editores extrayendo los componentes y props comunes
 
@@ -26,16 +57,36 @@ export function PublicPlayground() {
     const [code, setCode] = useState(`console.log('Hola mundo')`);
     const [output, setOutput] = useState("Aquí se mostrará la salida del código...");
     const [isRunning, setIsRunning] = useState(false);
+    const [port, setPort] = useState(8003); // Puerto por defecto para JavaScript
+
+
+    // Mutation para ejecutar código
+    const executeCodeMutation = useMutation({
+        mutationFn: (request: ExecuteRequest & { port: number }) => executeCode(request, request.port),
+        onMutate: () => {
+            setIsRunning(true);
+            setOutput("Ejecutando código... Puerto : " + port);
+        },
+        onSuccess: (result: ExecuteResult) => {
+            if (result.success) {
+                setOutput(`${result.output}\n\nTiempo de ejecución: ${result.execution_time.toFixed(3)}s`);
+            } else {
+                setOutput(`Error:\n${result.error || 'Error desconocido'}\n\nTiempo de ejecución: ${result.execution_time.toFixed(3)}s`);
+            }
+            setIsRunning(false);
+        },
+        onError: (error: Error) => {
+            setOutput(`Error de conexión: ${error.message}`);
+            setIsRunning(false);
+        }
+    });
 
     const handleRunCode = () => {
-        setIsRunning(true);
-        setOutput("Ejecutando...");
-
-        // TODO: Mandar a ejecutar el código
-        setTimeout(() => {
-            setOutput("Hola mundo");
-            setIsRunning(false);
-        }, 1000);
+        executeCodeMutation.mutate({
+            code: code,
+            input_data: "",
+            port: port
+        });
     }
 
     const handleCopyCode = () => {
@@ -52,6 +103,27 @@ export function PublicPlayground() {
         document.body.removeChild(a);
     }
 
+    const handleChangeLanguage = (value: string) => {
+        setLanguage(value);
+        setCode(`${value == 'python' ? '#' : '//'} Escribe tu código aquí en ${languages.find((lang) => lang.value === value)?.label || 'JavaScript'}`);
+        setOutput("Aquí se mostrará la salida del código...");
+        // Cambiar el puerto según el lenguaje seleccionado
+        switch (value) {
+            case "python":
+                setPort(8001);
+                break;
+            case "cpp":
+                setPort(8002);
+                break;
+            case "javascript":
+            case "typescript":
+                setPort(8003);
+                break;
+            default:
+                setPort(8003); // Default to JavaScript port
+        }
+    }
+
     return (
         <div className="container mx-auto py-6 px-4">
             <title>Editor</title>
@@ -59,12 +131,13 @@ export function PublicPlayground() {
                 <h1 className="text-3xl font-bold">Editor de código</h1>
                 <p className="text-muted-foreground">Escribe, compila y ejecuta tu código aquí</p>
             </div>
+            <p>{`Puerto ${port}`}</p>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="flex flex-col space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                            <Select value={language} onValueChange={setLanguage}>
+                            <Select value={language} onValueChange={handleChangeLanguage}>
                                 <SelectTrigger className="w-[180px]">
                                     <SelectValue placeholder="Seleccione lenguaje" />
                                 </SelectTrigger>
@@ -170,7 +243,7 @@ export function PrivatePlayground() {
                 Rendimiento:
                 - El código se ejecuta de forma eficiente y no contiene bucles infinitos.
         `)
-        setIsGettingFeedback(false)
+            setIsGettingFeedback(false)
         }, 2000)
     }
 

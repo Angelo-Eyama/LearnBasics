@@ -9,7 +9,7 @@ export const NavLinks = ({ isLoggedIn, permissions }: { isLoggedIn: () => boolea
                 Editor
             </NavLink>
             {
-                
+
                 isLoggedIn() && (
                     <>
                         <NavLink to="/private" className="text-sm font-medium hover:underline underline-offset-4">
@@ -24,9 +24,6 @@ export const NavLinks = ({ isLoggedIn, permissions }: { isLoggedIn: () => boolea
                             </NavLink>
                         )
                         }
-                        <NavLink to="/about" className="text-sm font-medium hover:underline underline-offset-4">
-                            Sobre nosotros
-                        </NavLink>
                     </>
                 )
             }

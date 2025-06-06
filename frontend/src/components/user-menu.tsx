@@ -55,9 +55,6 @@ export const MobileUserMenu = ({ onLogout, isLoggedIn, permissions }: { onLogout
                                     </NavLink>
                                 )
                                 }
-                                <NavLink to="/about" className="text-sm font-medium hover:underline underline-offset-4">
-                                    Sobre nosotros
-                                </NavLink>
                             </>
                         )
                     }
