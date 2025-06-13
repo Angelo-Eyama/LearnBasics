@@ -45,7 +45,7 @@ class UserUpdate(BaseModel):
 # Propiedades a devolver en la respuesta de la autenticación
 class UserPublic(UserBase):
     bio: Optional[str] = None
-    github: Optional[HttpUrl] = None
+    github: Optional[str] = None
     skills: Optional[str] = None
     profilePicture: Optional[str] = None
     roles: List[RoleNameBase]

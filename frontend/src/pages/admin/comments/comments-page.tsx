@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -27,7 +27,7 @@ import {
 import { Search, MoreHorizontal, Eye, Check, X, MessageSquare, ArrowLeft } from "lucide-react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useAdminComments } from "@/hooks/useAdminComments"
-import { formatDate } from "@/utils/utils"
+import { formatDate, getDiceBearAvatar } from "@/utils/utils"
 import { Loading } from "@/components/ui/loading"
 
 
@@ -151,6 +151,7 @@ export default function AdminCommentsPage() {
                                     <TableCell>
                                         <div className="flex items-center space-x-3">
                                             <Avatar className="h-8 w-8">
+                                                <AvatarImage src={getDiceBearAvatar(comment.user.username)} alt={comment.user.username} />
                                                 <AvatarFallback>{comment.user.username.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <span className="font-medium">{comment.user.username}</span>

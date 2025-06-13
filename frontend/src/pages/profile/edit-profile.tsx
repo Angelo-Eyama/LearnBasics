@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Loading } from "@/components/ui/loading"
 import { toast } from "sonner"
-import { ArrowLeft, Upload, Save } from "lucide-react"
+import { ArrowLeft, Save } from "lucide-react"
 import { Link, useNavigate } from "react-router-dom"
 import useAuth from "@/hooks/useAuth"
 import { updateCurrentUser, UserUpdate, deleteCurrentUser } from "@/client"
@@ -26,7 +26,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
-
+import { getDiceBearAvatar } from "@/utils/utils"
 
 export default function EditProfilePage() {
     const navigate = useNavigate()
@@ -131,13 +131,9 @@ export default function EditProfilePage() {
                         </CardHeader>
                         <CardContent className="flex flex-col items-center">
                             <Avatar className="h-32 w-32 mb-4">
-                                <AvatarImage src={`https://randomuser.me/api/portraits/med/men/${Math.floor(Math.random() * 100)}.jpg`} alt={formData.firstName ?? ""} />
+                                <AvatarImage src={getDiceBearAvatar(user.username)} alt={formData.firstName ?? ""} />
                                 <AvatarFallback>{formData.firstName?.charAt(0)}</AvatarFallback>
                             </Avatar>
-                            <Button variant="outline" className="w-full" onClick={(e) => { e.preventDefault(); }}>
-                                <Upload className="mr-2 h-4 w-4" />
-                                Subir nueva foto
-                            </Button>
 
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
@@ -173,11 +169,11 @@ export default function EditProfilePage() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-2">
                                     <Label htmlFor="firstName">Nombre</Label>
-                                    <Input id="firstName" name="firstName" value={formData.firstName ?? ""} onChange={handleChange}  />
+                                    <Input id="firstName" name="firstName" value={formData.firstName ?? ""} onChange={handleChange} />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="lastName">Apellidos</Label>
-                                    <Input id="lastName" name="lastName" value={formData.lastName ?? ""} onChange={handleChange}  />
+                                    <Input id="lastName" name="lastName" value={formData.lastName ?? ""} onChange={handleChange} />
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="username">Nombre de usuario</Label>
@@ -185,20 +181,20 @@ export default function EditProfilePage() {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="email">Correo Electrónico</Label>
-                                    <Input id="email" name="email" type="email" value={formData.email ?? ""} onChange={handleChange}  />
+                                    <Input id="email" name="email" type="email" value={formData.email ?? ""} onChange={handleChange} />
                                 </div>
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="bio">Sobre mi</Label>
-                                <Textarea id="bio" name="bio" rows={4} value={formData.bio ?? ""} onChange={handleChange}  />
+                                <Textarea id="bio" name="bio" rows={4} value={formData.bio ?? ""} onChange={handleChange} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="skills">Habilidades (separadas por coma y espacio)</Label>
-                                <Input id="skills" name="skills" value={formData.skills ?? ""} onChange={handleChange}  />
+                                <Input id="skills" name="skills" value={formData.skills ?? ""} onChange={handleChange} />
                             </div>
                             <div className="space-y-2">
                                 <Label htmlFor="github">Enlace a cuenta de github</Label>
-                                <Input id="github" name="github" type="url" value={formData.github ?? ""} onChange={handleChange}  />
+                                <Input id="github" name="github" type="url" value={formData.github ?? ""} onChange={handleChange} />
                             </div>
                         </CardContent>
                         <CardFooter className="flex justify-end gap-4">

@@ -8,7 +8,6 @@ import Editor from "@/components/editor";
 import { useMutation } from "@tanstack/react-query";
 const languages = [
     { value: "javascript", label: "JavaScript", extension: "js" },
-    { value: "typescript", label: "TypeScript", extension: "ts" },
     { value: "python", label: "Python", extension: "py" },
     { value: "cpp", label: "C++", extension: "cpp" },
 ];
@@ -116,11 +115,10 @@ export function PublicPlayground() {
                 setPort(8002);
                 break;
             case "javascript":
-            case "typescript":
                 setPort(8003);
                 break;
             default:
-                setPort(8003); // Default to JavaScript port
+                setPort(8003); // Puerto por defecto para JavaScript
         }
     }
 
@@ -131,7 +129,6 @@ export function PublicPlayground() {
                 <h1 className="text-3xl font-bold">Editor de código</h1>
                 <p className="text-muted-foreground">Escribe, compila y ejecuta tu código aquí</p>
             </div>
-            <p>{`Puerto ${port}`}</p>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 <div className="flex flex-col space-y-4">

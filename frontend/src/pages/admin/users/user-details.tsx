@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import {
     AlertDialog,
     AlertDialogAction,
@@ -29,7 +29,7 @@ import { createNotification, getUserById, UserRead, assignRole, verifyUser, revo
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import NotFound from "@/pages/public/not-found"
 import BadgeClosable from "@/components/ui/badge-closable"
-import { formatDate, getHighestRole } from "@/utils/utils"
+import { formatDate, getDiceBearAvatar, getHighestRole } from "@/utils/utils"
 import { Loading } from "@/components/ui/loading"
 
 
@@ -272,6 +272,7 @@ export default function UserDetailPage() {
                 <Card className="md:col-span-1">
                     <CardHeader className="flex flex-col items-center text-center">
                         <Avatar className="h-24 w-24 mb-4">
+                            <AvatarImage src={getDiceBearAvatar(user.username)} alt={user.username} />
                             <AvatarFallback>{formData.username.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <CardTitle>{formData.username}</CardTitle>

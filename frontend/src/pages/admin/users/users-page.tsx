@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -28,7 +28,7 @@ import { Search, MoreHorizontal, Shield, Ban, Eye, ArrowLeft } from "lucide-reac
 import { toast } from "sonner"
 import useAdminUsers from "@/hooks/useAdminUsers"
 import { Loading } from "@/components/ui/loading"
-import { formatDate, getHighestRole } from "@/utils/utils"
+import { formatDate, getHighestRole, getDiceBearAvatar } from "@/utils/utils"
 
 
 export default function AdminUsersPage() {
@@ -129,6 +129,7 @@ export default function AdminUsersPage() {
                                     <TableCell>
                                         <div className="flex items-center space-x-3">
                                             <Avatar className="h-8 w-8">
+                                                <AvatarImage src={getDiceBearAvatar(user.username)} alt={user.username} />
                                                 <AvatarFallback>{user.username.charAt(0)}</AvatarFallback>
                                             </Avatar>
                                             <div>

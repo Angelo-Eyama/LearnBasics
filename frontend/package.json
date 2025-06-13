@@ -11,6 +11,8 @@
 		"generate-client": "npm run openapi-client && node scripts/patchClient.ts"
 	},
 	"dependencies": {
+		"@dicebear/collection": "^9.2.2",
+		"@dicebear/core": "^9.2.2",
 		"@hey-api/client-axios": "^0.6.1",
 		"@monaco-editor/react": "^4.7.0",
 		"@radix-ui/react-alert-dialog": "^1.1.6",

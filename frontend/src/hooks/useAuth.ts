@@ -1,14 +1,13 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
-import { 
+import {
     BodyAuthLoginForAccessToken,
     registerUser,
     getCurrentUser,
     loginForAccessToken,
     type UserPublic,
     type UserRegister,
-    type RegisterUserError
 } from "@/client";
 import { toast } from "sonner"
 import { useMutation } from "@tanstack/react-query"
@@ -26,67 +25,66 @@ const useAuth = () => {
         queryKey: ["currentUser"],
         queryFn: async () => {
             const response = await getCurrentUser();
-            if (response?.status === 200 && 'data' in response) {
-                return response.data as UserPublic;
-            } 
-            logout();
-            toast("Error al obtener el usuario actual") // Eliminar en produccion
-            throw new Error("Error al obtener el usuario actual");
-            return null;
+            if(response.status !== 200){
+                toast.error("Error al obtener el usuario actual") // Eliminar en produccion
+                logout();
+                throw new Error("Error al obtener el usuario actual");
+            }
+            return response.data as UserPublic;
         },
         enabled: isLoggedIn(),
-        retry: 2
+        retry: false
     })
 
-    const register = async (data: UserRegister) => {
-        const response = await registerUser({ body: data });
-        if (response?.data) {
-            return response.data;
-        } else {
-            setError("Error: User registration failed")
-            throw new Error("User registration failed")
-        }
-    }
-
     const signUpMutation = useMutation({
-        mutationFn: register,
+        mutationFn: async (data: UserRegister) => {
+            const response = await registerUser({body: data})
+            if (response.status !== 200 || !("data" in response)) {
+                if (response.status === 401) {
+                    throw Error("Error al crear la cuenta, por favor intente de nuevo")
+                }
+            }
+        },
 
         onSuccess: () => {
-            // navigate("/auth/login")
+            navigate("/auth/login")
             toast.success("Cuenta creada", {
                 description: "Su cuenta se ha creado con exito. Inicie sesion con sus credenciales"
             })
         },
-        onError: (error: RegisterUserError) => {
-            let errorMessage = error?.detail || "Error al crear la cuenta"
-            setError(`Error: ${errorMessage}`)
+
+        onError: (error) => {
+            toast.error("Error", { description: error.message || "Error al crear la cuenta" })
         }
     })
 
-    const login = async (data: BodyAuthLoginForAccessToken) => {
-        const response = await loginForAccessToken({
-            body: data,
-        })
-        if (response?.data?.access_token) {
-            localStorage.setItem("access_token", response.data.access_token);
-        } else {
-            setError("Error: Access token is missing in the response")
-            throw new Error( "Access token is missing in the response")
-        }
-    }
-
     const loginMutation = useMutation({
-        mutationFn: login,
-
-        onSuccess: () => {
-            navigate("/")
+        mutationFn: async (data: BodyAuthLoginForAccessToken) => {
+            const response = await loginForAccessToken({body: data})
+            if (response.status !== 200 || !("data" in response)) {
+                if (response.status === 401) {
+                    throw Error("Credenciales incorrectas, por favor intente de nuevo")
+                } else if (response.status === 400){
+                    throw Error("Su cuenta ha sido desactivada, por favor contacte con el administrador")
+                }
+            }
+            if (response.data?.access_token){
+                localStorage.setItem("access_token", response.data.access_token);
+                queryClient.invalidateQueries({
+                    queryKey: ["currentUser"],
+                })
+            }
+            if(!response){
+                toast.info("No se ha podido iniciar sesión, compruebe sus credenciales")
+            }
         },
 
-        onError: (error: Error) => {
-            let errorMessage = error?.message || "Error al iniciar sesion";
+        onSuccess: () => {
+            toast.success("Inicio de sesión exitoso")
+        },
 
-            // Just in case...
-            setError(`Error: ${errorMessage}`)
+        onError: (error) => {
+            toast.error("Error", {description: error.message || "Error al iniciar sesión"})
         },
     })
 

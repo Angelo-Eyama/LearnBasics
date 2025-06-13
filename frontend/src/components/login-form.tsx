@@ -12,38 +12,35 @@ import { Label } from "@/components/ui/label"
 import { useState, useEffect } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import useAuth, { isLoggedIn } from "@/hooks/useAuth"
-import { toast } from "sonner"
 
-export function LoginForm({
-  className,
-  ...props
-}: React.ComponentProps<"div">) {
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
+export function LoginForm({ className }: React.ComponentProps<"div">) {
   const navigate = useNavigate()
   const { loginMutation } = useAuth()
-  const handleLogin = async () => {
-    try {
-      await loginMutation.mutateAsync({
-        username: username,
-        password: password
-      })
-      setPassword("")
-      navigate("/")
-    } catch (error) {
-      toast.error("Credenciales incorrectas")
-    }
+  const [formData, setFormData] = useState({
+    username: "",
+    password: "",
+  })
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    loginMutation.mutateAsync(formData)
+    setFormData({
+      username: "",
+      password: "",}
+    )
   }
 
   useEffect(() => {
-    if (isLoggedIn()) {
+    if (loginMutation.isSuccess || isLoggedIn()) {
       navigate("/")
     }
-  })
-
+  }, [loginMutation.isSuccess, navigate])
 
   return (
-    <div className={cn("flex flex-col gap-6", className)} {...props}>
+    <div className={cn("flex flex-col gap-6", className)}>
       <Card>
         <CardHeader>
           <CardTitle>Iniciar sesion</CardTitle>
@@ -52,15 +49,17 @@ export function LoginForm({
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form>
+          <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-6">
               <div className="grid gap-3">
                 <Label htmlFor="text">Nombre de usuario</Label>
                 <Input
                   id="username"
+                  name="username"
                   type="text"
                   placeholder="your_username"
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={handleFormChange}
+                  value={formData.username}
                   required
                 />
               </div>
@@ -74,12 +73,20 @@ export function LoginForm({
                     ¿Olvidó su contraseña?
                   </a>
                 </div>
-                <Input id="password" type="password" onChange={(e) => setPassword(e.target.value)} required />
+                <Input
+                  id="password"
+                  name="password"
+                  placeholder="********"
+                  value={formData.password}
+                  type="password"
+                  onChange={handleFormChange}
+                  required
+                />
               </div>
               <div className="flex flex-col gap-3">
                 {
 
-                  <Button type="button" className="w-full" onClick={handleLogin}>
+                  <Button type="submit" className="w-full cursor-pointer focus:bg-slate-700">
                     Iniciar sesion
                   </Button>
                 }

@@ -21,7 +21,7 @@ import { Link } from "react-router-dom"
 import { Eye, Edit, Mail, Award, Code, FileCode, Bell, CheckCircle, CircleX } from "lucide-react"
 import { FaGithub } from "react-icons/fa";
 import useAuth from "@/hooks/useAuth"
-import { parseServerString, decideRank, formatDate } from "@/utils/utils"
+import { parseServerString, decideRank, formatDate, getDiceBearAvatar } from "@/utils/utils"
 import { useNotifications } from "@/hooks/useNotifications"
 
 const user = {
@@ -239,7 +239,7 @@ export default function ProfilePage() {
                 <Card className="md:col-span-1">
                     <CardHeader className="flex flex-col items-center text-center">
                         <Avatar className="h-24 w-24 mb-4">
-                            <AvatarImage src={`https://randomuser.me/api/portraits/med/men/${Math.floor(Math.random() * 100)}.jpg`} alt={userData.username} />
+                            <AvatarImage src={getDiceBearAvatar(user.username)} alt={userData.username} />
                             <AvatarFallback>{userData?.username?.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <CardTitle>{`${userData?.firstName} ${userData?.lastName}`}</CardTitle>

@@ -80,7 +80,7 @@ export default function AdminProblemsPage() {
         <div className="container mx-auto py-6 px-4">
             <title>Gestion de problemas</title>
             <div className="flex items-center mb-6">
-                <Button variant="ghost" size="sm" asChild className="mr-2" onClick={() => navigate(-1)}>
+                <Button variant="ghost" size="sm" className="mr-2" onClick={() => navigate(-1)}>
                     <ArrowLeft className="h-4 w-4 mr-1" />
                     Volver
                 </Button>
