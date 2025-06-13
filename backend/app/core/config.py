@@ -1,6 +1,5 @@
 from typing import Annotated, Any, Literal
 import mysql.connector
-
 from pydantic import (
     AnyUrl,
     BeforeValidator,
@@ -18,6 +17,16 @@ def parse_cors(v: Any) -> list[str]:
         return v
     raise ValueError(v)
 
+class AISettings(BaseSettings):
+    model_config = SettingsConfigDict(
+        # Usamos el archivo .env situado en la raiz del proyecto
+        env_file=".env",
+        env_ignore_empty=True,
+        extra="ignore",
+    )
+    AI_API_KEY: str
+    AI_API_BASE_URL: str = "https://api.deepseek.com"
+    AI_MODEL: str = "deepseek-chat"
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -67,7 +76,6 @@ class Settings(BaseSettings):
     SMTP_HOST: str | None = None
     SMTP_USER: str | None = None
     SMTP_PASSWORD: str | None = None
-    # TODO: update type to EmailStr when sqlmodel supports it
     EMAILS_FROM_EMAIL: str | None = None
     EMAILS_FROM_NAME: str | None = None
     
@@ -83,9 +91,7 @@ class Settings(BaseSettings):
     def emails_enabled(self) -> bool:
         return bool(self.SMTP_HOST and self.EMAILS_FROM_EMAIL)
     
-    # TODO: update type to EmailStr when sqlmodel supports it
     EMAIL_TEST_USER: str = "test@example.com"
-    # TODO: update type to EmailStr when sqlmodel supports it
     FIRST_SUPERUSER: str
     FIRST_SUPERUSER_PASSWORD: str
     
@@ -109,5 +115,6 @@ class Settings(BaseSettings):
         cursor.close()
         conn.close()
     
-# Instanciamos la clase Settings para usarla en otros archivos
+# Instanciamos las clase para usarla en otros archivos
 settings = Settings()
+ai_settings = AISettings()
