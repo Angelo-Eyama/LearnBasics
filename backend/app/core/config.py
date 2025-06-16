@@ -1,4 +1,4 @@
-from typing import Annotated, Any, Literal
+from typing import Annotated, Any, Literal, ClassVar, Dict
 import mysql.connector
 from pydantic import (
     AnyUrl,
@@ -31,7 +31,7 @@ class AISettings(BaseSettings):
 class CodeExecutionSettings(BaseSettings):
     COMPILATION_TIMEOUT: int = 10  # Tiempo máximo para la compilación en segundos
     EXECUTION_TIMEOUT: int = 10  # Tiempo máximo para la ejecución en segundos
-    COMPILER_SERVICES = {
+    COMPILER_SERVICES: ClassVar[Dict[str, str]] = {
         "python": "http://localhost:8001",
         "c": "http://localhost:8002",
         "javascript": "http://localhost:8003"

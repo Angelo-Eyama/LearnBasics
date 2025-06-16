@@ -12,7 +12,7 @@ WORKDIR /app
 RUN pip3 install --break-system-packages fastapi uvicorn
 
 # Copiar código del compilador
-COPY app.py .
+COPY schemas.py app.py ./
 
 # Exponer puerto
 EXPOSE 8003

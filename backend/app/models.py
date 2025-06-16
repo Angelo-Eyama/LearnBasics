@@ -170,7 +170,7 @@ class TestCase(SQLModel, table=True):
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
     functionName: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     description: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
-    input: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
+    inputs: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     output: str
     
     problem: Problem = Relationship(back_populates="testCases")

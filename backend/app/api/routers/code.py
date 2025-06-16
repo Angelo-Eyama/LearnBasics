@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 import httpx
-from app.schemas.code import CodeRequest, CompilationResult
+from app.schemas.code import CodeRequest, CompilationResult, FunctionTestRequest, FunctionTestResult
 from app.services.ai.providers.deepseek import OpenAICodeReviewer
 from app.services.ai.models import CodeReviewRequest
 from app.core.config import compiler_settings
@@ -97,29 +97,28 @@ async def compile_code( request: CodeRequest ):
             execution_time=0.0
         )
 
-@router.post("/test-function", response_model=dict)
-async def test_function(request: dict):
+@router.post("/test-function", response_model=FunctionTestResult)
+async def test_function(request: FunctionTestRequest):
     """
     Prueba una función en el lenguaje especificado con casos de prueba
     """
-    if "language" not in request:
+    if not request.language:
         raise HTTPException(status_code=400, detail="Campo 'language' requerido")
     
-    language = request["language"]
-    
-    if language not in compiler_settings.COMPILER_SERVICES:
+    if request.language not in compiler_settings.COMPILER_SERVICES:
         raise HTTPException(
             status_code=400, 
             detail=f"Lenguaje no soportado. Lenguajes disponibles: {list(compiler_settings.COMPILER_SERVICES.keys())}"
         )
     
-    compiler_url = compiler_settings.COMPILER_SERVICES[language]
+    compiler_url = compiler_settings.COMPILER_SERVICES[request.language]
     
     try:
         async with httpx.AsyncClient(timeout=compiler_settings.COMPILATION_TIMEOUT) as client:
+            json_data = request.model_dump(exclude_none=True)
             response = await client.post(
                 f"{compiler_url}/test-function",
-                json=request
+                json=json_data
             )
             
             if response.status_code == 200:

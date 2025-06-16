@@ -5,7 +5,8 @@ import tempfile
 import os
 import time
 from fastapi.middleware.cors import CORSMiddleware
-from app.schemas.code import ExecuteRequest, ExecuteResult, FunctionTestRequest, FunctionTestResult, TestResult
+from schemas import ExecuteRequest, ExecuteResult, FunctionTestRequest
+from schemas import FunctionTestResult, TestResult
 
 app = FastAPI(title="C Compiler Service")
 

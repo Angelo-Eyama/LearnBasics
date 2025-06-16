@@ -6,7 +6,7 @@ WORKDIR /app
 RUN pip install fastapi uvicorn
 
 # Copiar código del compilador
-COPY app.py .
+COPY schemas.py app.py ./
 
 # Exponer puerto
 EXPOSE 8001

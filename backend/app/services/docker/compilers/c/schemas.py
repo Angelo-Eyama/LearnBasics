@@ -1,33 +1,16 @@
-
 from pydantic import BaseModel
 
-class CodeRequest(BaseModel):
-    language: str
-    code: str
-    input_data: str = ""
-    
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "language": "python",
-                "code": "print(\"Hola mundo!\")",
-                "input_data": ""
-            }
-        }
+class TestCase(BaseModel):
+    input: str
+    expected_output: str
+    description: str = ""
 
-class CompilationResult(BaseModel):
-    success: bool
-    output: str
-    error: str = ""
-    execution_time: float
-    
 class TestCase(BaseModel):
     input: str
     expected_output: str
     description: str = ""
 
 class FunctionTestRequest(BaseModel):
-    language: str
     code: str
     function_name: str
     test_cases: list[TestCase]
@@ -35,7 +18,6 @@ class FunctionTestRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "language": "c",
                 "code": "int suma(int a, int b) { return a + b; }",
                 "function_name": "suma",
                 "test_cases": [
@@ -60,4 +42,14 @@ class FunctionTestResult(BaseModel):
     failed_tests: int
     test_results: list[TestResult]
     compilation_error: str = ""
+    execution_time: float
+    
+class ExecuteRequest(BaseModel):
+    code: str
+    input_data: str = ""
+
+class ExecuteResult(BaseModel):
+    success: bool
+    output: str
+    error: str = ""
     execution_time: float

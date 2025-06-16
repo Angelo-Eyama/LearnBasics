@@ -6,8 +6,8 @@ import os
 import time
 import sys
 from fastapi.middleware.cors import CORSMiddleware
-from app.schemas.code import ExecuteRequest, ExecuteResult, FunctionTestRequest
-from app.schemas.code import FunctionTestResult, TestResult, TestCase
+from schemas import ExecuteRequest, ExecuteResult, FunctionTestRequest
+from schemas import FunctionTestResult, TestResult, TestCase
 
 app = FastAPI(title="Python Compiler Service")
 
