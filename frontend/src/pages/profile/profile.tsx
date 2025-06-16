@@ -238,8 +238,8 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card className="md:col-span-1">
                     <CardHeader className="flex flex-col items-center text-center">
-                        <Avatar className="h-24 w-24 mb-4">
-                            <AvatarImage src={getDiceBearAvatar(user.username)} alt={userData.username} />
+                        <Avatar className="h-24 w-24 mb-4 border-2 border-primary">
+                            <AvatarImage src={getDiceBearAvatar(user.username)} alt={userData.username}/>
                             <AvatarFallback>{userData?.username?.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <CardTitle>{`${userData?.firstName} ${userData?.lastName}`}</CardTitle>

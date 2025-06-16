@@ -22,7 +22,7 @@ app = FastAPI(
     contact={
         "name": "Learn Basics",
         "url": "https://sqlmodel.tiangolo.com",
-        "email": " mymail@mail.com",
+        "email": "custodioeyama@gmail.com",
     },
     version="0.1",
     openapi_tags=tags_metadata,

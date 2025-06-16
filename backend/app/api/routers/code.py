@@ -1,8 +1,10 @@
-import random
-from fastapi import APIRouter
-from app.schemas.utils import ErrorResponse, Message
+from fastapi import APIRouter, HTTPException
+import httpx
+from app.schemas.code import CodeRequest, CompilationResult
 from app.services.ai.providers.deepseek import OpenAICodeReviewer
-from app.services.ai.models import CodeReviewRequest, CodeReviewResponse
+from app.services.ai.models import CodeReviewRequest
+from app.core.config import compiler_settings
+
 router = APIRouter(
     tags=["Codigo"],
     prefix="/code"
@@ -32,3 +34,109 @@ ai_reviewer_instance = OpenAICodeReviewer()
 async def code():
     ai_review = await ai_reviewer_instance.review_code(request)
     return ai_review
+
+
+@router.post(
+    "/compile",
+    response_model=CompilationResult,
+)
+async def compile_code( request: CodeRequest ):
+    """Compila y ejecuta código en el lenguaje especificado."""
+    if request.language not in compiler_settings.COMPILER_SERVICES:
+        return CompilationResult(
+            success=False,
+            output="",
+            error=f"El lenguaje {request.language} no está soportado.",
+            execution_time=0.0
+        )
+    if not request.code.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="El código no puede estar vacío."
+        )
+    service_url = compiler_settings.COMPILER_SERVICES[request.language]
+    try:
+        async with httpx.AsyncClient(timeout=compiler_settings.COMPILATION_TIMEOUT) as client:
+            response = await client.post(
+                f"{service_url}/execute",
+                json={
+                    "code": request.code,
+                    "input_data": request.input_data
+                }
+            )
+            
+            if response.status_code == 200:
+                return CompilationResult(**response.json())
+            else:
+                return CompilationResult(
+                    success=False,
+                    output="",
+                    error=f"Error del compilador: {response.text}",
+                    execution_time=0.0
+                )
+                
+    except httpx.TimeoutException:
+        return CompilationResult(
+            success=False,
+            output="",
+            error=f"Timeout: El código tardó demasiado en ejecutarse ({compiler_settings.COMPILATION_TIMEOUT}s)",
+            execution_time=compiler_settings.COMPILATION_TIMEOUT
+        )
+    except httpx.ConnectError:
+        return CompilationResult(
+            success=False,
+            output="",
+            error=f"Error: No se pudo conectar al compilador de {request.language}",
+            execution_time=response.elapsed.total_seconds() if response else 0.0
+        )
+    except Exception as e:
+        return CompilationResult(
+            success=False,
+            output="",
+            error=f"Error inesperado: {str(e)}",
+            execution_time=0.0
+        )
+
+@router.post("/test-function", response_model=dict)
+async def test_function(request: dict):
+    """
+    Prueba una función en el lenguaje especificado con casos de prueba
+    """
+    if "language" not in request:
+        raise HTTPException(status_code=400, detail="Campo 'language' requerido")
+    
+    language = request["language"]
+    
+    if language not in compiler_settings.COMPILER_SERVICES:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Lenguaje no soportado. Lenguajes disponibles: {list(compiler_settings.COMPILER_SERVICES.keys())}"
+        )
+    
+    compiler_url = compiler_settings.COMPILER_SERVICES[language]
+    
+    try:
+        async with httpx.AsyncClient(timeout=compiler_settings.COMPILATION_TIMEOUT) as client:
+            response = await client.post(
+                f"{compiler_url}/test-function",
+                json=request
+            )
+            
+            if response.status_code == 200:
+                return response.json()
+            else:
+                raise HTTPException(
+                    status_code=response.status_code,
+                    detail=f"Error del compilador: {response.text}"
+                )
+                
+    except httpx.TimeoutException:
+        raise HTTPException(
+            status_code=408,
+            detail=f"Timeout: Las pruebas tardaron mas de ({compiler_settings.COMPILATION_TIMEOUT}s)"
+        )
+    except httpx.ConnectError:
+        raise HTTPException(
+            status_code=503,
+            detail=f"Error: No se pudo conectar al compilador de {language}"
+        )

@@ -1,6 +1,6 @@
 from datetime import datetime
 from typing import Optional, List
-from pydantic import BaseModel, EmailStr, ConfigDict, HttpUrl
+from pydantic import BaseModel, EmailStr, ConfigDict
 from sqlmodel import SQLModel
 from app.schemas.role import RoleNameBase
 

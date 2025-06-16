@@ -1,0 +1,40 @@
+services:
+  # Compilador de Python
+  python-compiler:
+    build:
+      context: ./compilers/python
+      dockerfile: Dockerfile
+    ports:
+      - "8001:8001"
+    networks:
+      - vcompiler-network
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  # Compilador de C
+  c-compiler:
+    build:
+      context: ./compilers/c
+      dockerfile: Dockerfile
+    ports:
+      - "8002:8002"
+    networks:
+      - vcompiler-network
+    environment:
+      - PYTHONUNBUFFERED=1
+
+  # Compilador de JavaScript
+  js-compiler:
+    build:
+      context: ./compilers/javascript
+      dockerfile: Dockerfile
+    ports:
+      - "8003:8003"
+    networks:
+      - vcompiler-network
+    environment:
+      - PYTHONUNBUFFERED=1
+
+networks:
+  vcompiler-network:
+    driver: bridge

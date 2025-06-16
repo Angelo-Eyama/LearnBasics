@@ -45,7 +45,6 @@ def login_for_access_token(session: SessionDep, form_data: OAuth2PasswordRequest
         data={
             "sub": str(user.id),
             "username": user.username,
-            "roles": [role.name for role in user.roles]
             },
         expires_delta=access_token_expires
         )

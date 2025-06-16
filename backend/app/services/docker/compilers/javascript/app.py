@@ -1,10 +1,12 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, status
 from pydantic import BaseModel
 import subprocess
 import tempfile
 import os
 import time
 from fastapi.middleware.cors import CORSMiddleware
+from app.schemas.code import ExecuteRequest, ExecuteResult, FunctionTestRequest, FunctionTestResult, TestResult
+
 app = FastAPI(title="JavaScript Compiler Service")
 
 app.add_middleware(
@@ -15,19 +17,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class ExecuteRequest(BaseModel):
-    code: str
-    input_data: str = ""
-
-class ExecuteResult(BaseModel):
-    success: bool
-    output: str
-    error: str = ""
-    execution_time: float
-
 @app.get("/")
 async def root():
     return {"message": "JavaScript Compiler Service", "runtime": "Node.js"}
+
+@app.get("/health", status_code=status.HTTP_200_OK)
+async def health_check():
+    """
+    Endpoint de verificación de salud
+    """
+    return {"status": "OK", "compiler": "javascript"}
+
 
 @app.post("/execute", response_model=ExecuteResult)
 async def execute_js_code(request: ExecuteRequest):
@@ -123,6 +123,7 @@ output.forEach(line => originalLog(line));
                 os.unlink(temp_file)
         except:
             pass
+
 
 if __name__ == "__main__":
     import uvicorn

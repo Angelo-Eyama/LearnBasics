@@ -18,19 +18,46 @@ class User(SQLModel, table=True):
     lastName: str
     email: str
     score: Optional[int] = 0
-    creationDate: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"nullable": True})
+    creationDate: Optional[datetime] = Field(
+        default_factory=lambda: datetime.now(timezone.utc), 
+        sa_column_kwargs={"nullable": True}
+    )
     bio: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     skills: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     profilePicture: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     github: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
-    active: bool = Field(default=True, description='Indica si el usuario puede acceder o no.', sa_column_kwargs={"comment": 'Indica si el usuario puede acceder o no.'} )
-    isVerified: bool = Field(default=False, description='Indica si el usuario ha verificado su cuenta.', sa_column_kwargs={"comment": 'Indica si el usuario ha verificado su cuenta.'} )
+    active: bool = Field(
+        default=True, 
+        description='Indica si el usuario puede acceder o no.', 
+        sa_column_kwargs={"comment": 'Indica si el usuario puede acceder o no.'} 
+    )
+    isVerified: bool = Field(
+        default=False, 
+        description='Indica si el usuario ha verificado su cuenta.', 
+        sa_column_kwargs={"comment": 'Indica si el usuario ha verificado su cuenta.'} 
+    )
     
-    roles: List["Role"] = Relationship(back_populates="users",link_model=UserRole)
-    comments: List["Comment"] = Relationship(back_populates="user")
-    notifications: List["Notification"] = Relationship(back_populates="user")
-    tokens: List["Token"] = Relationship(back_populates="user")
-    submissions: List["Submission"] = Relationship(back_populates="user")
+    roles: List["Role"] = Relationship(
+        back_populates="users",
+        link_model=UserRole, 
+        sa_relationship_kwargs={"cascade": "all"}
+        )
+    comments: List["Comment"] = Relationship(
+        back_populates="user", 
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        )
+    notifications: List["Notification"] = Relationship(
+        back_populates="user", 
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        )
+    tokens: List["Token"] = Relationship(
+        back_populates="user", 
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        )
+    submissions: List["Submission"] = Relationship(
+        back_populates="user", 
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+        )
 
 class Problem(SQLModel, table=True):
     __tablename__ = "problems"
@@ -45,10 +72,19 @@ class Problem(SQLModel, table=True):
     tags: str
     authorID: int = Field(foreign_key="users.id")
     
-    testCases: List["TestCase"] = Relationship(back_populates="problem", cascade_delete=True)
-    submissions: List["Submission"] = Relationship(back_populates="problem", cascade_delete=True)
-    comments: List["Comment"] = Relationship(back_populates="problem", sa_relationship_kwargs={"cascade": "all, delete-orphan"})
-    
+    testCases: List["TestCase"] = Relationship(
+        back_populates="problem",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
+    submissions: List["Submission"] = Relationship(
+        back_populates="problem",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
+    comments: List["Comment"] = Relationship(
+        back_populates="problem",
+        sa_relationship_kwargs={"cascade": "all, delete-orphan"}
+    )
+
 class Submission(SQLModel, table=True):
     __tablename__ = "submissions"
     
@@ -56,19 +92,29 @@ class Submission(SQLModel, table=True):
     code: str
     language: str
     status: str
-    timeSubmitted: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"nullable": True})
+    timeSubmitted: Optional[datetime] = Field(
+        default_factory=lambda: datetime.now(timezone.utc),
+        sa_column_kwargs={"nullable": True}
+    )
     timeUpdated: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"nullable": True})
     suggestions: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
     userID: int = Field(foreign_key="users.id")
+    
     user: User = Relationship(back_populates="submissions")
     problem: Problem = Relationship(back_populates="submissions")
     
 class Role(SQLModel, table=True):
     __tablename__ = "roles"
+    
     name: Optional[str] = Field(default=None, primary_key=True)
     description: str
-    users: List[User] = Relationship(back_populates="roles", link_model=UserRole)
+    
+    users: List[User] = Relationship(
+        back_populates="roles", 
+        link_model=UserRole,
+        sa_relationship_kwargs={"cascade": "all"}
+    )
 
 class Token(SQLModel, table=True):
     __tablename__ = "tokens"
@@ -99,7 +145,6 @@ class Notification(SQLModel, table=True):
     __tablename__ = "notifications"
     
     id: Optional[int] = Field(default=None, primary_key=True)
-    #TODO: Separar content en title y description
     title: str
     description: str
     read: bool
@@ -123,7 +168,9 @@ class TestCase(SQLModel, table=True):
     
     id: Optional[int] = Field(default=None, primary_key=True)
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
-    input: str
+    functionName: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
+    description: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
+    input: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     output: str
     
-    problem: Optional[Problem] = Relationship(back_populates="testCases")
+    problem: Problem = Relationship(back_populates="testCases")

@@ -34,7 +34,7 @@ export function RegisterForm({
             navigate("/")
         }
     })
-    const { signUpMutation, error: signUpError } = useAuth()
+    const { signUpMutation } = useAuth()
 
     const handleRegister = async () => {
         const error = validateRegister(firstName, lastName, username, email, password, confirmPassword)
@@ -51,7 +51,6 @@ export function RegisterForm({
         })
         setPassword("")
         setConfirmPassword("")
-        if (signUpError) toast.error("Ups...", { description: signUpError })        
     }
 
     return (

@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import {
@@ -18,7 +17,6 @@ const isLoggedIn = () => {
 
 
 const useAuth = () => {
-    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
     const queryClient = useQueryClient();
     const { data: user, isLoading } = useQuery<UserPublic | null, Error>({
@@ -100,11 +98,9 @@ const useAuth = () => {
     return {
         user,
         isLoading,
-        error,
         loginMutation,
         signUpMutation,
         logout,
-        resetError: () => setError(null),
     }
 }
 

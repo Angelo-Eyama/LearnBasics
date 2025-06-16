@@ -27,6 +27,15 @@ class AISettings(BaseSettings):
     AI_API_KEY: str
     AI_API_BASE_URL: str = "https://api.deepseek.com"
     AI_MODEL: str = "deepseek-chat"
+    
+class CodeExecutionSettings(BaseSettings):
+    COMPILATION_TIMEOUT: int = 10  # Tiempo máximo para la compilación en segundos
+    EXECUTION_TIMEOUT: int = 10  # Tiempo máximo para la ejecución en segundos
+    COMPILER_SERVICES = {
+        "python": "http://localhost:8001",
+        "c": "http://localhost:8002",
+        "javascript": "http://localhost:8003"
+    }
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -118,3 +127,4 @@ class Settings(BaseSettings):
 # Instanciamos las clase para usarla en otros archivos
 settings = Settings()
 ai_settings = AISettings()
+compiler_settings = CodeExecutionSettings()

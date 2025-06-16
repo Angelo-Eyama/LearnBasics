@@ -1,10 +1,9 @@
 from abc import abstractmethod
 from typing import Dict, Any
-from app.services.base import BaseService
 from app.services.ai.models import CodeReviewRequest, CodeReviewResponse
 from app.core.config import settings
 
-class AIClient(BaseService):
+class AIClient():
     """Cliente base para servicios de IA"""
     
     SYSTEM_PROMPT = """
