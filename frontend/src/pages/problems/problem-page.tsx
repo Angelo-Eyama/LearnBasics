@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Link, useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -14,19 +14,24 @@ import { parseServerString, formatDate } from "@/utils/utils"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { Loading } from "@/components/ui/loading"
+import { getUserId } from "@/hooks/useAuth"
+import { createSubmission } from "@/client"
 
 const starterCode = {
-    javascript: `function twoSum(nums, target) {
-  // Your code here
+    javascript: `function nombreFuncion(arg1, arg2) {
+  // Tu código aquí
 };`,
-    python: `def two_sum(nums, target):
-    # Your code here
+    python: `def nombreFuncion(arg1, arg2):
+    # Tu código aquí
     pass`,
+    C: `#include <stdio.h>
+int nombreFuncion(int arg1, int arg2) {
+// Tu código aquí
+}`
 }
-// Prototipo: export default function ProblemDetailPage({ params }: { params: { id: string } })
 export default function ProblemDetailPage() {
     const { id } = useParams<{ id: string }>()
-    console.log("ID del problema:", id)
+    const userId = parseInt(getUserId()!)
     const queryClient = useQueryClient()
 
     // Query para obtener el problema por ID
@@ -87,6 +92,33 @@ export default function ProblemDetailPage() {
         }
     })
 
+    //Mutacion para subir una solucion
+    const newSubmissionMutation = useMutation({
+        mutationFn: async (data: {
+            code: string,
+            language: string,
+            problemID: number,
+            userID: number,
+            status: string
+        }) => {
+            const response = await createSubmission({
+                body: data
+            })
+            if (response.status !== 200 && !("data" in response)) {
+                throw new Error(`Error al subir la solución`)
+            }
+            return response.data;
+        },
+        onSuccess: (newSubmission) => {
+            console.log("Solución subida exitosamente:", newSubmission);
+            toast.success("Solución subida correctamente")
+        },
+        onError: (error) => {
+            console.error(error);
+            toast.error("Error al subir la solución")
+        }
+    })
+
     const [language, setLanguage] = useState("javascript")
     const [code, setCode] = useState(starterCode.javascript)
     const [activeTab, setActiveTab] = useState("description")
@@ -104,14 +136,14 @@ export default function ProblemDetailPage() {
 
     const handleLanguageChange = (lang: string) => {
         setLanguage(lang)
-        setCode(starterCode.python)
+        setCode(starterCode[lang as keyof typeof starterCode])
     }
 
     const handleRunCode = () => {
         setIsRunning(true)
         setOutput("Ejecutando codigo...\n")
 
-        // Simulate code execution with a timeout
+        // Simulación de ejecución del código
         setTimeout(() => {
             setOutput("Output: [0, 1]\nTest cases passed: 3/3\nExecution time: 42ms")
             setIsRunning(false)
@@ -123,9 +155,23 @@ export default function ProblemDetailPage() {
         const commentData = {
             content: newComment,
             problemID: parseInt(id!),
-            userID:  4,
+            userID: userId!,
         }
         newCommentMutation.mutate(commentData)
+    }
+
+    const handleCodeSubmit = () => {
+        if (!code.trim()) {
+            toast.warning("El código no puede estar vacío")
+            return
+        }
+        newSubmissionMutation.mutateAsync({
+            code: JSON.stringify(code),
+            language,
+            problemID: parseInt(id!),
+            userID: userId!,
+            status: "Pendiente"
+        })
     }
     const navigate = useNavigate();
 
@@ -141,23 +187,22 @@ export default function ProblemDetailPage() {
         )
     }
     if (isError || commentsError) {
-            return (
-                <div className="container mx-auto py-6 px-4">
-                    <Loading message="Cargando detalles... Espere un momento" />
-                </div>
-            )
-        }
+        return (
+            <div className="container mx-auto py-6 px-4">
+                <Loading message="Cargando detalles... Espere un momento" />
+            </div>
+        )
+    }
+
     if (!problem || !id) return <div>Problema no encontrado</div>
 
     return (
         <div className="container mx-auto py-6 px-4">
             <title>{problem.title}</title>
             <div className="flex items-center mb-6">
-                <Button variant="ghost" size="sm" asChild className="mr-2">
-                    <Link to="/problems">
+                <Button variant="ghost" size="sm" className="mr-2" onClick={() => navigate(-1)}>
                         <ArrowLeft className="h-4 w-4 mr-1" />
                         Volver
-                    </Link>
                 </Button>
                 <div>
                     <h1 className="text-3xl font-bold">{problem.title}</h1>
@@ -169,14 +214,11 @@ export default function ProblemDetailPage() {
                                     : problem.difficulty === "Normal"
                                         ? "bg-yellow-500"
                                         : "bg-red-500"
-                            }
-                        >
+                            }>
                             {problem.difficulty}
                         </Badge>
                         {parseServerString(problem.tags).map((tag) => (
-                            <Badge key={tag} variant="outline">
-                                {tag}
-                            </Badge>
+                            <Badge key={tag} variant="outline"> {tag} </Badge>
                         ))}
                     </div>
                 </div>
@@ -248,6 +290,7 @@ export default function ProblemDetailPage() {
                                 <TabsList>
                                     <TabsTrigger value="javascript">JavaScript</TabsTrigger>
                                     <TabsTrigger value="python">Python</TabsTrigger>
+                                    <TabsTrigger value="C">C</TabsTrigger>
                                 </TabsList>
                             </Tabs>
                         </div>
@@ -255,12 +298,12 @@ export default function ProblemDetailPage() {
                             <Button onClick={handleRunCode} disabled={isRunning}>
                                 {isRunning ? "Ejecutando..." : "Ejecutar"}
                             </Button>
-                            <Button variant="default">Subir solucion</Button>
+                            <Button variant="default" onClick={handleCodeSubmit}>Subir solucion</Button>
                         </div>
                     </div>
 
-                    <Card className="border rounded-md overflow-hidden h-[calc(100vh-300px)] pb-0 pt-0.5 px-0.5">
-                        <Editor language={language === "javascript" ? "javascript" : "python"} code={code} theme="vs-dark" setCode={setCode} />
+                    <Card className="border h-[calc(100vh-300px)] pb-0 pt-0.5 px-0.5">
+                        <Editor language={language} code={code} theme="vs-dark" setCode={setCode} />
                     </Card>
 
                     <Card>

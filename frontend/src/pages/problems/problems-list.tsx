@@ -9,23 +9,32 @@ import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, MoreHorizontal, Flag } from "lucide-react"
+import { Search, Flag } from "lucide-react"
 import { FaStar } from "react-icons/fa6";
 import { parseServerString } from "@/utils/utils"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog"
-import { getProblems } from "@/client"
-import { useQuery } from "@tanstack/react-query"
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger
+} from "@/components/ui/alert-dialog"
+import { getProblems, createReport } from "@/client"
+import { getUserId } from "@/hooks/useAuth"
+import { useQuery, useMutation } from "@tanstack/react-query"
+import { toast } from "sonner"
 
 export default function ProblemsPage() {
     const navigate = useNavigate()
+    const userId = parseInt(getUserId()!);
     const [searchQuery, setSearchQuery] = useState("")
     const [difficultyFilter, setDifficultyFilter] = useState("Todas")
+    const [reportDescription, setReportDescription] = useState("")
+    const [problemId, setProblemId] = useState<number | null>(null)
     const { data: problemsData } = useQuery({
         queryKey: ["problems"],
         queryFn: async () => {
@@ -36,7 +45,36 @@ export default function ProblemsPage() {
             throw new Error("Error al obtener los problemas")
         }
     })
-    if (!problemsData) return null
+
+    const { mutate: createReportMutation } = useMutation({
+            mutationFn: async () => {
+                if (problemId === null || userId === null) {
+                    throw new Error("Problema o usuario no válido")
+                }
+                const response = await createReport({
+                    body: {
+                        content: reportDescription,
+                        problemID: problemId,
+                        userID: userId,
+                        read: false
+                    }
+                })
+                if (response.status !== 200) {
+                    throw new Error("Error al enviar el reporte")
+                }
+            },
+            onSuccess: () => {
+                toast.success("Reporte enviado correctamente")
+                setReportDescription("")
+                setProblemId(null)
+            },
+            onError: (error) => {
+                toast.error(`Error al enviar el reporte: ${error.message}`)
+                setReportDescription("")
+                setProblemId(null)
+            }
+        })
+    if (!problemsData || userId === null) return null
 
     const filteredProblems = problemsData.filter((problem) => {
         const matchesSearch =
@@ -50,6 +88,13 @@ export default function ProblemsPage() {
     })
     const handleClickProblem = (problemId: number) => {
         navigate(`/problems/${problemId}`)
+    }
+    const handleReport = async () => {
+        if (reportDescription.trim() === "") {
+            toast.warning("Por favor, describa el problema que ha encontrado.")
+            return
+        }
+        createReportMutation()
     }
 
     return (
@@ -99,7 +144,7 @@ export default function ProblemsPage() {
                                             >
                                                 {problem.title}
                                             </span>
-                                            
+
                                             <Badge className="ml-2">
                                                 <FaStar className="h-3 w-3" />
                                                 {problem.score} Puntos
@@ -129,49 +174,39 @@ export default function ProblemsPage() {
                                     ))}
                                 </div>
                             </CardContent>
-                            <CardFooter className="flex justify-between items-center">
-                                <Button onClick={() => handleClickProblem(problem.id)}>
+                            <CardFooter className="mx-6 flex justify-between items-center">
+                                <Button onClick={() => handleClickProblem(problem.id)} className="hover:bg-blue-900">
                                     Resolver
                                 </Button>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="h-8 w-8 p-0">
-                                            <span className="sr-only">Abrir menu</span>
-                                            <MoreHorizontal className="h-4 w-4" />
+                                <AlertDialog>
+                                    <AlertDialogTrigger className="h-full w-fit p-0 rounded-3xl" >
+                                        <Button variant="link" className="w-full hover:bg-red-500 hover:text-white dark:hover:bg-red-500 transition-colors">
+                                            <Flag className="h-5 w-5 mr-2" /> Reportar
                                         </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="mx-4">
-                                        <DropdownMenuItem asChild>
-                                            <AlertDialog>
-                                                <AlertDialogTrigger className="w-full" >
-                                                    <Button variant="ghost" className="w-full hover:bg-red-400">
-                                                        <Flag className="h-5 w-5 mr-2" /> Reportar
-                                                    </Button>
-                                                </AlertDialogTrigger>
-                                                <AlertDialogContent>
-                                                    <AlertDialogHeader>
-                                                        <AlertDialogTitle>Reportar problema</AlertDialogTitle>
-                                                        <AlertDialogDescription>
-                                                            Comuniquenos si ha encontrado algún error en este problema.
-                                                        </AlertDialogDescription>
-                                                    </AlertDialogHeader>
-                                                    <Label htmlFor="report" />
-                                                    <Textarea
-                                                        id="description"
-                                                        name="description"
-                                                        rows={5}
-                                                        required
-                                                        placeholder="Describa el problema que ha encontrado, cuanto más detallado mejor. Los administradores revisarán su reporte y tomarán las medidas necesarias. Gracias"
-                                                    />
-                                                    <AlertDialogFooter>
-                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                        <AlertDialogAction>Reportar</AlertDialogAction>
-                                                    </AlertDialogFooter>
-                                                </AlertDialogContent>
-                                            </AlertDialog>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Reportar problema</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                Comuniquenos si ha encontrado algún error en este problema.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <Label htmlFor="report" />
+                                        <Textarea
+                                            id="reportDescription"
+                                            name="reportDescription"
+                                            rows={5}
+                                            value={reportDescription}
+                                            onChange={(e) => { setReportDescription(e.target.value); setProblemId(problem.id) }}
+                                            required
+                                            placeholder="Describa el problema que ha encontrado, cuanto más detallado mejor. Los administradores revisarán su reporte y tomarán las medidas necesarias. Gracias"
+                                        />
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={handleReport}>Reportar</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </CardFooter>
                         </Card>
                     ))

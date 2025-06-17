@@ -239,7 +239,7 @@ export default function ProfilePage() {
                 <Card className="md:col-span-1">
                     <CardHeader className="flex flex-col items-center text-center">
                         <Avatar className="h-24 w-24 mb-4 border-2 border-primary">
-                            <AvatarImage src={getDiceBearAvatar(user.username)} alt={userData.username}/>
+                            <AvatarImage src={getDiceBearAvatar(userData.username)} alt={userData.username}/>
                             <AvatarFallback>{userData?.username?.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <CardTitle>{`${userData?.firstName} ${userData?.lastName}`}</CardTitle>
@@ -313,6 +313,7 @@ export default function ProfilePage() {
                                     <Award className="h-8 w-8 mb-2 text-primary" />
                                     <span className="text-2xl font-bold">{decideRank(userData.score)}</span>
                                     <span className="text-sm text-muted-foreground">Rango actual</span>
+                                    <span className="text-sm text-muted-foreground">{userData.score} puntos</span>
                                 </div>
                                 <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
                                     <Code className="h-8 w-8 mb-2 text-primary" />

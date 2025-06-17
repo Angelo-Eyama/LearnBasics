@@ -89,7 +89,7 @@ def get_submission_by_id(submission_id: int, session: SessionDep, current_user: 
     }
     )
 def create_submission(submission: SubmissionCreate, session: SessionDep):
-    new_submission = submissions_controller.create_submission(session, Submission.from_orm(submission))
+    new_submission = submissions_controller.create_submission(session, submission)
     return new_submission
 
 @router.patch(

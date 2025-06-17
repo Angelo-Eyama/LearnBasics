@@ -10,9 +10,23 @@ import {
 } from "@/client";
 import { toast } from "sonner"
 import { useMutation } from "@tanstack/react-query"
+import { jwtDecode } from "jwt-decode";
 
 const isLoggedIn = () => {
     return localStorage.getItem("access_token") !== null;
+}
+
+const getUserId = () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return null;
+
+    try {
+        const decoded: { sub: string, username: string } = jwtDecode(token);
+        return decoded.sub;
+    } catch (error) {
+        console.error("Error decodificando token:", error);
+        return null;
+    }
 }
 
 
@@ -104,5 +118,5 @@ const useAuth = () => {
     }
 }
 
-export { isLoggedIn }
+export { isLoggedIn, getUserId }
 export default useAuth

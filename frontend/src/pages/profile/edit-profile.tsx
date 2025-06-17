@@ -31,7 +31,7 @@ import { getDiceBearAvatar } from "@/utils/utils"
 export default function EditProfilePage() {
     const navigate = useNavigate()
     const queryClient = useQueryClient()
-    const { user, isLoading: isLoadingUser, error: isUserError } = useAuth()
+    const { user, isLoading: isLoadingUser } = useAuth()
     const [formData, setFormData] = useState<UserUpdate>(() => ({
         firstName: "",
         lastName: "",
@@ -95,19 +95,6 @@ export default function EditProfilePage() {
     }
 
     if (isLoadingUser) return <Loading message="Cargando perfil..." />
-    if (isUserError) {
-        return (
-            <div className="container mx-auto py-12 px-4">
-                <div className="text-center p-6 bg-destructive/10 rounded-lg">
-                    <h2 className="text-2xl font-bold text-destructive mb-2">Error al cargar el perfil</h2>
-                    <p>No se pudieron cargar los datos del usuario. Por favor, inténtalo de nuevo.</p>
-                    <Button onClick={() => navigate('/profile')} className="mt-4">
-                        Volver al perfil
-                    </Button>
-                </div>
-            </div>
-        );
-    }
 
     return (
         <div className="container mx-auto py-6 px-4">
@@ -131,7 +118,7 @@ export default function EditProfilePage() {
                         </CardHeader>
                         <CardContent className="flex flex-col items-center">
                             <Avatar className="h-32 w-32 mb-4">
-                                <AvatarImage src={getDiceBearAvatar(user.username)} alt={formData.firstName ?? ""} />
+                                <AvatarImage src={getDiceBearAvatar(user.username)} alt={user.username ?? ""} />
                                 <AvatarFallback>{formData.firstName?.charAt(0)}</AvatarFallback>
                             </Avatar>
 
