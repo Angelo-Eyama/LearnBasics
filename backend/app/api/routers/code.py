@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 import httpx
 from app.schemas.code import CodeRequest, CompilationResult, FunctionTestRequest, FunctionTestResult
 from app.services.ai.providers.deepseek import OpenAICodeReviewer
-from app.services.ai.models import CodeReviewRequest
+from app.services.ai.models import CodeReviewRequest, CodeReviewResponse
 from app.core.config import compiler_settings
 
 router = APIRouter(
@@ -29,9 +29,16 @@ request = CodeReviewRequest(
 ai_reviewer_instance = OpenAICodeReviewer()
 
 @router.post(
-    "/",
+    "/analyze",
+    response_model=CodeReviewResponse,
+    
 )
-async def code():
+async def code(problem_description: str, language: str, code_received: str):
+    request = CodeReviewRequest(
+        problem_statement=problem_description,
+        language=language,
+        code=code_received
+    )
     ai_review = await ai_reviewer_instance.review_code(request)
     return ai_review
 
@@ -87,7 +94,7 @@ async def compile_code( request: CodeRequest ):
             success=False,
             output="",
             error=f"Error: No se pudo conectar al compilador de {request.language}",
-            execution_time=response.elapsed.total_seconds() if response else 0.0
+            execution_time=0.0
         )
     except Exception as e:
         return CompilationResult(
@@ -137,5 +144,5 @@ async def test_function(request: FunctionTestRequest):
     except httpx.ConnectError:
         raise HTTPException(
             status_code=503,
-            detail=f"Error: No se pudo conectar al compilador de {language}"
+            detail=f"Error: No se pudo conectar al compilador de {request.language}"
         )

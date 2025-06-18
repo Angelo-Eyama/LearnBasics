@@ -14,6 +14,22 @@ export type BodyAuthLoginForAccessToken = {
     client_secret?: string | null;
 };
 
+export type CodeRequest = {
+    language: string;
+    code: string;
+    input_data?: string;
+};
+
+/**
+ * Modelo para la respuesta del análisis
+ */
+export type CodeReviewResponse = {
+    has_errors?: boolean | null;
+    suggestions: Array<Suggestion>;
+    explanation?: string | null;
+    score?: number | null;
+};
+
 export type CommentCreate = {
     content: string;
     isApproved?: boolean;
@@ -42,8 +58,32 @@ export type CommentUpdate = {
     isApproved?: boolean | null;
 };
 
+export type CompilationResult = {
+    success: boolean;
+    output: string;
+    error?: string;
+    execution_time: number;
+};
+
 export type ErrorResponse = {
     detail: string;
+};
+
+export type FunctionTestRequest = {
+    language: string;
+    code: string;
+    function_name: string;
+    test_cases: Array<TestCase>;
+};
+
+export type FunctionTestResult = {
+    success: boolean;
+    total_tests: number;
+    passed_tests: number;
+    failed_tests: number;
+    test_results: Array<TestResult>;
+    compilation_error?: string;
+    execution_time: number;
 };
 
 export type HttpValidationError = {
@@ -169,6 +209,22 @@ export type SubmissionUpdate = {
     suggestions?: string | null;
 };
 
+/**
+ * Modelo para una sugerencia individual
+ */
+export type Suggestion = {
+    type: string;
+    message: string;
+    line_number?: number | null;
+    code_snippet?: string | null;
+};
+
+export type TestCase = {
+    input: string;
+    expected_output: string;
+    description?: string;
+};
+
 export type TestCaseCreate = {
     problemID: number;
     input: string;
@@ -185,6 +241,15 @@ export type TestCaseRead = {
 export type TestCaseUpdate = {
     input?: string | null;
     output?: string | null;
+};
+
+export type TestResult = {
+    test_passed: boolean;
+    input_used: string;
+    expected_output: string;
+    actual_output: string;
+    description: string;
+    error?: string;
 };
 
 export type UserCreate = {
@@ -2231,16 +2296,14 @@ export type CodeData = {
     body?: never;
     path?: never;
     query: {
-        code: string;
+        problem_description: string;
+        language: string;
+        code_received: string;
     };
-    url: '/code/';
+    url: '/code/analyze';
 };
 
 export type CodeErrors = {
-    /**
-     * Error al crear el código
-     */
-    400: ErrorResponse;
     /**
      * Validation Error
      */
@@ -2251,12 +2314,62 @@ export type CodeError = CodeErrors[keyof CodeErrors];
 
 export type CodeResponses = {
     /**
-     * Código creado
+     * Successful Response
      */
-    200: Message;
+    200: CodeReviewResponse;
 };
 
 export type CodeResponse = CodeResponses[keyof CodeResponses];
+
+export type CompileCodeData = {
+    body: CodeRequest;
+    path?: never;
+    query?: never;
+    url: '/code/compile';
+};
+
+export type CompileCodeErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type CompileCodeError = CompileCodeErrors[keyof CompileCodeErrors];
+
+export type CompileCodeResponses = {
+    /**
+     * Successful Response
+     */
+    200: CompilationResult;
+};
+
+export type CompileCodeResponse = CompileCodeResponses[keyof CompileCodeResponses];
+
+export type TestFunctionData = {
+    body: FunctionTestRequest;
+    path?: never;
+    query?: never;
+    url: '/code/test-function';
+};
+
+export type TestFunctionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type TestFunctionError = TestFunctionErrors[keyof TestFunctionErrors];
+
+export type TestFunctionResponses = {
+    /**
+     * Successful Response
+     */
+    200: FunctionTestResult;
+};
+
+export type TestFunctionResponse = TestFunctionResponses[keyof TestFunctionResponses];
 
 export type ClientOptions = {
     baseURL: 'http://localhost:8000' | (string & {});

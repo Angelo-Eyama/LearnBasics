@@ -6,86 +6,72 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Play, Download, Copy, MessageSquare } from "lucide-react";
 import Editor from "@/components/editor";
 import { useMutation } from "@tanstack/react-query";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { compileCode } from "@/client";
 const languages = [
     { value: "javascript", label: "JavaScript", extension: "js" },
     { value: "python", label: "Python", extension: "py" },
-    { value: "cpp", label: "C++", extension: "cpp" },
+    { value: "c", label: "C", extension: "cpp" },
 ];
 
 const themes = [
     { value: "vs", label: "Claro" },
     { value: "vs-dark", label: "Oscuro" },
 ]
-
-// Interfaces para las estructuras JSON
-interface ExecuteRequest {
-    code: string;
-    input_data?: string;
-}
-
-interface ExecuteResult {
-    success: boolean;
-    output: string;
-    error?: string;
-    execution_time: number;
-}
-
-// Función para ejecutar código
-const executeCode = async (request: ExecuteRequest, port: Number): Promise<ExecuteResult> => {
-    const response = await fetch(`http://localhost:${port}/execute`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(request),
-    });
-
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
-};
-
-// TODO: Crear un componente de editor de código reutilizable
-// - Refactorizar los dos editores extrayendo los componentes y props comunes
+//TODO: Refactorizar los dos editores extrayendo los componentes y props comunes
 
 export function PublicPlayground() {
     const [language, setLanguage] = useState("javascript");
     const [theme, setTheme] = useState("vs-dark");
     const [code, setCode] = useState(`console.log('Hola mundo')`);
     const [output, setOutput] = useState("Aquí se mostrará la salida del código...");
+    const [inputs, setInputs] = useState("");
     const [isRunning, setIsRunning] = useState(false);
-    const [port, setPort] = useState(8003); // Puerto por defecto para JavaScript
 
 
-    // Mutation para ejecutar código
-    const executeCodeMutation = useMutation({
-        mutationFn: (request: ExecuteRequest & { port: number }) => executeCode(request, request.port),
-        onMutate: () => {
+    // Mutacion para ejecutar código
+    const compileCodeMutation = useMutation({
+        mutationFn: async () => {
             setIsRunning(true);
-            setOutput("Ejecutando código... Puerto : " + port);
-        },
-        onSuccess: (result: ExecuteResult) => {
-            if (result.success) {
-                setOutput(`${result.output}\n\nTiempo de ejecución: ${result.execution_time.toFixed(3)}s`);
-            } else {
-                setOutput(`Error:\n${result.error || 'Error desconocido'}\n\nTiempo de ejecución: ${result.execution_time.toFixed(3)}s`);
+            const response = await compileCode({
+                body: {
+                    code: code,
+                    language: language,
+                    input_data: inputs,
+                }
+            });
+            if (response.status !== 200 || !("data" in response)) {
+                toast.error(`Error ${response.status}`, {
+                    description: Array.isArray(response.error?.detail)
+                        ? response.error.detail.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
+                        : (response.error?.detail || "Error al enviar código")
+                });
+                throw new Error(`Error ${response.status} al enviar el código`);
             }
-            setIsRunning(false);
+            return response.data;
+        },
+        onSuccess: (data) => {
+            if(!data) {
+                setOutput("Error: No se recibió respuesta del servidor");
+                return;
+            }
+            if (data.success) {
+                setOutput(`${data.output}\n\nTiempo de ejecución: ${data.execution_time.toFixed(3)}s`);
+            } else {
+                setOutput(`${data.error || 'Error desconocido'}\n\nTiempo de ejecución: ${data.execution_time.toFixed(3)}s`);
+            }
         },
         onError: (error: Error) => {
             setOutput(`Error de conexión: ${error.message}`);
+        },
+        onSettled: () => {
             setIsRunning(false);
         }
     });
 
     const handleRunCode = () => {
-        executeCodeMutation.mutate({
-            code: code,
-            input_data: "",
-            port: port
-        });
+        compileCodeMutation.mutateAsync();
     }
 
     const handleCopyCode = () => {
@@ -106,20 +92,6 @@ export function PublicPlayground() {
         setLanguage(value);
         setCode(`${value == 'python' ? '#' : '//'} Escribe tu código aquí en ${languages.find((lang) => lang.value === value)?.label || 'JavaScript'}`);
         setOutput("Aquí se mostrará la salida del código...");
-        // Cambiar el puerto según el lenguaje seleccionado
-        switch (value) {
-            case "python":
-                setPort(8001);
-                break;
-            case "cpp":
-                setPort(8002);
-                break;
-            case "javascript":
-                setPort(8003);
-                break;
-            default:
-                setPort(8003); // Puerto por defecto para JavaScript
-        }
     }
 
     return (
@@ -174,8 +146,14 @@ export function PublicPlayground() {
                             </Button>
                         </div>
                     </div>
-                    <Card className="border rounded-md overflow-hidden h-[calc(100vh-250px)] pb-0 pt-0.5 px-0.5">
+                    <Card className="border rounded-md h-[calc(100vh-250px)] pb-2 pt-0.5 px-0.5">
                         <Editor language={language} theme={theme} code={code} setCode={setCode} />
+                        <Input
+                            type="text"
+                            placeholder="Parametros de entrada"
+                            className="border-2 mt-1"
+                            onChange={(e) => setInputs(e.target.value)}
+                        />
                     </Card>
 
                 </div>
@@ -200,23 +178,56 @@ export function PublicPlayground() {
 export function PrivatePlayground() {
     const [language, setLanguage] = useState("javascript")
     const [theme, setTheme] = useState("vs-dark")
-    const [code, setCode] = useState("// Write your code here\nconsole.log('Hello, world!');")
+    const [code, setCode] = useState("console.log('Hola mundo')")
     const [output, setOutput] = useState("")
     const [feedback, setFeedback] = useState("")
     const [isRunning, setIsRunning] = useState(false)
     const [isGettingFeedback, setIsGettingFeedback] = useState(false)
     const [activeTab, setActiveTab] = useState("output")
+    const [inputs, setInputs] = useState("")
+
+    // Mutacion para ejecutar código
+    const compileCodeMutation = useMutation({
+        mutationFn: async () => {
+            setIsRunning(true);
+            const response = await compileCode({
+                body: {
+                    code: code,
+                    language: language,
+                    input_data: inputs,
+                }
+            });
+            if (response.status !== 200 || !("data" in response)) {
+                toast.error(`Error ${response.status}`, {
+                    description: Array.isArray(response.error?.detail)
+                        ? response.error.detail.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
+                        : (response.error?.detail || "Error al enviar código")
+                });
+                throw new Error(`Error ${response.status} al enviar el código`);
+            }
+            return response.data;
+        },
+        onSuccess: (data) => {
+            if(!data) {
+                setOutput("Error: No se recibió respuesta del servidor");
+                return;
+            }
+            if (data.success) {
+                setOutput(`${data.output}\n\nTiempo de ejecución: ${data.execution_time.toFixed(3)}s`);
+            } else {
+                setOutput(`${data.error || 'Error desconocido'}\n\nTiempo de ejecución: ${data.execution_time.toFixed(3)}s`);
+            }
+        },
+        onError: (error: Error) => {
+            setOutput(`Error de conexión: ${error.message}`);
+        },
+        onSettled: () => {
+            setIsRunning(false);
+        }
+    });
 
     const handleRunCode = () => {
-        setIsRunning(true)
-        setOutput("Ejecutando codigo...\n")
-
-        //TODO: Enviar código a la API para ejecutarlo
-        // Simulate code execution with a timeout
-        setTimeout(() => {
-            setOutput((prev) => prev + "Hello, world!\n\nCodigo ejecutado con exito")
-            setIsRunning(false)
-        }, 1000)
+        compileCodeMutation.mutateAsync();
     }
 
     const handleGetFeedback = () => {
@@ -258,6 +269,12 @@ export function PrivatePlayground() {
         document.body.removeChild(element)
     }
 
+    const handleChangeLanguage = (value: string) => {
+        setLanguage(value);
+        setCode(`${value == 'python' ? '#' : '//'} Escribe tu código aquí en ${languages.find((lang) => lang.value === value)?.label || 'JavaScript'}`);
+        setOutput("Aquí se mostrará la salida del código...");
+    }
+
     return (
         <div className="container mx-auto py-6 px-4">
             <title>Editor privado</title>
@@ -270,7 +287,7 @@ export function PrivatePlayground() {
                 <div className="flex flex-col space-y-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-2">
-                            <Select value={language} onValueChange={setLanguage}>
+                            <Select value={language} onValueChange={handleChangeLanguage}>
                                 <SelectTrigger className="w-[120px]">
                                     <SelectValue placeholder="Seleccione lenguaje" />
                                 </SelectTrigger>
@@ -311,8 +328,14 @@ export function PrivatePlayground() {
                         </div>
                     </div>
 
-                    <Card className="border rounded-md overflow-hidden h-[calc(100vh-250px)] pb-0 pt-0.5 px-0.5">
+                    <Card className="border rounded-md h-[calc(100vh-250px)] pb-2 pt-0.5 px-0.5">
                         <Editor language={language} theme={theme} code={code} setCode={setCode} />
+                        <Input
+                            type="text"
+                            placeholder="Parametros de entrada"
+                            className="border-2 mt-1"
+                            onChange={(e) => setInputs(e.target.value)}
+                        />
                     </Card>
                 </div>
 

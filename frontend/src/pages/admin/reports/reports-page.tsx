@@ -58,6 +58,7 @@ export default function AdminReportsPage() {
             </div>
         )
     }
+
     if (isLoading) {
         return (
             <div className="container mx-auto py-6 px-4">
@@ -65,6 +66,7 @@ export default function AdminReportsPage() {
             </div>
         )
     }
+
     if (!reports) return null
 
     return (
