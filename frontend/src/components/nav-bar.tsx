@@ -28,7 +28,7 @@ export default function NavigationBar() {
                 </nav>
                 <div className="flex items-center gap-2">
                     <ModeToggle />
-                    {/* Desktop Menu */}
+                    {/* Menu de escritorio */}
                     <div className="hidden md:flex gap-2">
                         {isLoggedIn() ? (
                             <>
@@ -40,7 +40,7 @@ export default function NavigationBar() {
                         )}
                     </div>
 
-                    {/* Mobile Menu */}
+                    {/* Menu de dispositivos móviles */}
                     <MobileUserMenu onLogout={handleLogout} isLoggedIn={isLoggedIn} permissions={permissions} />
                 </div>
             </div>

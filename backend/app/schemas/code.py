@@ -1,4 +1,5 @@
 
+from typing import Any, List
 from pydantic import BaseModel
 
 class CodeRequest(BaseModel):
@@ -22,7 +23,7 @@ class CompilationResult(BaseModel):
     execution_time: float
     
 class TestCase(BaseModel):
-    input: str
+    input: List[Any]
     expected_output: str
     description: str = ""
 

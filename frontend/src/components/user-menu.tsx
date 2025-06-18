@@ -5,7 +5,6 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button";
 import { Menu, User } from "lucide-react";
 import AuthButtons from "./authButtons";
-import { permission } from "process";
 
 export const DesktopUserMenu = memo(({ onLogout }: { onLogout: () => void }) => (
     <DropdownMenu>

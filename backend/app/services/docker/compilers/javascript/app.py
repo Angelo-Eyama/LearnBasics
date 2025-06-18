@@ -149,7 +149,7 @@ async def test_javascript_function(request: FunctionTestRequest):
                 # Ejecutar el código con Node.js
                 process = subprocess.run(
                     ['node', temp_file],
-                    input=f"{i}\n{test_case.input}",
+                    input=f"{i}\n{test_case.inputs}",
                     capture_output=True,
                     text=True,
                     timeout=5
@@ -164,7 +164,7 @@ async def test_javascript_function(request: FunctionTestRequest):
                 
                 test_results.append(TestResult(
                     test_passed=test_passed,
-                    input_used=test_case.input,
+                    input_used=test_case.inputs,
                     expected_output=expected_output,
                     actual_output=actual_output,
                     description=test_case.description,
@@ -174,7 +174,7 @@ async def test_javascript_function(request: FunctionTestRequest):
             except subprocess.TimeoutExpired:
                 test_results.append(TestResult(
                     test_passed=False,
-                    input_used=test_case.input,
+                    input_used=test_case.inputs,
                     expected_output=test_case.expected_output,
                     actual_output="",
                     description=test_case.description,
@@ -212,6 +212,15 @@ def generate_js_test_code(user_code: str, function_name: str, test_cases: list) 
     """
     Genera código JavaScript que incluye la función del usuario y código de prueba
     """
+    # Convertir los casos de prueba a un formato más simple
+    simplified_test_cases = [
+        {
+            "inputs": test_case.inputs,
+            "expected": test_case.expected_output,
+            "description": test_case.description
+        }
+        for test_case in test_cases
+    ]
     test_code = f"""
 {user_code}
 
@@ -222,10 +231,7 @@ const readline = require('readline').createInterface({{
 }});
 
 // Definir casos de prueba
-const TEST_CASES = {[
-    {"input": test_case.input, "expected": test_case.expected_output} 
-    for test_case in test_cases
-]};
+const TEST_CASES = {simplified_test_cases};
 
 let inputLines = [];
 readline.on('line', (line) => {{
@@ -238,35 +244,16 @@ readline.on('line', (line) => {{
 
 function runTest() {{
     const testIndex = parseInt(inputLines[0]);
+    const args = JSON.parse(inputLines[1]);  // Recibir argumentos como JSON
+    
     if (testIndex < 0 || testIndex >= TEST_CASES.length) {{
         console.error('Índice de prueba inválido');
         process.exit(1);
     }}
 
-    const testCase = TEST_CASES[testIndex];
-    const inputs = inputLines[1].trim().split(' ').map(x => {{
-        const num = Number(x);
-        return isNaN(num) ? x : num;
-    }});
-    
     try {{
-        let result;
-        switch(inputs.length) {{
-            case 1:
-                result = {function_name}(inputs[0]);
-                break;
-            case 2:
-                result = {function_name}(inputs[0], inputs[1]);
-                break;
-            case 3:
-                result = {function_name}(inputs[0], inputs[1], inputs[2]);
-                break;
-            default:
-                result = {function_name}(...inputs);
-        }}
-        
-        // Convertir el resultado a string para comparación consistente
-        console.log(String(result));
+        const result = {function_name}(...args);  // Usar spread operator para pasar argumentos
+        console.log(String(result));  // Convertir resultado a string
     }} catch (error) {{
         console.error(error.message);
         process.exit(1);

@@ -1,4 +1,6 @@
+from typing import Any, List
 from pydantic import BaseModel
+
 
 class TestCase(BaseModel):
     input: str
@@ -6,7 +8,7 @@ class TestCase(BaseModel):
     description: str = ""
 
 class TestCase(BaseModel):
-    input: str
+    inputs: List[Any]
     expected_output: str
     description: str = ""
 
@@ -18,18 +20,26 @@ class FunctionTestRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "code": "def suma(a, b):\n\t return a + b",
-                "function_name": "suma",
-                "test_cases": [
-                    {"input": "2 3", "expected_output": "5", "description": "Suma básica"},
-                    {"input": "0 0", "expected_output": "0", "description": "Suma con ceros"}
+            "code": "def format_persona(nombre, edad, ciudad):\n\treturn f'{nombre} tiene {edad} años y vive en {ciudad}'",
+            "function_name": "format_persona",
+            "test_cases": [
+                    {
+                        "inputs": ["Juan Carlos", 25, "Buenos Aires"],
+                        "expected_output": "Juan Carlos tiene 25 años y vive en Buenos Aires",
+                        "description": "Nombre compuesto"
+                    },
+                    {
+                        "inputs": ["María José", 30, "Ciudad de México"],
+                        "expected_output": "María José tiene 30 años y vive en Ciudad de México",
+                        "description": "Nombre y ciudad con espacios"
+                    }
                 ]
             }
         }
 
 class TestResult(BaseModel):
     test_passed: bool
-    input_used: str
+    input_used: List[Any]
     expected_output: str
     actual_output: str
     description: str

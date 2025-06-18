@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, status
 from typing import List
 import subprocess
@@ -114,6 +115,9 @@ async def test_python_function(request: FunctionTestRequest):
         
         for i, test_case in enumerate(request.test_cases):
             try:
+                # Convertir argumentos a JSON
+                args_json = json.dumps(test_case.inputs)
+                
                 # Ejecutar el código con el caso de prueba específico
                 process = subprocess.Popen(
                     [sys.executable, temp_file],
@@ -122,8 +126,9 @@ async def test_python_function(request: FunctionTestRequest):
                     stderr=subprocess.PIPE,
                     text=True
                 )
-                
-                stdout, stderr = process.communicate(input=f"{i}\n{test_case.input}", timeout=5)
+                # Convertir los argumentos de entrada a JSON
+                stdin_data = f"{i}\n{args_json}\n"
+                stdout, stderr = process.communicate(input=stdin_data, timeout=5)
                 
                 actual_output = stdout.strip()
                 expected_output = test_case.expected_output.strip()
@@ -134,7 +139,7 @@ async def test_python_function(request: FunctionTestRequest):
                 
                 test_results.append(TestResult(
                     test_passed=test_passed,
-                    input_used=test_case.input,
+                    input_used=test_case.inputs,
                     expected_output=expected_output,
                     actual_output=actual_output,
                     description=test_case.description,
@@ -144,7 +149,7 @@ async def test_python_function(request: FunctionTestRequest):
             except subprocess.TimeoutExpired:
                 test_results.append(TestResult(
                     test_passed=False,
-                    input_used=test_case.input,
+                    input_used=test_case.inputs,
                     expected_output=test_case.expected_output,
                     actual_output="",
                     description=test_case.description,
@@ -183,44 +188,38 @@ def generate_python_test_code(user_code: str, function_name: str, test_cases: Li
     """
     Genera código Python que incluye la función del usuario y código de prueba
     """
-    # Convertir los objetos TestCase a diccionarios
-    test_cases_dict = [{"input": tc.input, "expected_output": tc.expected_output, "description": tc.description} for tc in test_cases]
+    # Convertir los casos de prueba a un formato más simple
+    simplified_test_cases = [
+        {
+            "inputs": test_case.inputs,
+            "expected": test_case.expected_output,
+            "description": test_case.description
+        }
+        for test_case in test_cases
+    ]
     test_code = f"""
-{user_code}
-
 import sys
+import json
+{user_code}
 
 def main():
     test_index = int(input())
-    test_cases = {test_cases_dict}
+    
+    test_cases = {simplified_test_cases}
     
     if 0 <= test_index < len(test_cases):
         test_case = test_cases[test_index]
-        inputs = test_case['input'].strip().split()
-        
-        # Convertir inputs a números si es posible
-        try:
-            numeric_inputs = [int(x) for x in inputs]
-        except ValueError:
-            numeric_inputs = inputs
+        args = json.loads(input())
         
         # Llamar a la función con los parámetros
         try:
-            if len(numeric_inputs) == 1:
-                result = {function_name}(numeric_inputs[0])
-            elif len(numeric_inputs) == 2:
-                result = {function_name}(numeric_inputs[0], numeric_inputs[1])
-            elif len(numeric_inputs) == 3:
-                result = {function_name}(numeric_inputs[0], numeric_inputs[1], numeric_inputs[2])
-            else:
-                result = {function_name}(*numeric_inputs)
-            
+            result = {function_name}(*args)  # Desempaquetar argumentos
             print(result)
         except Exception as e:
-            print(f"Error al ejecutar la función: {{e}}")
+            print(f"Error al ejecutar la función: {{e}}", file=sys.stderr)
             sys.exit(1)
     else:
-        print("Error: Caso de prueba no válido")
+        print("Error: Caso de prueba no válido", file=sys.stderr)
         sys.exit(1)
 
 if __name__ == "__main__":

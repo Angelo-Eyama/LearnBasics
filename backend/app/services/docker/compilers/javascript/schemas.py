@@ -1,8 +1,8 @@
-from typing import List
+from typing import Any, List
 from pydantic import BaseModel
 
 class TestCase(BaseModel):
-    input: str
+    inputs: List[Any]
     expected_output: str
     description: str = ""
 
@@ -12,20 +12,20 @@ class FunctionTestRequest(BaseModel):
     test_cases: List[TestCase]
     
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "code": "function suma(a, b) { return a + b; }",
                 "function_name": "suma",
                 "test_cases": [
-                    {"input": "2 3", "expected_output": "5", "description": "Suma básica"},
-                    {"input": "0 0", "expected_output": "0", "description": "Suma con ceros"}
+                    { "description": "Suma básica", "expected_output": "5", "inputs": [2,3] },
+                    { "description": "Suma 2", "expected_output": "10", "inputs": [7,3] }
                 ]
             }
         }
 
 class TestResult(BaseModel):
     test_passed: bool
-    input_used: str
+    input_used: List[Any]
     expected_output: str
     actual_output: str
     description: str

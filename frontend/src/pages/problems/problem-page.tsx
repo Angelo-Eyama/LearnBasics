@@ -16,6 +16,7 @@ import { toast } from "sonner"
 import { Loading } from "@/components/ui/loading"
 import { getUserId } from "@/hooks/useAuth"
 import { createSubmission } from "@/client"
+import { all } from "axios"
 
 const starterCode = {
     javascript: `function nombreFuncion(arg1, arg2) {
@@ -64,7 +65,10 @@ export default function ProblemDetailPage() {
                 toast.error(`Error ${response.status} al obtener los comentarios`)
                 throw new Error(`Error ${response.status} al obtener los comentarios`)
             }
-            return response.data?.comments
+            let allComments = response.data?.comments || []
+            // Filtrar los comentarios si están aprobados
+            allComments = allComments.filter(comment => comment.isApproved)
+            return allComments;
         }
     })
 
