@@ -128,6 +128,7 @@ def delete_report(report_id: int, session: SessionDep):
     dependencies=[Depends(valid_role)]
 )
 def read_report(report_id: int, session: SessionDep):
+    print(f"Reading report with ID: {report_id}")
     report = reports_controller.get_report_by_id(session, report_id)
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")

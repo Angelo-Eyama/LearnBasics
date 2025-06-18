@@ -29,6 +29,7 @@ const NewProblemPage = lazy(() => import('@/pages/admin/problems/problem-new'));
 const EditProblemPage = lazy(() => import('@/pages/admin/problems/problem-detail'));
 
 const AdminCommentsPage = lazy(() => import('@/pages/admin/comments/comments-page'));
+const AdminReportsPage =  lazy(() => import('@/pages/admin/reports/reports-page'));
 const NotFound = lazy(() => import('@/pages/public/not-found'));
 
 const routes: RouteObject[] = [
@@ -61,6 +62,7 @@ const routes: RouteObject[] = [
             { path: '/admin/problems/new', element: <NewProblemPage /> },
             { path: '/admin/problems/:id', element: <EditProblemPage /> },
             { path: '/admin/comments', element: <AdminCommentsPage /> },
+            { path: '/admin/reports', element: <AdminReportsPage /> },
         ]
     },
     // Rutas protegidas solo para administradores

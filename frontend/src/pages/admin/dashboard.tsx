@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
-import { Users, BookText, MessageSquare } from "lucide-react"
+import { Users, BookText, MessageSquare, BugIcon } from "lucide-react"
 import useAuth from "@/hooks/useAuth"
 
 export default function AdminDashboardPage() {
@@ -15,7 +15,7 @@ export default function AdminDashboardPage() {
                 <p className="text-muted-foreground">Desde aquí se gestiona el contenido de la aplicación</p>
             </div>
 
-            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${isAdmin ? "3" : "2"} gap-6`}>
+            <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-${isAdmin ? "4" : "3"} gap-6`}>
                 {
                     isAdmin && <Card>
                         <CardHeader className="flex justify-between items-center">
@@ -53,6 +53,19 @@ export default function AdminDashboardPage() {
                     <CardContent>
                         <Button asChild className="w-full mt-2">
                             <Link to="/admin/comments">Gestionar comentarios</Link>
+                        </Button>
+                    </CardContent>
+                </Card>
+
+                <Card>
+                    <CardHeader className="pb-2 flex justify-between items-center">
+                        <CardTitle className="text-xl">Reportes</CardTitle>
+                        <CardDescription>Control de errores y reportes</CardDescription>
+                        <BugIcon className="h-8 w-8 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                        <Button asChild className="w-full mt-2">
+                            <Link to="/admin/reports">Gestionar reportes</Link>
                         </Button>
                     </CardContent>
                 </Card>

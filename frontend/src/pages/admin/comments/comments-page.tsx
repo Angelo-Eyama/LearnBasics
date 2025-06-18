@@ -32,7 +32,7 @@ import { Loading } from "@/components/ui/loading"
 
 
 export default function AdminCommentsPage() {
-    const { comments, changeCommentApproval, deleteComment, isError, isLoading } = useAdminComments()
+    const {comments, changeCommentApproval, deleteComment, isError, isLoading } = useAdminComments()
     const [searchQuery, setSearchQuery] = useState("")
     const [approvalFilter, setApprovalFilter] = useState("all")
     const [selectedComment, setSelectedComment] = useState<(typeof comments)[0] | null>(null)
@@ -43,7 +43,6 @@ export default function AdminCommentsPage() {
         const matchesSearch =
             comment.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
             comment.user.username.toLowerCase().includes(searchQuery.toLowerCase())
-        //|| comment.problem.toLowerCase().includes(searchQuery.toLowerCase())
 
         const matchesStatus = approvalFilter === "all"
             || (approvalFilter === "approved" && comment.isApproved)
