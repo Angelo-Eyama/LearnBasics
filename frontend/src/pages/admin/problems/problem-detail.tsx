@@ -10,23 +10,37 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Save, Plus, Eye } from "lucide-react"
+import { ArrowLeft, Save, Plus, Eye, X } from "lucide-react"
 import { toast } from "sonner"
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query"
-import { getProblemById, ProblemRead, ProblemUpdate, updateProblem } from "@/client"
+import { getProblemById, ProblemRead, ProblemUpdate, TestCase, updateProblem } from "@/client"
 import { parseServerString } from "@/utils/utils"
 import BadgeClosable from "@/components/ui/badge-closable"
 import NotFound from "@/pages/public/not-found"
 import { Loading } from "@/components/ui/loading"
 import { Badge } from "@/components/ui/badge"
-
+type InputType = 'int' | 'float' | 'string';
+interface TypedInput {
+    value: string;
+    type: InputType;
+}
 export default function ProblemDetailPage() {
     const { id } = useParams<{ id: string }>()
-    console.log("ID del problema:", id)
     const navigate = useNavigate()
     const queryClient = useQueryClient()
+    const [testCases, setTestCases] = useState<TestCase[]>([])
+    const [newTestCase, setNewTestCase] = useState<TestCase & { typedInputs: TypedInput[] }>({
+        inputs: [],
+        expected_output: "",
+        description: "",
+        typedInputs: [{ value: '', type: 'int' }]
+    });
 
-    // Query para obtener los datos del usuario seleccionado
+    // Añade estas funciones de manejo
+    const handleAddTestCase = () => {
+        throw new Error("Function not implemented.")
+    }
+
     const { data: problem, isLoading, isError } = useQuery({
         queryKey: ["adminProblems", id],
         queryFn: async () => {
@@ -104,10 +118,6 @@ export default function ProblemDetailPage() {
         updateProblemMutation.mutateAsync(formData)
     }
 
-    const handleCodeChange = (language: string, code: string) => {
-        console.log(`Código actualizado para ${language}:`, code)
-    }
-
     const handleSelectChange = (name: string, value: string) => {
         setFormData((prev) => ({ ...prev, [name]: value }))
     }
@@ -147,6 +157,10 @@ export default function ProblemDetailPage() {
                 </Link>
             </div>
         )
+    }
+
+    function handleRemoveTestCase(index: number): void {
+        throw new Error("Function not implemented." + index)
     }
 
     return (
@@ -203,50 +217,181 @@ export default function ProblemDetailPage() {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Prototipo de código</CardTitle>
-                                <CardDescription>Proporcione un trozo de código en diferentes lenguajes de programación</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="javascript">JavaScript</Label>
-                                    <Textarea
-                                        id="javascript"
-                                        rows={6}
-                                        value={"formData.starterCode.javascript"}
-                                        onChange={(e) => handleCodeChange("javascript", e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="python">Python</Label>
-                                    <Textarea
-                                        id="python"
-                                        rows={6}
-                                        value={"formData.starterCode.python}"}
-                                        onChange={(e) => handleCodeChange("python", e.target.value)}
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
                                 <CardTitle>Casos de prueba (tests)</CardTitle>
                                 <CardDescription>Añada las pruebas necesarias para validar la solución</CardDescription>
                             </CardHeader>
                             <CardContent>
-                                <Textarea
-                                    id="testCases"
-                                    name="testCases"
-                                    rows={6}
-                                    value={"formData.testCases"}
+                                <div className="space-y-4">
+                                    {testCases.map((testCase, index) => (
+                                        <Card key={index} className="p-4 border border-border">
+                                            <div className="flex justify-between items-start mb-2">
+                                                <div className="space-y-1">
+                                                    <p className="font-medium">Caso de prueba #{index + 1}</p>
+                                                    {testCase.description && (
+                                                        <p className="text-sm text-muted-foreground">{testCase.description}</p>
+                                                    )}
+                                                </div>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="sm"
+                                                    onClick={() => handleRemoveTestCase(index)}
+                                                    className="text-destructive"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                            <div className="grid gap-2 text-sm">
+                                                <p>
+                                                    <span className="font-medium">Entradas: </span>
+                                                    {testCase.inputs.map((input: any, i) => (
+                                                        <span key={i} className={`
+                                                            ${typeof input === 'number' && Number.isInteger(input) ? 'text-blue-500' : ''}
+                                                            ${typeof input === 'number' && !Number.isInteger(input) ? 'text-green-500' : ''}
+                                                            ${typeof input === 'string' ? 'text-purple-500' : ''}
+                                                        `}>
+                                                            {typeof input === 'string' ? `"${input}"` : input}
+                                                            {i < testCase.inputs.length - 1 ? ', ' : ''}
+                                                        </span>
+                                                    ))}
+                                                </p>
+                                                <p><span className="font-medium">Salida esperada:</span> {testCase.expected_output}</p>
+                                            </div>
+                                        </Card>
+                                    ))}
+                                </div>
 
-                                    placeholder="Input: nums = [2,7,11,15], target = 9
-Output: [0,1]
+                                {/* Formulario para nuevo caso de prueba */}
+                                <div className="space-y-4 border-t pt-4">
+                                    <h4 className="font-medium">Añadir nuevo caso de prueba</h4>
+                                    <Card className="border border-border p-2">
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <Input type="text"
+                                                placeholder="Descripción del caso de prueba"
+                                                value={newTestCase.description}
+                                                onChange={(e) => setNewTestCase(prev => ({
+                                                    ...prev,
+                                                    description: e.target.value
+                                                }))}
+                                            />
+                                            <Input type="text"
+                                                placeholder="Nombre de la función a evaluar"
+                                                value={newTestCase.description}
+                                                onChange={(e) => setNewTestCase(prev => ({
+                                                    ...prev,
+                                                    description: e.target.value
+                                                }))}
+                                            />
+                                        </div>
 
-Input: nums = [3,2,4], target = 6
-Output: [1,2]"
-                                />
+                                        <Label>Entradas con tipo</Label>
+
+                                        {newTestCase.typedInputs.map((input, index) => (
+                                            <div key={index} className="flex gap-2">
+                                                <Input
+                                                    value={input.value}
+                                                    onChange={(e) => {
+                                                        const newInputs = [...newTestCase.typedInputs];
+                                                        newInputs[index].value = e.target.value;
+                                                        setNewTestCase(prev => ({
+                                                            ...prev,
+                                                            typedInputs: newInputs
+                                                        }));
+                                                    }}
+                                                    placeholder={`Valor ${index + 1}`}
+                                                    className="flex-1"
+                                                />
+                                                <Select
+                                                    value={input.type}
+                                                    onValueChange={(value: InputType) => {
+                                                        const newInputs = [...newTestCase.typedInputs];
+                                                        newInputs[index].type = value;
+                                                        setNewTestCase(prev => ({
+                                                            ...prev,
+                                                            typedInputs: newInputs
+                                                        }));
+                                                    }}
+                                                >
+                                                    <SelectTrigger className="w-[120px]">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="int">Entero</SelectItem>
+                                                        <SelectItem value="float">Decimal</SelectItem>
+                                                        <SelectItem value="string">Texto</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <Button
+                                                    type="button"
+                                                    variant="default"
+                                                    size="icon"
+                                                    onClick={() => {
+                                                        const newInputs = newTestCase.typedInputs.filter((_, i) => i !== index);
+                                                        setNewTestCase(prev => ({
+                                                            ...prev,
+                                                            typedInputs: newInputs
+                                                        }));
+                                                    }}
+
+                                                >
+                                                    <Plus className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => {
+                                                        const newInputs = newTestCase.typedInputs.filter((_, i) => i !== index);
+                                                        setNewTestCase(prev => ({
+                                                            ...prev,
+                                                            typedInputs: newInputs
+                                                        }));
+                                                    }}
+                                                    className="text-destructive"
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        ))}
+
+                                        <Label>Salida esperada</Label>
+                                        <Input
+                                            type="text"
+                                            placeholder="Salida esperada"
+                                            value={newTestCase.expected_output}
+                                            onChange={(e) => setNewTestCase(prev => ({
+                                                ...prev,
+                                                expected_output: e.target.value
+                                            }))}
+                                            className="mt-2"
+                                            required
+                                        />
+                                        <div className="flex gap-2 mt-2">
+                                            <Button
+                                                type="button"
+                                                onClick={() => {
+                                                        setNewTestCase(prev => ({
+                                                            ...prev,
+                                                            typedInputs: [...prev.typedInputs, { value: '', type: 'int' }]
+                                                        }));
+                                                    }}
+                                                className="w-1/3 mx-2"
+                                                variant="secondary"
+                                            >
+                                                <Plus className="h-4 w-4 mr-2" />
+                                                Añadir entrada
+                                            </Button>
+                                            <Button
+                                                type="button"
+                                                onClick={() => console.log("!TODO: Guardar caso de prueba")}
+                                                className="w-1/3 mx-2"
+                                                variant="default"
+                                            >
+                                                <Save className="h-4 w-4 mr-2" />
+                                                Guardar caso de prueba
+                                            </Button>
+                                        </div>
+                                    </Card>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>

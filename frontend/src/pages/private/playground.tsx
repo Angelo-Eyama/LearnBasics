@@ -8,7 +8,7 @@ import Editor from "@/components/editor";
 import { useMutation } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { compileCode } from "@/client";
+import { compileCode, getFeedback } from "@/client";
 const languages = [
     { value: "javascript", label: "JavaScript", extension: "js" },
     { value: "python", label: "Python", extension: "py" },
@@ -226,33 +226,40 @@ export function PrivatePlayground() {
         }
     });
 
+    //Mutacion para pedir feedback
+    const getFeedbackMutation = useMutation({
+        mutationFn: async () => {
+            setIsGettingFeedback(true);
+            setFeedback("Analizando código...\n");
+            const response = await getFeedback({
+                body: {
+                    code: code,
+                    language: language,
+                    output: output,
+                }
+            });
+            if (response.status !== 200 || !("data" in response)) {
+                toast.error(`Error ${response.status}`, {
+                    description: Array.isArray(response.error?.detail)
+                        ? response.error.detail.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
+                        : (response.error?.detail || "Error al obtener feedback")
+                });
+                throw new Error(`Error ${response.status} al obtener feedback`);
+            }
+            setFeedback(response.data || "No se recibió feedback");
+        },
+        onSettled: () => {
+            setIsGettingFeedback(false);
+        }
+    })
+
     const handleRunCode = () => {
         compileCodeMutation.mutateAsync();
     }
 
     const handleGetFeedback = () => {
-        setIsGettingFeedback(true)
-        setFeedback("Analizando código...\n")
         setActiveTab("feedback")
-        //TODO: Enviar código a la API para obtener feedback
-        // Simular análisis de código con un temporizador
-        setTimeout(() => {
-            setFeedback(`
-                Análisis de código:
-
-                ✅ La sintaxis del código es correcta.
-                ✅ El código sigue buenas prácticas para la salida de registro.
-
-                Sugerencias:
-                1. Considera utilizar funciones para reutilzar código.
-                2. Añade algunos comentarios para explicar el propósito de las líneas de código.
-                3. Considera utilizar excepciones para manejar errores de forma más elegante.
-
-                Rendimiento:
-                - El código se ejecuta de forma eficiente y no contiene bucles infinitos.
-        `)
-            setIsGettingFeedback(false)
-        }, 2000)
+        getFeedbackMutation.mutateAsync()
     }
 
     const handleCopyCode = () => {
@@ -372,7 +379,11 @@ export function PrivatePlayground() {
                             </TabsContent>
                             <TabsContent value="feedback" className="h-full m-0">
                                 <div className="p-4 h-full bg-card text-card-foreground overflow-auto whitespace-pre-wrap">
-                                    {feedback.trim() || "Pulsa 'Obtener feedback' para recibir respuesta del análisis de nuestra IA..."}
+                                    {
+                                    feedback.trim() ?  
+                                        <pre className="whitespace-pre-wrap"> {feedback} </pre>
+                                        : "Pulsa 'Obtener feedback' para recibir respuesta del análisis de nuestra IA..."
+                                    }
                                 </div>
                             </TabsContent>
                         </Tabs>

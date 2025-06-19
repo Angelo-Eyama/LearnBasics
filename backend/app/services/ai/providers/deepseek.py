@@ -1,9 +1,7 @@
-import random
 from openai import AsyncOpenAI
 from app.services.ai.client import AIClient
-from app.services.ai.models import CodeReviewRequest, CodeReviewResponse, Suggestion
+from app.services.ai.models import CodeReviewRequest, CodeFeedbackRequest
 from app.core.config import ai_settings
-import re
 
 class OpenAICodeReviewer(AIClient):
     def __init__(self):
@@ -11,11 +9,11 @@ class OpenAICodeReviewer(AIClient):
             api_key=ai_settings.AI_API_KEY,
             base_url=ai_settings.AI_API_BASE_URL
             )
-        
-    async def review_code(self, request: CodeReviewRequest) -> CodeReviewResponse:
+    
+    async def review_code(self, request: CodeFeedbackRequest):
         messages = [
-            {"role": "system", "content": self.SYSTEM_PROMPT},
-            {"role": "user", "content": self._format_prompt(request)}
+            {"role": "system", "content": self.REVIEW_CODE_PROMPT},
+            {"role": "user", "content": self._format_prompt(request, type="feedback")}
         ]
         
         response = await self.client.chat.completions.create(
@@ -25,88 +23,53 @@ class OpenAICodeReviewer(AIClient):
             max_tokens=1000
         )
         
-        # return self._parse_response(response.choices[0].message.content)
         return response.choices[0].message.content
-        
-    def _format_prompt(self, request: CodeReviewRequest) -> str:
-        return f"""
-        Por favor, revisa este código de un estudiante:
-        
-        Enunciado del problema:
-        {request.problem_statement}
-        
-        Lenguaje: {request.language}
-        
-        Código:
-        ```{request.language}
-        {request.code}
-        ```
-        
-        Proporciona:
-        1. Una explicación general
-        2. Identificación de errores si los hay
-        3. Sugerencias de mejora
-        4. Conceptos clave para reforzar
-        """
-        
-    def _parse_response(self, ai_response: str) -> CodeReviewResponse:
-        # Parse the AI response and extract suggestions
-        suggestions = []
-        
-        # Split response into sections and extract key information
-        lines = ai_response.split('\n')
-        current_suggestion = {}
-        
-        for line in lines:
-            line = line.strip()
-            if not line:
-                continue
-                
-            # Look for suggestion patterns
-            if any(keyword in line.lower() for keyword in ['error', 'problema', 'incorrecto']):
-                if current_suggestion:
-                    suggestions.append(Suggestion(**current_suggestion))
-                current_suggestion = {
-                    'type': 'error',
-                    'line_number': self._extract_line_number(line),
-                    'message': line,
-                    'suggestion': ''
-                }
-            elif any(keyword in line.lower() for keyword in ['mejora', 'optimizar', 'recomendación']):
-                if current_suggestion:
-                    suggestions.append(Suggestion(**current_suggestion))
-                current_suggestion = {
-                    'type': 'improvement',
-                    'line_number': self._extract_line_number(line),
-                    'message': line,
-                    'suggestion': ''
-                }
-            elif current_suggestion and any(keyword in line.lower() for keyword in ['sugerencia', 'cambiar', 'usar']):
-                current_suggestion['suggestion'] = line
-        
-        # Add the last suggestion if exists
-        if current_suggestion:
-            suggestions.append(Suggestion(**current_suggestion))
-        
-        # If no specific suggestions found, create a general one
-        if not suggestions:
-            suggestions.append(Suggestion(
-                type='general',
-                line_number=None,
-                message=ai_response[:200] + '...' if len(ai_response) > 200 else ai_response,
-                suggestion='Revisa los comentarios generales del código'
-            ))
-        
-        return CodeReviewResponse(
-            has_errors=len([s for s in suggestions if s.type == 'error']) > 0,
-            suggestions=suggestions,
-            explanation=ai_response,
-            score=random.uniform(0, 1)
-        )
     
-    def _extract_line_number(self, text: str) -> int:
-        """Extract line number from text if present"""
-        match = re.search(r'línea\s*(\d+)|line\s*(\d+)', text.lower())
-        if match:
-            return int(match.group(1) or match.group(2))
-        return None
+    async def review_submission(self, request: CodeReviewRequest):
+        """
+        Revisa el código de una entrega de estudiante y proporciona retroalimentación.
+        
+        :param request: Objeto que contiene el enunciado del problema, el lenguaje y el código a revisar.
+        :return: Respuesta de la IA con sugerencias y correcciones.
+        """
+        messages = [
+            {"role": "system", "content": self.REVIEW_SUBMISSION_PROMPT},
+            {"role": "user", "content": self._format_prompt(request, type="review")}
+        ]
+        # Llamar al modelo de IA para obtener la revisión
+        response = await self.review_code(request)
+        
+        response = await self.client.chat.completions.create(
+            model=ai_settings.AI_MODEL,
+            messages=messages,
+            temperature=0.7,
+            max_tokens=1000
+        )
+        return response
+    
+    def _format_prompt(self, request , type: str) -> str:
+        # Request puede ser de tipo CodeReviewRequest o CodeFeedbackRequest
+        # Prepara el prompt para la IA si es tipo "review"
+        if type == "review":        
+            return f"""
+            Por favor, revisa este código de un estudiante:
+            
+            Enunciado del problema:
+            {request.problem_statement}
+            
+            Lenguaje de programación: {request.language}
+            
+            Código: {request.code}
+            """
+        # Prepara el prompt para la IA si es tipo "feedback"
+        elif type == "feedback":
+            return f"""
+            Por favor, analiza este código de un estudiante en busca de errores o mejoras:
+            Lenguaje de programación: {request.language}
+            
+            Código:
+            {request.code}
+            {f"Salida de la terminal: {request.output}\n" if request.output else ""}
+            """
+        else:
+            raise ValueError("Tipo de solicitud no soportado.")

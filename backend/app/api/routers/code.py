@@ -2,7 +2,7 @@ from fastapi import APIRouter, HTTPException
 import httpx
 from app.schemas.code import CodeRequest, CompilationResult, FunctionTestRequest, FunctionTestResult
 from app.services.ai.providers.deepseek import OpenAICodeReviewer
-from app.services.ai.models import CodeReviewRequest, CodeReviewResponse
+from app.services.ai.models import CodeReviewRequest, CodeFeedbackRequest
 from app.core.config import compiler_settings
 
 router = APIRouter(
@@ -29,17 +29,32 @@ request = CodeReviewRequest(
 ai_reviewer_instance = OpenAICodeReviewer()
 
 @router.post(
-    "/analyze",
-    response_model=CodeReviewResponse,
-    
+    "/feedback",
+    response_model=str,
 )
-async def code(problem_description: str, language: str, code_received: str):
-    request = CodeReviewRequest(
-        problem_statement=problem_description,
-        language=language,
-        code=code_received
-    )
+async def get_feedback(request: CodeFeedbackRequest):
+    """
+    Obtiene retroalimentación sobre el código proporcionado.
+    
+    Este endpoint utiliza un modelo de IA para analizar el código y proporcionar sugerencias de mejora.
+    """
+    if not request.code.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="El código no puede estar vacío."
+        )
     ai_review = await ai_reviewer_instance.review_code(request)
+    return ai_review
+
+@router.post(
+    "/analyze",
+)
+async def code():
+#async def code()(request: CodeReviewRequest):
+    '''
+        Este endpoint se utilizará para anlizar el código en las entregas de los estudiantes.
+    '''
+    ai_review = await ai_reviewer_instance.review_submission(request)
     return ai_review
 
 

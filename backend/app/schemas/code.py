@@ -23,7 +23,7 @@ class CompilationResult(BaseModel):
     execution_time: float
     
 class TestCase(BaseModel):
-    input: List[Any]
+    inputs: List[Any]
     expected_output: str
     description: str = ""
 

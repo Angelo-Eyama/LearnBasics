@@ -14,20 +14,16 @@ export type BodyAuthLoginForAccessToken = {
     client_secret?: string | null;
 };
 
+export type CodeFeedbackRequest = {
+    language: string;
+    code: string;
+    output?: string | null;
+};
+
 export type CodeRequest = {
     language: string;
     code: string;
     input_data?: string;
-};
-
-/**
- * Modelo para la respuesta del análisis
- */
-export type CodeReviewResponse = {
-    has_errors?: boolean | null;
-    suggestions: Array<Suggestion>;
-    explanation?: string | null;
-    score?: number | null;
 };
 
 export type CommentCreate = {
@@ -211,18 +207,8 @@ export type SubmissionUpdate = {
     suggestions?: string | null;
 };
 
-/**
- * Modelo para una sugerencia individual
- */
-export type Suggestion = {
-    type: string;
-    message: string;
-    line_number?: number | null;
-    code_snippet?: string | null;
-};
-
 export type TestCase = {
-    input: Array<unknown>;
+    inputs: Array<unknown>;
     expected_output: string;
     description?: string;
 };
@@ -2294,34 +2280,44 @@ export type GetTestCasesByProblemIdResponses = {
 
 export type GetTestCasesByProblemIdResponse = GetTestCasesByProblemIdResponses[keyof GetTestCasesByProblemIdResponses];
 
-export type CodeData = {
-    body?: never;
+export type GetFeedbackData = {
+    body: CodeFeedbackRequest;
     path?: never;
-    query: {
-        problem_description: string;
-        language: string;
-        code_received: string;
-    };
-    url: '/code/analyze';
+    query?: never;
+    url: '/code/feedback';
 };
 
-export type CodeErrors = {
+export type GetFeedbackErrors = {
     /**
      * Validation Error
      */
     422: HttpValidationError;
 };
 
-export type CodeError = CodeErrors[keyof CodeErrors];
+export type GetFeedbackError = GetFeedbackErrors[keyof GetFeedbackErrors];
+
+export type GetFeedbackResponses = {
+    /**
+     * Successful Response
+     */
+    200: string;
+};
+
+export type GetFeedbackResponse = GetFeedbackResponses[keyof GetFeedbackResponses];
+
+export type CodeData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/code/analyze';
+};
 
 export type CodeResponses = {
     /**
      * Successful Response
      */
-    200: CodeReviewResponse;
+    200: unknown;
 };
-
-export type CodeResponse = CodeResponses[keyof CodeResponses];
 
 export type CompileCodeData = {
     body: CodeRequest;

@@ -18,7 +18,7 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Link } from "react-router-dom"
-import { Eye, Edit, Mail, Award, Code, FileCode, Bell, CheckCircle, CircleX } from "lucide-react"
+import { Eye, Edit, Mail, Award, FileCode, Bell, CheckCircle, CircleX } from "lucide-react"
 import { FaGithub } from "react-icons/fa";
 import useAuth from "@/hooks/useAuth"
 import { parseServerString, decideRank, formatDate, getDiceBearAvatar } from "@/utils/utils"
@@ -162,14 +162,15 @@ export default function ProfilePage() {
                                     <AlertDialogTrigger asChild>
                                         <div className="flex flex-col items-center p-4 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors">
                                             <FileCode className="h-8 w-8 mb-2 text-primary" />
-                                            <span className="text-2xl font-bold">{userSubmissions?.total || 0}</span>
+                                            <span className="text-2xl font-bold">{userSubmissions?.total}</span>
                                             <span className="text-sm text-muted-foreground">Total de entregas</span>
                                         </div>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent className="max-w-xl">
+                                    <AlertDialogContent className="max-w-lg h-fit w-auto">
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Historial de entregas</AlertDialogTitle>
                                         </AlertDialogHeader>
+                                        
                                         <div className="max-h-[80vh]  overflow-auto">
                                             <Table>
                                                 <TableHeader>
