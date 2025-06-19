@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
-import { ArrowLeft, Send } from "lucide-react"
+import { ArrowLeft, Play, Send, Upload } from "lucide-react"
 import Editor from "@/components/editor"
 import { getProblemById, getCommentsByProblemId, createComment, CommentCreate, compileCode } from "@/client"
 import { parseServerString, formatDate } from "@/utils/utils"
@@ -17,6 +17,17 @@ import { Loading } from "@/components/ui/loading"
 import { getUserId } from "@/hooks/useAuth"
 import { createSubmission } from "@/client"
 import { Input } from "@/components/ui/input"
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 const starterCode = {
     javascript: `function nombreFuncion(arg1, arg2) {
@@ -34,6 +45,7 @@ export default function ProblemDetailPage() {
     const { id } = useParams<{ id: string }>()
     const userId = parseInt(getUserId()!)
     const queryClient = useQueryClient()
+    const navigate = useNavigate()
 
     // Query para obtener el problema por ID
     const { data: problem, isLoading, isError } = useQuery({
@@ -84,8 +96,7 @@ export default function ProblemDetailPage() {
             }
             return response.data;
         },
-        onSuccess: (newComment) => {
-            console.log("Comentario creado exitosamente:", newComment);
+        onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ["commentsProblem", id] });
             setComments(commentsData || [])
             setNewComment("")
@@ -212,7 +223,6 @@ export default function ProblemDetailPage() {
             status: "Pendiente"
         })
     }
-    const navigate = useNavigate();
 
     if (isLoading || commentsLoading) {
         return (
@@ -335,9 +345,34 @@ export default function ProblemDetailPage() {
                         </div>
                         <div className="flex items-center space-x-2">
                             <Button onClick={handleRunCode} disabled={isRunning}>
+                                <Play className="h-4 w-4" />
                                 {isRunning ? "Ejecutando..." : "Ejecutar"}
                             </Button>
-                            <Button variant="default" onClick={handleCodeSubmit}>Subir solucion</Button>
+                            <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                    <Button variant="default" disabled={isRunning}>
+                                        <Upload className="h-4 w-4 mr-2" />
+                                        Subir Solución
+                                    </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                        <AlertDialogTitle>Subir Solución</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                            Antes de subir su solución, verifique los siguientes puntos:
+                                            <ul className="list-disc pl-5 mt-2">
+                                                <li>El nombre de la funcion es el solicitado en el enunciado</li>
+                                                <li>El código solo contiene la función a evaluar sin salidas de depuracion adicionales</li>
+                                            </ul>
+                                            <p className="mt-4">¿Está seguro de que desea subir ahora su solución?</p>
+                                        </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={handleCodeSubmit}>Subir</AlertDialogAction>
+                                    </AlertDialogFooter>
+                                </AlertDialogContent>
+                            </AlertDialog>
                         </div>
                     </div>
 
