@@ -48,7 +48,7 @@ class FunctionTestRequest(BaseModel):
 
 class TestResult(BaseModel):
     test_passed: bool
-    input_used: str
+    input_used: List[Any]
     expected_output: str
     actual_output: str
     description: str

@@ -1,5 +1,4 @@
 from fastapi import FastAPI, status
-from pydantic import BaseModel
 import subprocess
 import tempfile
 import os
@@ -154,7 +153,7 @@ async def test_c_function(request: FunctionTestRequest):
                 # Ejecutar con el caso de prueba específico
                 execute_process = subprocess.run(
                     [temp_executable],
-                    input=f"{i}\n{test_case.input}",  # Enviar índice del test y entrada
+                    input=f"{i}\n{test_case.inputs}",  # Enviar índice del test y entrada
                     capture_output=True,
                     text=True,
                     timeout=5
@@ -169,7 +168,7 @@ async def test_c_function(request: FunctionTestRequest):
                 
                 test_results.append(TestResult(
                     test_passed=test_passed,
-                    input_used=test_case.input,
+                    input_used=test_case.inputs,
                     expected_output=expected_output,
                     actual_output=actual_output,
                     description=test_case.description,
@@ -179,7 +178,7 @@ async def test_c_function(request: FunctionTestRequest):
             except subprocess.TimeoutExpired:
                 test_results.append(TestResult(
                     test_passed=False,
-                    input_used=test_case.input,
+                    input_used=test_case.inputs,
                     expected_output=test_case.expected_output,
                     actual_output="",
                     description=test_case.description,
@@ -222,54 +221,68 @@ def generate_c_test_code(user_code: str, function_name: str, test_cases: list) -
     """
     Genera código C que incluye la función del usuario y código de prueba
     """
+    # Extraemos solo los datos necesarios de los test_cases
+    simplified_tests = [
+        {
+            "args": [arg.value for arg in test.inputs],
+            "types": [arg.type.value for arg in test.inputs],
+            "expected": test.expected_output
+        }
+        for test in test_cases
+    ]
+
     test_code = f"""
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
+// Código del usuario
 {user_code}
+
+#define MAX_STRING_LENGTH 1024
 
 int main() {{
     int test_index;
-    scanf("%d", &test_index);
+    char input_buffer[MAX_STRING_LENGTH];
+    
+    // Leer índice del test
+    scanf("%d\\n", &test_index);
     
     switch(test_index) {{
 """
-    
-    for i, test_case in enumerate(test_cases):
-        # Parsear la entrada para extraer parámetros
-        # Asumimos que la entrada son números separados por espacios
-        inputs = test_case.input.strip().split()
+
+    # Generar casos para cada test
+    for i, test in enumerate(simplified_tests):
+        test_code += f"        case {i}:\n"
         
-        if len(inputs) == 1:
-            test_code += f"""
-        case {i}:
-            printf("%d", {function_name}({inputs[0]}));
-            break;
-"""
-        elif len(inputs) == 2:
-            test_code += f"""
-        case {i}:
-            printf("%d", {function_name}({inputs[0]}, {inputs[1]}));
-            break;
-"""
-        elif len(inputs) == 3:
-            test_code += f"""
-        case {i}:
-            printf("%d", {function_name}({inputs[0]}, {inputs[1]}, {inputs[2]}));
-            break;
-"""
-        # Añadir más casos según sea necesario
-    
+        # Declarar variables para los argumentos
+        for j, (value, type_) in enumerate(zip(test["args"], test["types"])):
+            if type_ == "char*":
+                test_code += f"            char* arg{j} = fgets(input_buffer, MAX_STRING_LENGTH, stdin);\n"
+                test_code += f"            arg{j}[strcspn(arg{j}, \"\\n\")] = 0;\n"  # Eliminar newline
+            elif type_ == "int":
+                test_code += f"            int arg{j};\n"
+                test_code += f"            scanf(\"%d\", &arg{j});\n"
+            elif type_ == "float":
+                test_code += f"            float arg{j};\n"
+                test_code += f"            scanf(\"%f\", &arg{j});\n"
+            elif type_ == "double":
+                test_code += f"            double arg{j};\n"
+                test_code += f"            scanf(\"%lf\", &arg{j});\n"
+
+        # Llamar a la función
+        args_list = [f"arg{j}" for j in range(len(test["args"]))]
+        test_code += f"            printf(\"%s\", {function_name}({', '.join(args_list)}));\n"
+        test_code += "            break;\n\n"
+
     test_code += """
         default:
-            printf("Error: Caso de prueba no válido");
+            printf("Error: Caso de prueba no válido\\n");
             return 1;
     }
     return 0;
 }
 """
-    
     return test_code
 
 if __name__ == "__main__":

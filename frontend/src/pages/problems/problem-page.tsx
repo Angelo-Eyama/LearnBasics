@@ -16,7 +16,6 @@ import { toast } from "sonner"
 import { Loading } from "@/components/ui/loading"
 import { getUserId } from "@/hooks/useAuth"
 import { createSubmission } from "@/client"
-import { all } from "axios"
 
 const starterCode = {
     javascript: `function nombreFuncion(arg1, arg2) {

@@ -1,12 +1,19 @@
+from enum import Enum
+from typing import Any, List
 from pydantic import BaseModel
 
-class TestCase(BaseModel):
-    input: str
-    expected_output: str
-    description: str = ""
+class CType(str, Enum):
+    INT = "int"
+    FLOAT = "float"
+    CHAR_PTR = "char*"
+    DOUBLE = "double"
+
+class CArgument(BaseModel):
+    value: Any
+    type: CType
 
 class TestCase(BaseModel):
-    input: str
+    inputs: List[CArgument]
     expected_output: str
     description: str = ""
 
@@ -18,18 +25,24 @@ class FunctionTestRequest(BaseModel):
     class Config:
         json_schema_extra = {
             "example": {
-                "code": "int suma(int a, int b) { return a + b; }",
-                "function_name": "suma",
+                "code": "char* concat_strings(const char* str1, const char* str2) { static char result[1024]; sprintf(result, \"%s %s\", str1, str2);return result;\n    }",
+                "function_name": "concat_strings",
                 "test_cases": [
-                    {"input": "2 3", "expected_output": "5", "description": "Suma básica"},
-                    {"input": "0 0", "expected_output": "0", "description": "Suma con ceros"}
+                    {
+                        "inputs": [ 
+                            {"value": "Hola", "type": "char*"}, 
+                            {"value": "Mundo", "type": "char*"}
+                        ],
+                        "expected_output": "Hola Mundo",
+                        "description": "Concatenación simple"
+                    }
                 ]
             }
         }
 
 class TestResult(BaseModel):
     test_passed: bool
-    input_used: str
+    input_used: List[CArgument]
     expected_output: str
     actual_output: str
     description: str
