@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import Optional, List
 from pydantic import BaseModel, ConfigDict
+from app.schemas.problem import ProblemRead
 
 # Esquema Base
 class SubmissionBase(BaseModel):
@@ -25,8 +26,10 @@ class SubmissionUpdate(BaseModel):
 # Esquema de Lectura
 class SubmissionRead(SubmissionBase):
     id: int
-    timeSubmitted: Optional[datetime] = None
-    timeUpdated: Optional[datetime] = None
+    timeSubmitted: datetime
+    problemID: int
+    userID: int 
+    problem: Optional[ProblemRead] = None  # Relación opcional con el problema
 
     model_config = ConfigDict(
         from_attributes=True

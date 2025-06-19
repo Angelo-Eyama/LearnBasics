@@ -198,8 +198,10 @@ export type SubmissionRead = {
     status: string;
     suggestions?: string | null;
     id: number;
-    timeSubmitted?: string | null;
-    timeUpdated?: string | null;
+    timeSubmitted: string;
+    problemID: number;
+    userID: number;
+    problem?: ProblemRead | null;
 };
 
 export type SubmissionUpdate = {
@@ -220,7 +222,7 @@ export type Suggestion = {
 };
 
 export type TestCase = {
-    input: string;
+    input: Array<unknown>;
     expected_output: string;
     description?: string;
 };
@@ -245,7 +247,7 @@ export type TestCaseUpdate = {
 
 export type TestResult = {
     test_passed: boolean;
-    input_used: string;
+    input_used: Array<unknown>;
     expected_output: string;
     actual_output: string;
     description: string;

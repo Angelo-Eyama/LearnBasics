@@ -97,7 +97,7 @@ export default function AdminReportsPage() {
                 <TableBody>
                     {
                         reports?.map((report) => (
-                            <TableRow>
+                            <TableRow key={report.id} className="hover:bg-muted/50">
                                 <TableCell>
                                     <div className="text-xs text-muted-foreground">
                                         {report.id}

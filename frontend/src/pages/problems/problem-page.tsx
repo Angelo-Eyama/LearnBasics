@@ -9,13 +9,14 @@ import { Badge } from "@/components/ui/badge"
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowLeft, Send } from "lucide-react"
 import Editor from "@/components/editor"
-import { getProblemById, getCommentsByProblemId, createComment, CommentCreate } from "@/client"
+import { getProblemById, getCommentsByProblemId, createComment, CommentCreate, compileCode } from "@/client"
 import { parseServerString, formatDate } from "@/utils/utils"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { Loading } from "@/components/ui/loading"
 import { getUserId } from "@/hooks/useAuth"
 import { createSubmission } from "@/client"
+import { Input } from "@/components/ui/input"
 
 const starterCode = {
     javascript: `function nombreFuncion(arg1, arg2) {
@@ -122,6 +123,46 @@ export default function ProblemDetailPage() {
         }
     })
 
+    // Mutacion para ejecutar código
+    const compileCodeMutation = useMutation({
+        mutationFn: async () => {
+            setIsRunning(true);
+            const response = await compileCode({
+                body: {
+                    code: code,
+                    language: language,
+                    input_data: inputs,
+                }
+            });
+            if (response.status !== 200 || !("data" in response)) {
+                toast.error(`Error ${response.status}`, {
+                    description: Array.isArray(response.error?.detail)
+                        ? response.error.detail.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
+                        : (response.error?.detail || "Error al enviar código")
+                });
+                throw new Error(`Error ${response.status} al enviar el código`);
+            }
+            return response.data;
+        },
+        onSuccess: (data) => {
+            if (!data) {
+                setOutput("Error: No se recibió respuesta del servidor");
+                return;
+            }
+            if (data.success) {
+                setOutput(`${data.output}\n\nTiempo de ejecución: ${data.execution_time.toFixed(3)}s`);
+            } else {
+                setOutput(`${data.error || 'Error desconocido'}\n\nTiempo de ejecución: ${data.execution_time.toFixed(3)}s`);
+            }
+        },
+        onError: (error: Error) => {
+            setOutput(`Error de conexión: ${error.message}`);
+        },
+        onSettled: () => {
+            setIsRunning(false);
+        }
+    });
+
     const [language, setLanguage] = useState("javascript")
     const [code, setCode] = useState(starterCode.javascript)
     const [activeTab, setActiveTab] = useState("description")
@@ -129,6 +170,7 @@ export default function ProblemDetailPage() {
     const [comments, setComments] = useState(commentsData || [])
     const [output, setOutput] = useState("")
     const [isRunning, setIsRunning] = useState(false)
+    const [inputs, setInputs] = useState("")
 
     // useEffect para actualizar los comentarios cuando cambian los datos
     useEffect(() => {
@@ -144,13 +186,7 @@ export default function ProblemDetailPage() {
 
     const handleRunCode = () => {
         setIsRunning(true)
-        setOutput("Ejecutando codigo...\n")
-
-        // Simulación de ejecución del código
-        setTimeout(() => {
-            setOutput("Output: [0, 1]\nTest cases passed: 3/3\nExecution time: 42ms")
-            setIsRunning(false)
-        }, 1000)
+        compileCodeMutation.mutateAsync();
     }
 
     const handleSubmitComment = () => {
@@ -204,8 +240,8 @@ export default function ProblemDetailPage() {
             <title>{problem.title}</title>
             <div className="flex items-center mb-6">
                 <Button variant="ghost" size="sm" className="mr-2" onClick={() => navigate(-1)}>
-                        <ArrowLeft className="h-4 w-4 mr-1" />
-                        Volver
+                    <ArrowLeft className="h-4 w-4 mr-1" />
+                    Volver
                 </Button>
                 <div>
                     <h1 className="text-3xl font-bold">{problem.title}</h1>
@@ -305,8 +341,14 @@ export default function ProblemDetailPage() {
                         </div>
                     </div>
 
-                    <Card className="border h-[calc(100vh-300px)] pb-0 pt-0.5 px-0.5">
+                    <Card className="border h-[calc(100vh-300px)] pb-2 pt-0.5 px-0.5">
                         <Editor language={language} code={code} theme="vs-dark" setCode={setCode} />
+                        <Input
+                            type="text"
+                            placeholder="Parametros de entrada"
+                            className="border-2 mt-1"
+                            onChange={(e) => setInputs(e.target.value)}
+                        />
                     </Card>
 
                     <Card>

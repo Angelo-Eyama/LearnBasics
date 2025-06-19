@@ -96,7 +96,6 @@ class Submission(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column_kwargs={"nullable": True}
     )
-    timeUpdated: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"nullable": True})
     suggestions: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
     userID: int = Field(foreign_key="users.id")

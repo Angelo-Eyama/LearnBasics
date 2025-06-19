@@ -23,182 +23,9 @@ import { FaGithub } from "react-icons/fa";
 import useAuth from "@/hooks/useAuth"
 import { parseServerString, decideRank, formatDate, getDiceBearAvatar } from "@/utils/utils"
 import { useNotifications } from "@/hooks/useNotifications"
-
-const user = {
-    id: "1",
-    name: "Jane Smith",
-    username: "janesmith",
-    email: "jane.smith@example.com",
-    avatar: "/placeholder.svg?height=100&width=100",
-    location: "San Francisco, CA",
-    joinedDate: "January 2023",
-    bio: "Full-stack developer passionate about solving complex problems and building intuitive user interfaces.",
-    skills: ["JavaScript", "TypeScript", "React", "Node.js", "Python"],
-    githubUsername: "janesmith",
-    problemsSolved: 42,
-    submissions: 78,
-    rank: "Advanced",
-    verified: true,
-}
-
-const submissions = [
-    {
-        id: "1",
-        problemId: "1",
-        problemTitle: "Two Sum",
-        language: "JavaScript",
-        status: "Accepted",
-        runtime: "76ms",
-        memory: "42.1MB",
-        submittedAt: "2023-10-15T14:30:00Z",
-        code: `function twoSum(nums, target) {
-    const map = new Map();
-    for (let i = 0; i < nums.length; i++) {
-      const complement = target - nums[i];
-      if (map.has(complement)) {
-        return [map.get(complement), i];
-      }
-      map.set(nums[i], i);
-    }
-    return [];
-  }`,
-    },
-    {
-        id: "2",
-        problemId: "2",
-        problemTitle: "Reverse Linked List",
-        language: "Python",
-        status: "Accepted",
-        runtime: "32ms",
-        memory: "16.5MB",
-        submittedAt: "2023-10-12T09:15:00Z",
-        code: `def reverseList(self, head):
-      prev = None
-      current = head
-      while current:
-          next_temp = current.next
-          current.next = prev
-          prev = current
-          current = next_temp
-      return prev`,
-    },
-    {
-        id: "3",
-        problemId: "3",
-        problemTitle: "Binary Tree Level Order Traversal",
-        language: "JavaScript",
-        status: "Wrong Answer",
-        runtime: "N/A",
-        memory: "N/A",
-        submittedAt: "2023-10-10T16:45:00Z",
-        code: `function levelOrder(root) {
-    if (!root) return [];
-    const result = [];
-    const queue = [root];
-    
-    while (queue.length > 0) {
-      const levelSize = queue.length;
-      const currentLevel = [];
-      
-      for (let i = 0; i < levelSize; i++) {
-        const node = queue.shift();
-        currentLevel.push(node.val);
-        
-        if (node.left) queue.push(node.left);
-        if (node.right) queue.push(node.right);
-      }
-      
-      result.push(currentLevel);
-    }
-    
-    return result;
-  }`,
-    },
-    {
-        id: "4",
-        problemId: "5",
-        problemTitle: "LRU Cache",
-        language: "TypeScript",
-        status: "Time Limit Exceeded",
-        runtime: "N/A",
-        memory: "N/A",
-        submittedAt: "2023-10-05T08:30:00Z",
-        code: `class LRUCache {
-    private capacity: number;
-    private cache: Map<number, number>;
-  
-    constructor(capacity: number) {
-      this.capacity = capacity;
-      this.cache = new Map();
-    }
-  
-    get(key: number): number {
-      if (!this.cache.has(key)) return -1;
-      
-      const value = this.cache.get(key)!;
-      this.cache.delete(key);
-      this.cache.set(key, value);
-      return value;
-    }
-  
-    put(key: number, value: number): void {
-      if (this.cache.has(key)) {
-        this.cache.delete(key);
-      } else if (this.cache.size >= this.capacity) {
-        const firstKey = this.cache.keys().next().value;
-        this.cache.delete(firstKey);
-      }
-      
-      this.cache.set(key, value);
-    }
-  }`,
-    },
-    {
-        id: "5",
-        problemId: "4",
-        problemTitle: "Merge K Sorted Lists",
-        language: "JavaScript",
-        status: "Runtime Error",
-        runtime: "N/A",
-        memory: "N/A",
-        submittedAt: "2023-09-28T11:20:00Z",
-        code: `function mergeKLists(lists) {
-    if (!lists || lists.length === 0) return null;
-    
-    return mergeLists(lists, 0, lists.length - 1);
-  }
-  
-  function mergeLists(lists, start, end) {
-    if (start === end) return lists[start];
-    
-    const mid = Math.floor((start + end) / 2);
-    const left = mergeLists(lists, start, mid);
-    const right = mergeLists(lists, mid + 1, end);
-    
-    return mergeTwoLists(left, right);
-  }
-  
-  function mergeTwoLists(l1, l2) {
-    const dummy = new ListNode(0);
-    let current = dummy;
-    
-    while (l1 && l2) {
-      if (l1.val < l2.val) {
-        current.next = l1;
-        l1 = l1.next;
-      } else {
-        current.next = l2;
-        l2 = l2.next;
-      }
-      current = current.next;
-    }
-    
-    current.next = l1 || l2;
-    
-    return dummy.next;
-  }`,
-    },
-]
+import { useQuery } from "@tanstack/react-query"
+import { getMySubmissions, SubmissionRead } from "@/client"
+import { toast } from "sonner"
 
 export default function ProfilePage() {
     const { user: userData } = useAuth()
@@ -207,8 +34,24 @@ export default function ProfilePage() {
         markNotificationAsRead,
         markAllAsRead,
     } = useNotifications()
-    const [selectedSubmission, setSelectedSubmission] = useState<(typeof submissions)[0] | null>(null)
     const [notificationsTab, setNotificationsTab] = useState("all")
+
+    // Query para obtener las entregas del usuario
+    const {
+        data: userSubmissions,
+    } = useQuery({
+        queryKey: ['submissions'],
+        queryFn: async () => {
+            const response = await getMySubmissions()
+            if (response.status !== 200 || !response.data) {
+                toast.error("Error al obtener las entregas")
+                throw new Error("Error al obtener las entregas")
+            }
+            return response.data
+        },
+    })
+    const [selectedSubmission, setSelectedSubmission] = useState<(SubmissionRead)>()
+
     if (!userData) return null
 
 
@@ -239,7 +82,7 @@ export default function ProfilePage() {
                 <Card className="md:col-span-1">
                     <CardHeader className="flex flex-col items-center text-center">
                         <Avatar className="h-24 w-24 mb-4 border-2 border-primary">
-                            <AvatarImage src={getDiceBearAvatar(userData.username)} alt={userData.username}/>
+                            <AvatarImage src={getDiceBearAvatar(userData.username)} alt={userData.username} />
                             <AvatarFallback>{userData?.username?.charAt(0).toUpperCase()}</AvatarFallback>
                         </Avatar>
                         <CardTitle>{`${userData?.firstName} ${userData?.lastName}`}</CardTitle>
@@ -308,23 +151,18 @@ export default function ProfilePage() {
                             <CardTitle>Estadisticas</CardTitle>
                         </CardHeader>
                         <CardContent>
-                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
                                     <Award className="h-8 w-8 mb-2 text-primary" />
                                     <span className="text-2xl font-bold">{decideRank(userData.score)}</span>
                                     <span className="text-sm text-muted-foreground">Rango actual</span>
                                     <span className="text-sm text-muted-foreground">{userData.score} puntos</span>
                                 </div>
-                                <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
-                                    <Code className="h-8 w-8 mb-2 text-primary" />
-                                    <span className="text-2xl font-bold">{user.problemsSolved}</span>
-                                    <span className="text-sm text-muted-foreground">Problemas resueltos</span>
-                                </div>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
                                         <div className="flex flex-col items-center p-4 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors">
                                             <FileCode className="h-8 w-8 mb-2 text-primary" />
-                                            <span className="text-2xl font-bold">{user.submissions}</span>
+                                            <span className="text-2xl font-bold">{userSubmissions?.total || 0}</span>
                                             <span className="text-sm text-muted-foreground">Total de entregas</span>
                                         </div>
                                     </AlertDialogTrigger>
@@ -339,30 +177,28 @@ export default function ProfilePage() {
                                                         <TableHead>Problema</TableHead>
                                                         <TableHead>Lenguaje</TableHead>
                                                         <TableHead>Estado</TableHead>
-                                                        <TableHead>T. Ejecucion</TableHead>
-                                                        <TableHead>Memoria</TableHead>
                                                         <TableHead>Entregado</TableHead>
                                                         <TableHead className="text-right">Acciones</TableHead>
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
-                                                    {submissions.map((submission) => (
+                                                    {userSubmissions?.submissions.map((submission) => (
                                                         <TableRow key={submission.id}>
                                                             <TableCell>
                                                                 <Link
-                                                                    to={`/problems/${submission.problemId}`}
+                                                                    to={`/problems/${submission.problemID}`}
                                                                     className="text-primary hover:underline"
                                                                 >
-                                                                    {submission.problemTitle}
+                                                                    {submission?.problem?.title || 'Sin título'}
                                                                 </Link>
                                                             </TableCell>
                                                             <TableCell>{submission.language}</TableCell>
                                                             <TableCell>
                                                                 <Badge
                                                                     variant={
-                                                                        submission.status === "Accepted"
+                                                                        submission.status === "Solucion aceptada"
                                                                             ? "outline"
-                                                                            : submission.status === "Wrong Answer"
+                                                                            : submission.status === "Solucion incorrecta"
                                                                                 ? "destructive"
                                                                                 : "secondary"
                                                                     }
@@ -370,9 +206,7 @@ export default function ProfilePage() {
                                                                     {submission.status}
                                                                 </Badge>
                                                             </TableCell>
-                                                            <TableCell>{submission.runtime}</TableCell>
-                                                            <TableCell>{submission.memory}</TableCell>
-                                                            <TableCell>{formatDate(submission.submittedAt)}</TableCell>
+                                                            <TableCell>{formatDate(submission.timeSubmitted)}</TableCell>
                                                             <TableCell className="text-right">
                                                                 <Button variant="outline" size="sm" onClick={() => setSelectedSubmission(submission)}>
                                                                     <Eye className="h-4 w-4 mr-1" />
@@ -390,17 +224,16 @@ export default function ProfilePage() {
                                     </AlertDialogContent>
                                 </AlertDialog>
 
-                                {/* TODO: (Code Splitting) Dialog de detalles de entregas */}
                                 {selectedSubmission && (
                                     <AlertDialog
                                         open={!!selectedSubmission}
-                                        onOpenChange={(open) => !open && setSelectedSubmission(null)}
+                                        onOpenChange={(open) => !open && setSelectedSubmission(undefined)}
                                     >
                                         <AlertDialogContent className="max-w-4xl">
                                             <AlertDialogHeader>
                                                 <AlertDialogTitle>Detalles de entregas</AlertDialogTitle>
                                                 <AlertDialogDescription>
-                                                    {selectedSubmission.problemTitle} - {formatDate(selectedSubmission.submittedAt)}
+                                                    {selectedSubmission?.problem?.title || 'Sin título'} - {formatDate(selectedSubmission.timeSubmitted)}
                                                 </AlertDialogDescription>
                                             </AlertDialogHeader>
                                             <div className="space-y-4">
@@ -424,27 +257,19 @@ export default function ProfilePage() {
                                                         <p className="text-sm font-medium">Lenguaje</p>
                                                         <p className="mt-1">{selectedSubmission.language}</p>
                                                     </div>
-                                                    <div>
-                                                        <p className="text-sm font-medium">T. Ejecucion</p>
-                                                        <p className="mt-1">{selectedSubmission.runtime}</p>
-                                                    </div>
-                                                    <div>
-                                                        <p className="text-sm font-medium">Memoria</p>
-                                                        <p className="mt-1">{selectedSubmission.memory}</p>
-                                                    </div>
                                                 </div>
 
                                                 <div>
                                                     <p className="text-sm font-medium mb-2">Codigo</p>
                                                     <div className="bg-muted p-4 rounded-md overflow-auto max-h-[400px]">
-                                                        <pre className="text-sm font-mono whitespace-pre-wrap">{selectedSubmission.code}</pre>
+                                                        <pre className="text-sm font-mono whitespace-pre-wrap">{JSON.parse(selectedSubmission.code)}</pre>
                                                     </div>
                                                 </div>
                                             </div>
                                             <AlertDialogFooter>
                                                 <AlertDialogCancel>Cerrar</AlertDialogCancel>
                                                 <AlertDialogAction asChild>
-                                                    <Link to={`/problems/${selectedSubmission.problemId}`}>Ir al problema</Link>
+                                                    <Link to={`/problems/${selectedSubmission.problemID}`}>Ir al problema</Link>
                                                 </AlertDialogAction>
                                             </AlertDialogFooter>
                                         </AlertDialogContent>
