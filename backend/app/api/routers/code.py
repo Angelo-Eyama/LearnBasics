@@ -1,9 +1,10 @@
 from fastapi import APIRouter, HTTPException
 import httpx
-from app.schemas.code import CodeRequest, CompilationResult, FunctionTestRequest, FunctionTestResult
 from app.services.ai.providers.deepseek import OpenAICodeReviewer
 from app.services.ai.models import CodeReviewRequest, CodeFeedbackRequest
 from app.core.config import compiler_settings
+from app.schemas.code import CodeRequest, CompilationResult
+from app.schemas.testCase import FunctionTestRequest, FunctionTestResult
 
 router = APIRouter(
     tags=["Codigo"],

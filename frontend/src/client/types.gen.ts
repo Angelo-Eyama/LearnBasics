@@ -61,24 +61,81 @@ export type CompilationResult = {
     execution_time: number;
 };
 
+/**
+ * Caso de prueba común para todos los compiladores
+ */
+export type CompilerTestCase = {
+    /**
+     * Lista de argumentos para la función
+     */
+    inputs: Array<TypedInput> | null;
+    /**
+     * Salida esperada (serializada como string)
+     */
+    expected_output: string;
+    /**
+     * Descripción del caso de prueba
+     */
+    description?: string;
+};
+
 export type ErrorResponse = {
     detail: string;
 };
 
+/**
+ * Solicitud para probar una función
+ */
 export type FunctionTestRequest = {
-    language: string;
+    /**
+     * Código a evaluar
+     */
     code: string;
+    /**
+     * Lenguaje de programación
+     */
+    language: string;
+    /**
+     * Nombre de la función a probar
+     */
     function_name: string;
-    test_cases: Array<TestCase>;
+    /**
+     * Casos de prueba
+     */
+    test_cases: Array<CompilerTestCase>;
 };
 
+/**
+ * Resultado completo de la prueba
+ */
 export type FunctionTestResult = {
+    /**
+     * Indica si todas las pruebas pasaron
+     */
     success: boolean;
+    /**
+     * Número total de pruebas
+     */
     total_tests: number;
+    /**
+     * Número de pruebas exitosas
+     */
     passed_tests: number;
+    /**
+     * Número de pruebas fallidas
+     */
     failed_tests: number;
+    /**
+     * Resultados detallados
+     */
     test_results: Array<TestResult>;
+    /**
+     * Error de compilación si existe
+     */
     compilation_error?: string;
+    /**
+     * Tiempo de ejecución en ms
+     */
     execution_time: number;
 };
 
@@ -117,6 +174,7 @@ export type ProblemCreate = {
     difficulty: string;
     hints: string;
     score: number;
+    functionName?: string | null;
     authorID: number;
 };
 
@@ -127,6 +185,7 @@ export type ProblemRead = {
     difficulty: string;
     hints: string;
     score: number;
+    functionName?: string | null;
     id: number;
     authorID: number;
 };
@@ -138,6 +197,7 @@ export type ProblemUpdate = {
     difficulty?: string | null;
     hints?: string | null;
     score?: number | null;
+    functionName?: string | null;
 };
 
 export type ReportCreate = {
@@ -207,37 +267,66 @@ export type SubmissionUpdate = {
     suggestions?: string | null;
 };
 
-export type TestCase = {
-    inputs: Array<unknown>;
-    expected_output: string;
-    description?: string;
-};
-
 export type TestCaseCreate = {
     problemID: number;
-    input: string;
-    output: string;
+    description?: string | null;
+    inputs?: Array<TypedInput> | null;
+    expected_output: string;
 };
 
 export type TestCaseRead = {
     problemID: number;
-    input: string;
-    output: string;
+    description?: string | null;
+    inputs?: Array<TypedInput> | null;
+    expected_output: string;
     id: number;
 };
 
+/**
+ * Esquema para actualizar casos de prueba en la BD
+ */
 export type TestCaseUpdate = {
-    input?: string | null;
-    output?: string | null;
+    description?: string | null;
+    inputs?: Array<TypedInput> | null;
+    expected_output?: string | null;
 };
 
+/**
+ * Resultado de un caso de prueba individual
+ */
 export type TestResult = {
+    /**
+     * Indica si la prueba pasó
+     */
     test_passed: boolean;
+    /**
+     * Entrada utilizada
+     */
     input_used: Array<unknown>;
+    /**
+     * Salida esperada
+     */
     expected_output: string;
+    /**
+     * Salida obtenida
+     */
     actual_output: string;
-    description: string;
+    /**
+     * Descripción del caso de prueba
+     */
+    description?: string;
+    /**
+     * Mensaje de error si falló
+     */
     error?: string;
+};
+
+/**
+ * Representa un argumento tipado para una función
+ */
+export type TypedInput = {
+    type: 'int' | 'string' | 'float' | 'bool';
+    value: unknown;
 };
 
 export type UserCreate = {
@@ -2156,37 +2245,6 @@ export type CreateTestCaseResponses = {
 
 export type CreateTestCaseResponse = CreateTestCaseResponses[keyof CreateTestCaseResponses];
 
-export type DeleteTestCaseData = {
-    body?: never;
-    path?: never;
-    query: {
-        test_case_id: number;
-    };
-    url: '/testCases/{testCase_id}';
-};
-
-export type DeleteTestCaseErrors = {
-    /**
-     * Caso de prueba no encontrado
-     */
-    404: ErrorResponse;
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type DeleteTestCaseError = DeleteTestCaseErrors[keyof DeleteTestCaseErrors];
-
-export type DeleteTestCaseResponses = {
-    /**
-     * Caso de prueba eliminado
-     */
-    200: TestCaseRead;
-};
-
-export type DeleteTestCaseResponse = DeleteTestCaseResponses[keyof DeleteTestCaseResponses];
-
 export type GetTestCaseByIdData = {
     body?: never;
     path?: never;
@@ -2218,37 +2276,6 @@ export type GetTestCaseByIdResponses = {
 
 export type GetTestCaseByIdResponse = GetTestCaseByIdResponses[keyof GetTestCaseByIdResponses];
 
-export type UpdateTestCaseData = {
-    body: TestCaseUpdate;
-    path?: never;
-    query: {
-        test_case_id: number;
-    };
-    url: '/testCases/{testCase_id}';
-};
-
-export type UpdateTestCaseErrors = {
-    /**
-     * Caso de prueba no encontrado
-     */
-    404: ErrorResponse;
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type UpdateTestCaseError = UpdateTestCaseErrors[keyof UpdateTestCaseErrors];
-
-export type UpdateTestCaseResponses = {
-    /**
-     * Caso de prueba actualizado
-     */
-    200: TestCaseRead;
-};
-
-export type UpdateTestCaseResponse = UpdateTestCaseResponses[keyof UpdateTestCaseResponses];
-
 export type GetTestCasesByProblemIdData = {
     body?: never;
     path: {
@@ -2279,6 +2306,68 @@ export type GetTestCasesByProblemIdResponses = {
 };
 
 export type GetTestCasesByProblemIdResponse = GetTestCasesByProblemIdResponses[keyof GetTestCasesByProblemIdResponses];
+
+export type DeleteTestCaseData = {
+    body?: never;
+    path: {
+        test_case_id: number;
+    };
+    query?: never;
+    url: '/testCases/{test_case_id}';
+};
+
+export type DeleteTestCaseErrors = {
+    /**
+     * Caso de prueba no encontrado
+     */
+    404: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteTestCaseError = DeleteTestCaseErrors[keyof DeleteTestCaseErrors];
+
+export type DeleteTestCaseResponses = {
+    /**
+     * Caso de prueba eliminado
+     */
+    200: TestCaseRead;
+};
+
+export type DeleteTestCaseResponse = DeleteTestCaseResponses[keyof DeleteTestCaseResponses];
+
+export type UpdateTestCaseData = {
+    body: TestCaseUpdate;
+    path: {
+        test_case_id: number;
+    };
+    query?: never;
+    url: '/testCases/{test_case_id}';
+};
+
+export type UpdateTestCaseErrors = {
+    /**
+     * Caso de prueba no encontrado
+     */
+    404: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateTestCaseError = UpdateTestCaseErrors[keyof UpdateTestCaseErrors];
+
+export type UpdateTestCaseResponses = {
+    /**
+     * Caso de prueba actualizado
+     */
+    200: TestCaseRead;
+};
+
+export type UpdateTestCaseResponse = UpdateTestCaseResponses[keyof UpdateTestCaseResponses];
 
 export type GetFeedbackData = {
     body: CodeFeedbackRequest;

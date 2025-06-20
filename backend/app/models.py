@@ -1,5 +1,6 @@
-from typing import List, Optional
-from sqlmodel import SQLModel, Field, Relationship
+import json
+from typing import Any, Dict, List, Optional
+from sqlmodel import JSON, Column, SQLModel, Field, Relationship
 from datetime import datetime, timezone
 
 class UserRole(SQLModel, table=True):
@@ -66,10 +67,11 @@ class Problem(SQLModel, table=True):
     title: str
     tags: str
     description: str
-    hints: str
+    hints: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     difficulty: str
     score: int
     tags: str
+    functionName: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     authorID: int = Field(foreign_key="users.id")
     
     testCases: List["TestCase"] = Relationship(
@@ -102,7 +104,7 @@ class Submission(SQLModel, table=True):
     
     user: User = Relationship(back_populates="submissions")
     problem: Problem = Relationship(back_populates="submissions")
-    
+
 class Role(SQLModel, table=True):
     __tablename__ = "roles"
     
@@ -139,7 +141,7 @@ class Comment(SQLModel, table=True):
     
     user: User = Relationship(back_populates="comments")
     problem: Problem = Relationship(back_populates="comments")
-    
+
 class Notification(SQLModel, table=True):
     __tablename__ = "notifications"
     
@@ -151,7 +153,7 @@ class Notification(SQLModel, table=True):
     userID: int = Field(foreign_key="users.id", ondelete="CASCADE")
     
     user: User = Relationship(back_populates="notifications")
-    
+
 class Report(SQLModel, table=True):
     __tablename__ = "reports"
     
@@ -161,15 +163,35 @@ class Report(SQLModel, table=True):
     read: bool = Field(default=False)
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
     userID: int = Field(foreign_key="users.id")
-    
+
 class TestCase(SQLModel, table=True):
     __tablename__ = "test_cases"
     
     id: Optional[int] = Field(default=None, primary_key=True)
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
-    functionName: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     description: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
-    inputs: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
-    output: str
+    inputs_json: Optional[str] = Field(
+        default=None,
+        sa_column=Column(JSON, nullable=True)
+    )
+    expected_output: str
     
     problem: Problem = Relationship(back_populates="testCases")
+    
+    @property
+    def inputs(self) -> Optional[List[Dict[str, Any]]]:
+        """Convierte el JSON almacenado a lista de Python."""
+        if self.inputs_json:
+            try:
+                return json.loads(self.inputs_json)
+            except:
+                return None
+        return None
+
+    @inputs.setter
+    def inputs(self, value: Optional[List[Dict[str, Any]]]):
+        """Convierte la lista de Python a JSON para almacenar."""
+        if value is not None:
+            self.inputs_json = json.dumps(value)
+        else:
+            self.inputs_json = None

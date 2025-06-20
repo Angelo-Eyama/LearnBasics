@@ -9,6 +9,7 @@ class ProblemBase(BaseModel):
     difficulty: str
     hints: str
     score: int
+    functionName: Optional[str] = None
 
 # Esquema de Creación
 class ProblemCreate(ProblemBase):
@@ -22,6 +23,7 @@ class ProblemUpdate(BaseModel):
     difficulty: Optional[str] = None
     hints: Optional[str] = None
     score: Optional[int] = None
+    functionName: Optional[str] = None
 
 # Esquema de Lectura
 class ProblemRead(ProblemBase):

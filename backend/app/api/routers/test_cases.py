@@ -1,3 +1,4 @@
+import json
 from typing import List
 from fastapi import APIRouter, HTTPException, Depends
 from app.api.deps import SessionDep, CurrentUser, get_current_user, verify_role
@@ -86,19 +87,43 @@ def get_test_cases_by_problem_id(problem_id: int, session: SessionDep):
     "/testCases/",
     response_model=TestCaseRead,
     summary="Crear un caso de prueba",
-    description="Crea un nuevo caso de prueba en el sistema.",
+    description="""
+    Crea un nuevo caso de prueba en el sistema.
+    
+    El campo `inputs` debe ser una lista de objetos con los campos `type` y `value`, donde:
+    - `type` puede ser: "int", "string", "double", o "bool"
+    - `value` es el valor que debe ser compatible con el tipo especificado
+    
+    Ejemplo:
+    ```
+    [
+      {"type": "int", "value": 10},
+      {"type": "string", "value": "texto"},
+      {"type": "bool", "value": true}
+    ]
+    ```
+    
+    Esto se pasaría como funcion(10, "texto", true)
+    """,
     response_description="El caso de prueba creado.",
     responses={
         200: {"description": "Caso de prueba creado"},
     }
 )
 def create_test_case(test_case: TestCaseCreate, session: SessionDep):
-    test_case = test_cases_controller.create_test_case(session, test_case)
-    return test_case
+    # Verificar que el problema existe
+    problem = session.get(Problem, test_case.problemID)
+    if not problem:
+        raise HTTPException(status_code=404, detail="Problema no encontrado")
+
+    # Crear el caso de prueba
+    new_test_case = test_cases_controller.create_test_case(session, test_case)
+    return new_test_case
+        
 
 
 @router.patch(
-    "/testCases/{testCase_id}",
+    "/testCases/{test_case_id}",
     response_model=TestCaseRead,
     summary="Actualizar un caso de prueba",
     description="Actualiza la informacion de un caso de prueba en el sistema utilizando su ID como clave.",
@@ -109,17 +134,24 @@ def create_test_case(test_case: TestCaseCreate, session: SessionDep):
     }
 )
 def update_test_case(test_case_id: int, test_case_update: TestCaseUpdate, session: SessionDep):
+    
+    # Verificar que el caso de prueba existe
     test_case = test_cases_controller.get_test_case_by_id(session, test_case_id)
     if not test_case:
         raise HTTPException(status_code=404, detail="Caso de prueba no encontrado")
-    
-    updated_test_case = test_cases_controller.update_test_case(
-        session=session, db_test_case=test_case, test_case_in=test_case_update)
-    return updated_test_case
+        
+    try:
+        updated_test_case = test_cases_controller.update_test_case(
+            session=session, db_test_case=test_case, test_case_in=test_case_update)
+        return updated_test_case
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error al actualizar: {str(e)}")
 
 
 @router.delete(
-    "/testCases/{testCase_id}",
+    "/testCases/{test_case_id}",
     response_model=TestCaseRead,
     summary="Eliminar un caso de prueba",
     description="Elimina un caso de prueba del sistema utilizando su ID.",
