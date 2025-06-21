@@ -9,7 +9,7 @@ class ProblemBase(BaseModel):
     difficulty: str
     hints: str
     score: int
-    functionName: Optional[str] = None
+    functionName: str
 
 # Esquema de Creación
 class ProblemCreate(ProblemBase):

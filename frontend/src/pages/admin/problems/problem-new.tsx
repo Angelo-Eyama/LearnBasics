@@ -17,18 +17,26 @@ import { createProblem, ProblemCreate } from "@/client"
 import { useMutation } from "@tanstack/react-query"
 import { parseServerString } from "@/utils/utils"
 import BadgeClosable from "@/components/ui/badge-closable"
+import { getUserId } from "@/hooks/useAuth"
 
 export default function NewProblemPage() {
+    const navigate = useNavigate()
+    // Asignar el ID del usuario actual al autorID
+    const authorID = getUserId()
+    if (!authorID) {
+        navigate("/admin/problems")
+        return null
+    }
     const [formData, setFormData] = useState<ProblemCreate>({
-        authorID: 1,
+        authorID: parseInt(authorID),
         title: "",
         description: "",
         difficulty: "",
         tags: "",
         hints: "",
         score: 0,
+        functionName: "",
     })
-    const navigate = useNavigate()
     const createProblemMutation = useMutation({
         mutationFn: async (data: ProblemCreate) => {
             const response = await createProblem({ body: data })

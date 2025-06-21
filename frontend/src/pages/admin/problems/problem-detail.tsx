@@ -9,38 +9,51 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { ArrowLeft, Save, Plus, Eye, X } from "lucide-react"
+import { ArrowLeft, Save, Plus, Eye, X, Trash } from "lucide-react"
 import { toast } from "sonner"
 import { useQueryClient, useQuery, useMutation } from "@tanstack/react-query"
-import { getProblemById, ProblemRead, ProblemUpdate, TestCase, updateProblem } from "@/client"
 import { parseServerString } from "@/utils/utils"
 import BadgeClosable from "@/components/ui/badge-closable"
 import NotFound from "@/pages/public/not-found"
 import { Loading } from "@/components/ui/loading"
-import { Badge } from "@/components/ui/badge"
-type InputType = 'int' | 'float' | 'string';
-interface TypedInput {
-    value: string;
-    type: InputType;
-}
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import {
+    getProblemById,
+    ProblemRead,
+    ProblemUpdate,
+    updateProblem,
+    getTestCasesByProblemId,
+    TestCaseCreate,
+    createTestCase,
+    deleteTestCase
+} from "@/client"
+
+type InputType = 'int' | 'string' | 'float' | 'bool';
 export default function ProblemDetailPage() {
     const { id } = useParams<{ id: string }>()
     const navigate = useNavigate()
     const queryClient = useQueryClient()
-    const [testCases, setTestCases] = useState<TestCase[]>([])
-    const [newTestCase, setNewTestCase] = useState<TestCase & { typedInputs: TypedInput[] }>({
+    const [newTestCase, setNewTestCase] = useState<TestCaseCreate>({
+        description: "",
         inputs: [],
         expected_output: "",
-        description: "",
-        typedInputs: [{ value: '', type: 'int' }]
+        problemID: parseInt(id!),
     });
+    const [newTag, setNewTag] = useState("")
 
-    // Añade estas funciones de manejo
-    const handleAddTestCase = () => {
-        throw new Error("Function not implemented.")
-    }
-
+    // Query para obtener los datos del problema
     const { data: problem, isLoading, isError } = useQuery({
         queryKey: ["adminProblems", id],
         queryFn: async () => {
@@ -58,17 +71,35 @@ export default function ProblemDetailPage() {
         retry: false
     })
 
-    // Estado local para manejar el formulario
+    // Query para obtener los casos de prueba del problema
+    const { data: testCases = [] } = useQuery({
+        queryKey: ["testCases", id],
+        queryFn: async () => {
+            if (!id) throw new Error("ID del problema no proporcionado")
+            const response = await getTestCasesByProblemId({
+                path: { problem_id: parseInt(id) }
+            })
+            if (response.status !== 200 || !("data" in response)) {
+                toast.error(`Error ${response.status} al obtener los casos de prueba`)
+                throw new Error(`Error ${response.status} al obtener los casos de prueba`)
+            }
+            return response.data
+        }
+    })
+
+    // Estado local para manejar el formulario del problema
     const [formData, setFormData] = useState<ProblemRead>({
         id: 0,
         title: "",
         description: "",
         difficulty: "",
         tags: "",
+        functionName: "",
         authorID: 0,
         hints: "",
         score: 0,
     })
+
     // Inicializar el formulario con los datos del problema
     useEffect(() => {
         if (problem) {
@@ -77,6 +108,7 @@ export default function ProblemDetailPage() {
                 title: problem.title,
                 description: problem.description,
                 difficulty: problem.difficulty,
+                functionName: problem.functionName || "",
                 tags: problem.tags || "",
                 authorID: problem.authorID,
                 hints: problem.hints || "",
@@ -85,7 +117,6 @@ export default function ProblemDetailPage() {
         }
     }, [problem])
 
-    const [newTag, setNewTag] = useState("")
 
     // Mutaciones para actualizar el problema
     const updateProblemMutation = useMutation({
@@ -108,6 +139,107 @@ export default function ProblemDetailPage() {
         }
     })
 
+    // Mutación para crear un nuevo caso de prueba
+    const createTestCaseMutation = useMutation({
+        mutationFn: async (testCase: TestCaseCreate) => {
+            const response = await createTestCase({
+                body: testCase
+            })
+            if (response.status !== 200 || !("data" in response)) {
+                toast.error(`Error ${response.status}`, {
+                    description: Array.isArray(response.error?.detail)
+                        ? response.error.detail.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
+                        : (response.error?.detail || "Error al crear el caso de prueba")
+                });
+                throw new Error(`Error ${response.status} al crear el caso de prueba")`);
+            }
+            return response.data
+        },
+        onSuccess: () => {
+            toast.success("Caso de prueba creado exitosamente")
+            queryClient.invalidateQueries({ queryKey: ["testCases", id] })
+            setNewTestCase({
+                description: "",
+                inputs: [],
+                expected_output: "",
+                problemID: parseInt(id!),
+            })
+        }
+    })
+
+    //Mutación para eliminar un caso de prueba
+    const deleteTestCaseMutation = useMutation({
+        mutationFn: async (testCaseID: number) => {
+            const response = await deleteTestCase({
+                path: { test_case_id: testCaseID }
+            })
+            if (response.status !== 200 || !("data" in response)) {
+                toast.error(`Error ${response.status}`, {
+                    description: Array.isArray(response.error?.detail)
+                        ? response.error.detail.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
+                        : (response.error?.detail || "Error al eliminar el reporte")
+                });
+                throw new Error(`Error ${response.status} al eliminar el reporte`);
+            }
+        },
+        onSuccess: () => {
+            toast.success("Caso de prueba eliminado exitosamente")
+            queryClient.invalidateQueries({ queryKey: ["testCases", id] })
+        }
+    })
+
+    const handleAddTestCase = () => {
+        if (!newTestCase.expected_output || !newTestCase.description) {
+            toast.warning("Por favor, complete todos los campos obligatorios: Descripcion y salida esperada");
+            return;
+        }
+        if (newTestCase.inputs!.some(input => input.value === '')) {
+            toast.warning("Por favor, complete todos los valores de entrada declarados");
+            return;
+        }
+
+        // Convertir los valores según su tipo
+        const formattedInputs = newTestCase.inputs!.map(input => {
+            let formattedValue: any;
+
+            switch (input.type) {
+                case 'int':
+                    formattedValue = parseInt(String(input.value));
+                    break;
+                case 'float':
+                    formattedValue = parseFloat(String(input.value));
+                    break;
+                case 'bool':
+                    formattedValue = input.value === 'True' ? true : false;
+                    break;
+                case 'string':
+                default:
+                    formattedValue = input.value;
+                    break;
+            }
+
+            return {
+                type: input.type,
+                value: formattedValue
+            };
+        });
+
+        // Crear un nuevo objeto con los datos correctos
+        const testCaseToCreate: TestCaseCreate = {
+            description: newTestCase.description,
+            inputs: formattedInputs,
+            expected_output: newTestCase.expected_output,
+            problemID: parseInt(id!)
+        };
+
+        // Enviar la mutación con el objeto correcto
+        createTestCaseMutation.mutateAsync(testCaseToCreate);
+    }
+
+    const handleRemoveTestCase = (testCaseId: number) => {
+        deleteTestCaseMutation.mutate(testCaseId);
+    };
+
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target
         setFormData((prev) => ({ ...prev, [name]: value }))
@@ -122,7 +254,7 @@ export default function ProblemDetailPage() {
         setFormData((prev) => ({ ...prev, [name]: value }))
     }
 
-    const addTag = () => {
+    const handleAddTag = () => {
         if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
             setFormData((prev) => ({
                 ...prev,
@@ -132,7 +264,7 @@ export default function ProblemDetailPage() {
         }
     }
 
-    const removeTag = (tagToRemove: string) => {
+    const handleRemoveTag = (tagToRemove: string) => {
         setFormData((prev) => ({
             ...prev,
             tags: prev.tags.split(', ').filter(tag => tag !== tagToRemove).join(', ')
@@ -159,10 +291,6 @@ export default function ProblemDetailPage() {
         )
     }
 
-    function handleRemoveTestCase(index: number): void {
-        throw new Error("Function not implemented." + index)
-    }
-
     return (
         <div className="container mx-auto py-6 px-4">
             <title>Nuevo problema</title>
@@ -177,7 +305,7 @@ export default function ProblemDetailPage() {
             <form onSubmit={handleSubmit}>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <div className="lg:col-span-2 space-y-6">
-                        <Card>
+                        <Card className="border-4">
                             <CardHeader>
                                 <CardTitle>Detalles del problema</CardTitle>
                                 <CardDescription>Información básica del problema</CardDescription>
@@ -196,11 +324,21 @@ export default function ProblemDetailPage() {
                                         rows={10}
                                         value={formData.description}
                                         onChange={handleFormChange}
-                                        required
                                         placeholder="Proporcione una descripción detallada del problema, con ejemplos de entrada y salida, y restricciones."
+                                        required
                                     />
                                 </div>
 
+                                <div className="space-y-2">
+                                    <Label htmlFor="functionName">Nombre de la funcion a probar</Label>
+                                    <Input
+                                        id="functionName"
+                                        name="functionName"
+                                        placeholder="Si el problema pide una funcion, indique su nombre"
+                                        value={formData.functionName}
+                                        onChange={handleFormChange}
+                                    />
+                                </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="hints">Pista</Label>
                                     <Input
@@ -209,195 +347,14 @@ export default function ProblemDetailPage() {
                                         placeholder="Añada pistas para ayudar a los usuarios a resolver el problema"
                                         value={formData.hints}
                                         onChange={handleFormChange}
-                                        required
                                     />
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
-                                <CardTitle>Casos de prueba (tests)</CardTitle>
-                                <CardDescription>Añada las pruebas necesarias para validar la solución</CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <div className="space-y-4">
-                                    {testCases.map((testCase, index) => (
-                                        <Card key={index} className="p-4 border border-border">
-                                            <div className="flex justify-between items-start mb-2">
-                                                <div className="space-y-1">
-                                                    <p className="font-medium">Caso de prueba #{index + 1}</p>
-                                                    {testCase.description && (
-                                                        <p className="text-sm text-muted-foreground">{testCase.description}</p>
-                                                    )}
-                                                </div>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    onClick={() => handleRemoveTestCase(index)}
-                                                    className="text-destructive"
-                                                >
-                                                    <X className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                            <div className="grid gap-2 text-sm">
-                                                <p>
-                                                    <span className="font-medium">Entradas: </span>
-                                                    {testCase.inputs.map((input: any, i) => (
-                                                        <span key={i} className={`
-                                                            ${typeof input === 'number' && Number.isInteger(input) ? 'text-blue-500' : ''}
-                                                            ${typeof input === 'number' && !Number.isInteger(input) ? 'text-green-500' : ''}
-                                                            ${typeof input === 'string' ? 'text-purple-500' : ''}
-                                                        `}>
-                                                            {typeof input === 'string' ? `"${input}"` : input}
-                                                            {i < testCase.inputs.length - 1 ? ', ' : ''}
-                                                        </span>
-                                                    ))}
-                                                </p>
-                                                <p><span className="font-medium">Salida esperada:</span> {testCase.expected_output}</p>
-                                            </div>
-                                        </Card>
-                                    ))}
-                                </div>
-
-                                {/* Formulario para nuevo caso de prueba */}
-                                <div className="space-y-4 border-t pt-4">
-                                    <h4 className="font-medium">Añadir nuevo caso de prueba</h4>
-                                    <Card className="border border-border p-2">
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <Input type="text"
-                                                placeholder="Descripción del caso de prueba"
-                                                value={newTestCase.description}
-                                                onChange={(e) => setNewTestCase(prev => ({
-                                                    ...prev,
-                                                    description: e.target.value
-                                                }))}
-                                            />
-                                            <Input type="text"
-                                                placeholder="Nombre de la función a evaluar"
-                                                value={newTestCase.description}
-                                                onChange={(e) => setNewTestCase(prev => ({
-                                                    ...prev,
-                                                    description: e.target.value
-                                                }))}
-                                            />
-                                        </div>
-
-                                        <Label>Entradas con tipo</Label>
-
-                                        {newTestCase.typedInputs.map((input, index) => (
-                                            <div key={index} className="flex gap-2">
-                                                <Input
-                                                    value={input.value}
-                                                    onChange={(e) => {
-                                                        const newInputs = [...newTestCase.typedInputs];
-                                                        newInputs[index].value = e.target.value;
-                                                        setNewTestCase(prev => ({
-                                                            ...prev,
-                                                            typedInputs: newInputs
-                                                        }));
-                                                    }}
-                                                    placeholder={`Valor ${index + 1}`}
-                                                    className="flex-1"
-                                                />
-                                                <Select
-                                                    value={input.type}
-                                                    onValueChange={(value: InputType) => {
-                                                        const newInputs = [...newTestCase.typedInputs];
-                                                        newInputs[index].type = value;
-                                                        setNewTestCase(prev => ({
-                                                            ...prev,
-                                                            typedInputs: newInputs
-                                                        }));
-                                                    }}
-                                                >
-                                                    <SelectTrigger className="w-[120px]">
-                                                        <SelectValue />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="int">Entero</SelectItem>
-                                                        <SelectItem value="float">Decimal</SelectItem>
-                                                        <SelectItem value="string">Texto</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                                <Button
-                                                    type="button"
-                                                    variant="default"
-                                                    size="icon"
-                                                    onClick={() => {
-                                                        const newInputs = newTestCase.typedInputs.filter((_, i) => i !== index);
-                                                        setNewTestCase(prev => ({
-                                                            ...prev,
-                                                            typedInputs: newInputs
-                                                        }));
-                                                    }}
-
-                                                >
-                                                    <Plus className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => {
-                                                        const newInputs = newTestCase.typedInputs.filter((_, i) => i !== index);
-                                                        setNewTestCase(prev => ({
-                                                            ...prev,
-                                                            typedInputs: newInputs
-                                                        }));
-                                                    }}
-                                                    className="text-destructive"
-                                                >
-                                                    <X className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        ))}
-
-                                        <Label>Salida esperada</Label>
-                                        <Input
-                                            type="text"
-                                            placeholder="Salida esperada"
-                                            value={newTestCase.expected_output}
-                                            onChange={(e) => setNewTestCase(prev => ({
-                                                ...prev,
-                                                expected_output: e.target.value
-                                            }))}
-                                            className="mt-2"
-                                            required
-                                        />
-                                        <div className="flex gap-2 mt-2">
-                                            <Button
-                                                type="button"
-                                                onClick={() => {
-                                                        setNewTestCase(prev => ({
-                                                            ...prev,
-                                                            typedInputs: [...prev.typedInputs, { value: '', type: 'int' }]
-                                                        }));
-                                                    }}
-                                                className="w-1/3 mx-2"
-                                                variant="secondary"
-                                            >
-                                                <Plus className="h-4 w-4 mr-2" />
-                                                Añadir entrada
-                                            </Button>
-                                            <Button
-                                                type="button"
-                                                onClick={() => console.log("!TODO: Guardar caso de prueba")}
-                                                className="w-1/3 mx-2"
-                                                variant="default"
-                                            >
-                                                <Save className="h-4 w-4 mr-2" />
-                                                Guardar caso de prueba
-                                            </Button>
-                                        </div>
-                                    </Card>
                                 </div>
                             </CardContent>
                         </Card>
                     </div>
 
                     <div className="space-y-6">
-                        <Card>
+                        <Card className="border-4">
                             <CardHeader>
                                 <CardTitle>Ajustes del problema</CardTitle>
                                 <CardDescription>Configura los detalles del problema</CardDescription>
@@ -465,7 +422,7 @@ export default function ProblemDetailPage() {
                                                 key={tag}
                                                 text={tag}
                                                 roleName={tag}
-                                                onClickEvent={removeTag}
+                                                onClickEvent={handleRemoveTag}
                                             />
                                         ))}
                                     </div>
@@ -477,11 +434,11 @@ export default function ProblemDetailPage() {
                                             onKeyDown={(e) => {
                                                 if (e.key === "Enter") {
                                                     e.preventDefault()
-                                                    addTag()
+                                                    handleAddTag()
                                                 }
                                             }}
                                         />
-                                        <Button type="button" size="sm" onClick={addTag}>
+                                        <Button type="button" size="sm" onClick={handleAddTag}>
                                             <Plus className="h-4 w-4" />
                                         </Button>
                                     </div>
@@ -489,7 +446,7 @@ export default function ProblemDetailPage() {
                             </CardContent>
                         </Card>
 
-                        <Card>
+                        <Card className="border-4">
                             <CardHeader>
                                 <CardTitle>Guardar</CardTitle>
                                 <CardDescription>Al hacer clic al boton, el problema estará publicado en la plataforma con los nuevos cambios.</CardDescription>
@@ -506,6 +463,202 @@ export default function ProblemDetailPage() {
                     </div>
                 </div>
             </form>
+
+            <Card className="mt-6 border-4">
+                <CardHeader>
+                    <CardTitle>Casos de prueba (tests)</CardTitle>
+                    <CardDescription>Añada las pruebas necesarias para validar la solución</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-4">
+                        {/* Listado de tests para este problema */}
+                        {testCases.map((testCase, index) => (
+                            <Card key={testCase.id || index} className="p-4 border border-border">
+                                <div className="flex justify-between items-start mb-2">
+                                    <div className="space-y-1">
+                                        <p className="font-medium">Caso de prueba #{index + 1}</p>
+                                        <p className="text-sm text-muted-foreground">{testCase.description}</p>
+                                    </div>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger>
+                                            <Button
+                                                variant="outline"
+                                                className="text-destructive hover:bg-destructive/80 "
+                                                disabled={deleteTestCaseMutation.isPending}
+                                            >
+                                                <Trash className="h-4 w-4" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Eliminar caso de prueba</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    ¿Estás seguro de que deseas eliminar este caso de prueba? Esta acción no se puede deshacer.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                <AlertDialogAction
+                                                    onClick={() => handleRemoveTestCase(testCase.id)}
+                                                    className="destructive hover:bg-red-500"
+                                                >
+                                                    Eliminar
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                </div>
+                                <div className="grid gap-2 text-sm">
+                                    <p>
+                                        {testCase.inputs && <span className="font-medium">Entradas: </span>}
+                                        {testCase.inputs && testCase.inputs.map((input, i) => (
+                                            <span key={i}>
+                                                {String(input.value)}
+                                                <span className="opacity-70">({input.type})  </span>
+                                            </span>
+                                        ))}
+                                    </p>
+                                    <p>
+                                        <span className="font-medium">Salida esperada: </span>
+                                        <span className="px-1.5 py-0.5">{testCase.expected_output}</span>
+                                    </p>
+                                </div>
+                            </Card>
+                        ))}
+                    </div>
+
+                    {/* Formulario para nuevo caso de prueba */}
+                    <div className="space-y-4 border-t pt-4">
+                        <h4 className="font-medium">Añadir nuevo caso de prueba</h4>
+                        <ul>
+                            <li>Para las entradas booleanas, debe indicar <span className="font-bold">True</span> o <span className="font-bold">False</span> según aplique.</li>
+                        </ul>
+                        <Card className="border border-border p-4">
+                            <div className="grid gap-4">
+                                <div>
+                                    <Label htmlFor="testDescription">Descripción del caso de prueba</Label>
+                                    <Input
+                                        id="testDescription"
+                                        placeholder="¿Qué se está probando con este caso?"
+                                        value={String(newTestCase.description)}
+                                        onChange={(e) => setNewTestCase(prev => ({
+                                            ...prev,
+                                            description: e.target.value
+                                        }))}
+                                        className="mt-1"
+                                    />
+                                </div>
+
+                                <div>
+                                    <div className="flex justify-between items-center mb-2">
+                                        <Label>Entradas con tipo</Label>
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                setNewTestCase(prev => ({
+                                                    ...prev,
+                                                    inputs: [...prev.inputs!, { type: 'int', value: '' }]
+                                                }));
+                                            }}
+                                        >
+                                            <Plus className="h-4 w-4 mr-1" />
+                                            Añadir entrada
+                                        </Button>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        {newTestCase.inputs!.map((input, index) => (
+                                            <div key={index} className="flex gap-2 items-center">
+                                                <Input
+                                                    value={String(input.value)}
+                                                    onChange={(e) => {
+                                                        const newInputs = [...newTestCase.inputs!];
+                                                        newInputs[index].value = e.target.value;
+                                                        setNewTestCase(prev => ({
+                                                            ...prev,
+                                                            inputs: newInputs
+                                                        }));
+                                                    }}
+                                                    placeholder={`Valor ${index + 1}`}
+                                                    className="flex-1"
+                                                />
+                                                <Select
+                                                    value={input.type}
+                                                    onValueChange={(value: InputType) => {
+                                                        const newInputs = [...newTestCase.inputs!];
+                                                        newInputs[index].type = value as InputType;
+                                                        setNewTestCase(prev => ({
+                                                            ...prev,
+                                                            inputs: newInputs
+                                                        }));
+                                                    }}
+                                                >
+                                                    <SelectTrigger className="w-[120px]">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="int">Entero</SelectItem>
+                                                        <SelectItem value="float">Decimal</SelectItem>
+                                                        <SelectItem value="string">Texto</SelectItem>
+                                                        <SelectItem value="bool">Booleano</SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    size="icon"
+                                                    onClick={() => {
+                                                        const newInputs = newTestCase.inputs!.filter((_, i) => i !== index);
+                                                        setNewTestCase(prev => ({
+                                                            ...prev,
+                                                            inputs: newInputs
+                                                        }));
+                                                    }}
+                                                >
+                                                    <X className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <Label htmlFor="expectedOutput">Salida esperada</Label>
+                                    <Input
+                                        id="expectedOutput"
+                                        placeholder="Resultado que debe producir la función"
+                                        value={newTestCase.expected_output}
+                                        onChange={(e) => setNewTestCase(prev => ({
+                                            ...prev,
+                                            expected_output: e.target.value
+                                        }))}
+                                        className="mt-1"
+                                        required
+                                    />
+                                </div>
+
+                                <Button
+                                    type="button"
+                                    onClick={handleAddTestCase}
+                                    disabled={createTestCaseMutation.isPending}
+                                    className="w-full"
+                                >
+                                    {createTestCaseMutation.isPending ? (
+                                        <>Guardando...</>
+                                    ) : (
+                                        <>
+                                            <Save className="h-4 w-4 mr-2" />
+                                            Guardar caso de prueba
+                                        </>
+                                    )}
+                                </Button>
+                            </div>
+                        </Card>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
     )
 }

@@ -174,7 +174,7 @@ export type ProblemCreate = {
     difficulty: string;
     hints: string;
     score: number;
-    functionName?: string | null;
+    functionName: string;
     authorID: number;
 };
 
@@ -185,7 +185,7 @@ export type ProblemRead = {
     difficulty: string;
     hints: string;
     score: number;
-    functionName?: string | null;
+    functionName: string;
     id: number;
     authorID: number;
 };

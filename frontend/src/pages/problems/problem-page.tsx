@@ -290,6 +290,10 @@ export default function ProblemDetailPage() {
                                 <TabsContent value="description" className="mt-0">
                                     <div className="prose dark:prose-invert max-w-none max-h-[calc(100vh-300px)] overflow-auto">
                                         <pre className="whitespace-pre-wrap font-sans text-sm">{problem.description}</pre>
+                                        {
+                                            problem.functionName ? (<p className="mt-2"> <span className="font-bold">NOMBRE DE LA FUNCION: </span> {problem.functionName}</p>) 
+                                            : (<p className="mt-2 font-semibold"> Para este ejercicio no hace falta una funcion</p>)
+                                        }
                                     </div>
                                 </TabsContent>
                                 <TabsContent value="hints" className="mt-0">
