@@ -14,11 +14,11 @@ import { toast } from "sonner";
 import { useSearchParams } from "react-router-dom";
 import { CheckCircle, XCircle, Loader2 } from "lucide-react";
 
-export default function ConfirmRegisterPage() {
+export default function VerifyRegisterPage() {
 	const [searchParams,] = useSearchParams();
 	const token = searchParams?.get("token");
 
-	const [verificationState, setVerificationState] =useState <"loading"|"success"|"error" > ("loading");
+	const [verificationState, setVerificationState] = useState<"loading" | "success" | "error">("loading");
 
 	useEffect(() => {
 		if (!token) {
@@ -26,18 +26,17 @@ export default function ConfirmRegisterPage() {
 			return;
 		}
 
-		// Simulate API verification call
+		// Simulamos una verificación de token
 		const verifyToken = setTimeout(() => {
-			// For demo purposes, let's say tokens starting with "valid" are valid
-			//TODO: Replace this with actual API call
+			// Por ahora, simulamos una verificación exitosa si el token comienza con "valid"
 			if (token.startsWith("valid")) {
 				setVerificationState("success");
-				toast.success("Cuenta verificada",{
+				toast.success("Cuenta verificada", {
 					description: "Su cuenta ha sido verificada con éxito. Ahora puede iniciar sesión en su cuenta.",
 				});
 			} else {
 				setVerificationState("error");
-				toast.error("Error en la verificación",{
+				toast.error("Error en la verificación", {
 					description: "El enlace de verificación es inválido o ha expirado. Por favor solicite un nuevo enlace de verificación.",
 				});
 			}
@@ -85,9 +84,9 @@ export default function ConfirmRegisterPage() {
 						<>
 							<Button
 								onClick={() => {
-									toast.success("Correo de verificación enviado",{
-										description:"Hemos enviado un nuevo enlace de verificacion ha sido enviado a tu correo electronico",
-									});
+									toast.info("Funcionalidad no implementada", {
+										description: "Pero pendiente para un futuro cercano 😅",
+									})
 								}}
 								className="w-full"
 							>

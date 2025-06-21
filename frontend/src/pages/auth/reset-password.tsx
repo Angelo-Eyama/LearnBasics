@@ -25,14 +25,14 @@ export default function ResetPasswordPage() {
         e.preventDefault()
 
         if (password !== confirmPassword) {
-            toast.error("Las contraseñas no coinciden",{
+            toast.error("Las contraseñas no coinciden", {
                 description: "Por favor, asegúrate de que las contraseñas coincidan.",
             })
             return
         }
 
         if (password.length < 8) {
-            toast.error("Contraseña muy corta",{
+            toast.error("Contraseña muy corta", {
                 description: "La contraseña debe tener al menos 8 caracteres.",
             })
             return
@@ -60,14 +60,14 @@ export default function ResetPasswordPage() {
                         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100">
                             <Check className="h-6 w-6 text-green-600" />
                         </div>
-                        <CardTitle className="text-2xl">Password Reset Successful</CardTitle>
+                        <CardTitle className="text-2xl">Reinicio de contraseña realizada</CardTitle>
                         <CardDescription>
-                            Your password has been reset successfully. You will be redirected to the login page shortly.
+                            Su contraseña ha sido restablecida con éxito. Ahora puede iniciar sesión con su nueva contraseña.
                         </CardDescription>
                     </CardHeader>
                     <CardFooter>
                         <Button asChild className="w-full">
-                            <Link to="/auth/login">Go to Login</Link>
+                            <Link to="/auth/login">Volver a iniciar sesion</Link>
                         </Button>
                     </CardFooter>
                 </Card>
@@ -80,33 +80,35 @@ export default function ResetPasswordPage() {
             <div className="container flex h-screen w-screen flex-col items-center justify-center">
                 <Card className="w-full max-w-md">
                     <CardHeader>
-                        <CardTitle className="text-2xl">Reset Password</CardTitle>
+                        <CardTitle className="text-2xl">Reiniciar contraseña</CardTitle>
                         <CardDescription>
-                            Enter your email address and we'll send you a link to reset your password.
+                            Por favor, ingrese su correo electrónico para recibir un enlace de reinicio de contraseña.
+                            <br />
+                            Si su correo está registrado, recibirá un enlace para restablecer su contraseña.
                         </CardDescription>
                     </CardHeader>
                     <form
                         onSubmit={(e) => {
                             e.preventDefault()
-                            toast.info("Enlace de reinicio enviado",{
-                                description: "Si su correo está registrado, recibirá un enlace para restablecer su contraseña.",
+                            toast.info("Funcionalidad no implementada", {
+                                description: "Pero pendiente para un futuro cercano 😅",
                             })
                         }}
                     >
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <Label htmlFor="email">Email</Label>
-                                <Input id="email" type="email" placeholder="name@example.com" required />
+                                <Label htmlFor="email">Correo electrónico</Label>
+                                <Input id="email" type="email" placeholder="correo@ejemplo.com" required />
                             </div>
                         </CardContent>
-                        <CardFooter className="flex flex-col space-y-2">
+                        <CardFooter className="flex flex-col space-y-2 mt-2">
                             <Button type="submit" className="w-full">
-                                Send Reset Link
+                                Enviar enlace de reinicio
                             </Button>
                             <Button variant="ghost" asChild className="w-full">
                                 <Link to="/auth/login">
                                     <ArrowLeft className="mr-2 h-4 w-4" />
-                                    Back to Login
+                                    Volver a iniciar sesión
                                 </Link>
                             </Button>
                         </CardFooter>
@@ -123,13 +125,13 @@ export default function ResetPasswordPage() {
                     <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
                         <KeyRound className="h-6 w-6 text-primary" />
                     </div>
-                    <CardTitle className="text-2xl">Create New Password</CardTitle>
-                    <CardDescription>Enter a new password for your account</CardDescription>
+                    <CardTitle className="text-2xl">Crear nueva contraseña</CardTitle>
+                    <CardDescription>Introduzca la nueva contraseña para su cuenta</CardDescription>
                 </CardHeader>
                 <form onSubmit={handleSubmit}>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="password">New Password</Label>
+                            <Label htmlFor="password">Nueva contraseña</Label>
                             <Input
                                 id="password"
                                 type="password"
@@ -139,7 +141,7 @@ export default function ResetPasswordPage() {
                             />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="confirmPassword">Confirm New Password</Label>
+                            <Label htmlFor="confirmPassword">Confirme su nueva contraseña</Label>
                             <Input
                                 id="confirmPassword"
                                 type="password"
@@ -151,12 +153,12 @@ export default function ResetPasswordPage() {
                     </CardContent>
                     <CardFooter className="flex flex-col space-y-2">
                         <Button type="submit" className="w-full" disabled={isSubmitting}>
-                            {isSubmitting ? "Resetting Password..." : "Reset Password"}
+                            {isSubmitting ? "Reiniciando contraseña..." : "Reiniciar contraseña"}
                         </Button>
                         <Button variant="ghost" asChild className="w-full">
                             <Link to="/auth/login">
                                 <ArrowLeft className="mr-2 h-4 w-4" />
-                                Back to Login
+                                Volver a iniciar sesión
                             </Link>
                         </Button>
                     </CardFooter>
