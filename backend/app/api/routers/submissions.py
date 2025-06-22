@@ -40,6 +40,22 @@ def get_my_submissions(current_user: CurrentUser, session: SessionDep):
     submissions = submissions_controller.get_submissions_by_user_id(session, current_user.id)
     return submissions
 
+@router.delete(
+    "/submissions/user/me/{submission_id}",
+    response_model=SubmissionRead,
+    summary="Eliminar una entrega del usuario autenticado",
+    description="Elimina una entrega del usuario autenticado utilizando su ID como clave.",
+)
+def delete_my_submission(submission_id: int, current_user: CurrentUser, session: SessionDep):
+    submission = submissions_controller.get_submission_by_id(session, submission_id)
+    if not submission:
+        raise HTTPException(status_code=404, detail="Entrega no encontrada")
+    if submission.userID != current_user.id:
+        raise HTTPException(status_code=403, detail="No tienes permiso para eliminar esta entrega")
+    
+    deleted_submission = submissions_controller.delete_submission(session, submission)
+    return deleted_submission
+
 @router.get(
     "/submissions/user/{user_id}",
     response_model=SubmissionList,

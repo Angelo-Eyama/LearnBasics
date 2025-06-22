@@ -1,6 +1,6 @@
 import json
 from typing import Any, Dict, List, Optional
-from sqlmodel import JSON, Column, SQLModel, Field, Relationship
+from sqlmodel import JSON, TEXT, Column, SQLModel, Field, Relationship
 from datetime import datetime, timezone
 
 class UserRole(SQLModel, table=True):
@@ -98,7 +98,10 @@ class Submission(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc),
         sa_column_kwargs={"nullable": True}
     )
-    suggestions: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
+    suggestions: Optional[str] = Field(
+            default=None,
+            sa_column=Column(TEXT, nullable=True)
+        )
     passed_tests: Optional[int] = Field(default=0, sa_column_kwargs={"nullable": True})
     total_tests: Optional[int] = Field(default=None, sa_column_kwargs={"nullable": True})
     compilation_error: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})

@@ -22,8 +22,8 @@ class OpenAICodeReviewer(AIClient):
             temperature=0.7,
             max_tokens=1000
         )
-        
-        return response.choices[0].message.content
+        content = response.choices[0].message.content
+        return content.strip() if content else "No se pudo generar una respuesta adecuada."
     
     async def review_submission(self, request: CodeReviewRequest):
         """
@@ -36,23 +36,22 @@ class OpenAICodeReviewer(AIClient):
             {"role": "system", "content": self.REVIEW_SUBMISSION_PROMPT},
             {"role": "user", "content": self._format_prompt(request, type="review")}
         ]
-        # Llamar al modelo de IA para obtener la revisión
-        response = await self.review_code(request)
-        
+        # Llamar al modelo de IA para obtener la revisión        
         response = await self.client.chat.completions.create(
             model=ai_settings.AI_MODEL,
             messages=messages,
             temperature=0.7,
             max_tokens=1000
         )
-        return response
+        content = response.choices[0].message.content
+        return content.strip() if content else "No se pudo generar una respuesta adecuada."
     
-    def _format_prompt(self, request , type: str) -> str:
+    def _format_prompt(self, request: CodeReviewRequest | CodeFeedbackRequest , type: str) -> str:
         # Request puede ser de tipo CodeReviewRequest o CodeFeedbackRequest
         # Prepara el prompt para la IA si es tipo "review"
         if type == "review":        
             return f"""
-            Por favor, revisa este código de un estudiante:
+            Por favor, revisa este código de un estudiante y realiza unas breves sugerencias sin proporcionar soluciones completas:
             
             Enunciado del problema:
             {request.problem_statement}

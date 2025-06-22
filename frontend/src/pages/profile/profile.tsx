@@ -18,13 +18,13 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Link } from "react-router-dom"
-import { Eye, Edit, Mail, Award, FileCode, Bell, CheckCircle, CircleX } from "lucide-react"
+import { Eye, Edit, Mail, Award, FileCode, Bell, CheckCircle, CircleX, Trash } from "lucide-react"
 import { FaGithub } from "react-icons/fa";
 import useAuth from "@/hooks/useAuth"
 import { parseServerString, decideRank, formatDate, getDiceBearAvatar } from "@/utils/utils"
 import { useNotifications } from "@/hooks/useNotifications"
-import { useQuery } from "@tanstack/react-query"
-import { getMySubmissions, SubmissionRead } from "@/client"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { getMySubmissions, SubmissionRead, deleteMySubmission } from "@/client"
 import { toast } from "sonner"
 
 export default function ProfilePage() {
@@ -35,6 +35,7 @@ export default function ProfilePage() {
         markAllAsRead,
     } = useNotifications()
     const [notificationsTab, setNotificationsTab] = useState("all")
+    const [selectedSubmission, setSelectedSubmission] = useState<(SubmissionRead)>()
 
     // Query para obtener las entregas del usuario
     const {
@@ -50,11 +51,25 @@ export default function ProfilePage() {
             return response.data
         },
     })
-    const [selectedSubmission, setSelectedSubmission] = useState<(SubmissionRead)>()
+
+    // Mutacion para eliminar una entrega
+    const deleteSubmissionMutation = useMutation({
+        mutationFn: async (submissionId: number) => {
+            const response = await deleteMySubmission({path: {submission_id: submissionId}})
+            if (response.status !== 200 || !("data" in response)) {
+                toast.error(`Error ${response.status}`, {
+                    description: Array.isArray(response.error?.detail)
+                        ? response.error.detail.map((err: any) => err.msg || JSON.stringify(err)).join(", ")
+                        : (response.error?.detail || "Error al eliminar la entrega")
+                })
+                throw new Error(`Error ${response.status} al eliminar la entrega`)
+            }
+            toast.success("Entrega eliminada correctamente")
+            return response.data
+        }
+    })
 
     if (!userData) return null
-
-
     const handleToggleRead = (notificationId: number) => {
         markNotificationAsRead(notificationId)
     }
@@ -166,20 +181,20 @@ export default function ProfilePage() {
                                             <span className="text-sm text-muted-foreground">Total de entregas</span>
                                         </div>
                                     </AlertDialogTrigger>
-                                    <AlertDialogContent className="max-w-lg h-fit w-auto">
+                                    <AlertDialogContent className="min-w-3xl max-w-6xl w-[95vw] overflow-hidden">
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Historial de entregas</AlertDialogTitle>
                                         </AlertDialogHeader>
 
-                                        <div className="max-h-[80vh]  overflow-auto">
-                                            <Table>
+                                        <div className="overflow-x-auto w-full">
+                                            <Table className="w-full min-w-[700px]">
                                                 <TableHeader>
                                                     <TableRow>
                                                         <TableHead>Problema</TableHead>
                                                         <TableHead>Lenguaje</TableHead>
                                                         <TableHead>Estado</TableHead>
                                                         <TableHead>Entregado</TableHead>
-                                                        <TableHead className="text-right">Acciones</TableHead>
+                                                        <TableHead className="text-center">Acciones</TableHead>
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
@@ -210,9 +225,13 @@ export default function ProfilePage() {
                                                             </TableCell>
                                                             <TableCell>{formatDate(submission.timeSubmitted)}</TableCell>
                                                             <TableCell className="text-right">
-                                                                <Button variant="outline" size="sm" onClick={() => setSelectedSubmission(submission)}>
-                                                                    <Eye className="h-4 w-4 mr-1" />
+                                                                <Button variant="outline" size="sm" onClick={() => setSelectedSubmission(submission)} className="mx-2">
+                                                                    <Eye className="h-4 w-4 mx-1" />
                                                                     Ver
+                                                                </Button>
+                                                                <Button variant="destructive" size="sm" onClick={() => deleteSubmissionMutation.mutateAsync(submission.id)}>
+                                                                    <Trash className="h-4 w-4 ml-1" />
+                                                                    Eliminar
                                                                 </Button>
                                                             </TableCell>
                                                         </TableRow>
@@ -273,7 +292,7 @@ export default function ProfilePage() {
 
                                                 <div>
                                                     <p className="text-sm font-medium mb-2">Codigo</p>
-                                                    <div className="bg-muted p-4 rounded-md overflow-auto max-h-[400px]">
+                                                    <div className="bg-muted p-4 rounded-md overflow-auto max-h-[400px] whitespace-pre-wrap">
                                                         {selectedSubmission.code}
                                                     </div>
                                                 </div>
@@ -281,7 +300,7 @@ export default function ProfilePage() {
                                                     selectedSubmission.suggestions &&
                                                     <div>
                                                         <p className="text-sm font-medium mb-2">Sugerencias</p>
-                                                        <div className="bg-muted p-4 rounded-md overflow-auto max-h-[400px]">
+                                                        <div className="bg-muted p-4 rounded-md overflow-auto max-h-[400px] whitespace-pre-line">
                                                             {selectedSubmission.suggestions}
                                                         </div>
                                                     </div>

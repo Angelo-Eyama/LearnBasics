@@ -166,6 +166,5 @@ def delete_test_case(test_case_id: int, session: SessionDep):
     if not test_case:
         raise HTTPException(
             status_code=404, detail="Caso de prueba no encontrado")
-    deleted_test_case = test_cases_controller.delete_test_case(
-        session, test_case_id)
+    deleted_test_case = test_cases_controller.delete_test_case(session, test_case_id)
     return deleted_test_case

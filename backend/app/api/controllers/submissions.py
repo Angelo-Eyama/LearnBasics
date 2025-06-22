@@ -3,8 +3,9 @@ from app.models import Submission, User
 from fastapi import BackgroundTasks
 from app.api.routers.code import test_function
 from app.schemas.submission import SubmissionCreate, SubmissionUpdate, SubmissionList
-from app.schemas.testCase import CompilerTestCase, FunctionTestRequest, FunctionTestResult
-from app.api.controllers.problems import get_problem_by_id
+from app.schemas.testCase import CompilerTestCase, FunctionTestRequest
+from app.services.ai.models import CodeReviewRequest
+from app.services.ai.providers.deepseek import OpenAICodeReviewer
 
 async def run_tests_for_submission(submission_id: int, session: Session):
     ''' Funcion que se ejecuta en segundo plano para probar una entrega '''
@@ -61,6 +62,25 @@ async def run_tests_for_submission(submission_id: int, session: Session):
     session.add(user)
     session.commit()
 
+
+async def create_suggestions_for_submission(submission_id: int, session: Session):
+    ''' Funcion que se ejecuta en segundo plano para crear sugerencias para una entrega '''
+    submission = get_submission_by_id(session, submission_id)
+    ai_reviewer = OpenAICodeReviewer()
+    if not submission:
+        return
+    request = CodeReviewRequest(
+        problem_statement=submission.problem.description,
+        language=submission.language,
+        code=submission.code,
+    )
+    response = await ai_reviewer.review_submission(request)
+    
+    submission.suggestions = response
+    
+    session.add(submission)
+    session.commit()
+
 def get_submissions(session: Session):
     submissions = session.exec(select(Submission)).all()
     count = session.exec(select(func.count(Submission.id))).one()
@@ -91,6 +111,7 @@ def create_submission(session: Session, new_submission: SubmissionCreate, backgr
     
     # Se ejecutan las pruebas en segundo plano
     background_tasks.add_task(run_tests_for_submission, submission_db.id, session)
+    background_tasks.add_task(create_suggestions_for_submission, submission_db.id, session)
     
     return submission_db
 
@@ -101,3 +122,9 @@ def update_submission(*, session: Session, db_submission: Submission, submission
     session.commit()
     session.refresh(db_submission)
     return db_submission
+
+def delete_submission(session: Session, submission_id: int):
+    submission = session.get(Submission, submission_id)
+    session.delete(submission)
+    session.commit()
+    return submission

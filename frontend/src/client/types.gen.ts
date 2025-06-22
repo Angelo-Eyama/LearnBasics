@@ -1038,6 +1038,33 @@ export type GetMySubmissionsResponses = {
 
 export type GetMySubmissionsResponse = GetMySubmissionsResponses[keyof GetMySubmissionsResponses];
 
+export type DeleteMySubmissionData = {
+    body?: never;
+    path: {
+        submission_id: number;
+    };
+    query?: never;
+    url: '/submissions/user/me/{submission_id}';
+};
+
+export type DeleteMySubmissionErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type DeleteMySubmissionError = DeleteMySubmissionErrors[keyof DeleteMySubmissionErrors];
+
+export type DeleteMySubmissionResponses = {
+    /**
+     * Successful Response
+     */
+    200: SubmissionRead;
+};
+
+export type DeleteMySubmissionResponse = DeleteMySubmissionResponses[keyof DeleteMySubmissionResponses];
+
 export type GetSubmissionsByUserIdData = {
     body?: never;
     path: {
