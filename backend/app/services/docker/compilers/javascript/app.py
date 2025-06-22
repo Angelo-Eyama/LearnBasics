@@ -1,3 +1,4 @@
+import json
 from fastapi import FastAPI, status
 import subprocess
 import tempfile
@@ -146,10 +147,13 @@ async def test_javascript_function(request: FunctionTestRequest):
         
         for i, test_case in enumerate(request.test_cases):
             try:
+                #COnvertir los inputs a JSON para pasarlos como argumentos
+                inputs_json = json.dumps(test_case.inputs)
+                
                 # Ejecutar el código con Node.js
                 process = subprocess.run(
                     ['node', temp_file],
-                    input=f"{i}\n{test_case.inputs}",
+                    input=f"{i}\n{inputs_json}",
                     capture_output=True,
                     text=True,
                     timeout=5

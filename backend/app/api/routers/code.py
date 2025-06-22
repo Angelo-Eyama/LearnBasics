@@ -136,9 +136,23 @@ async def test_function(request: FunctionTestRequest):
     
     compiler_url = compiler_settings.COMPILER_SERVICES[request.language]
     
+    # Se prepara la petición para el compilador
+    if not request.code.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="El código no puede estar vacío."
+        )
+    if request.language != "c":
+        for test_case in request.test_cases:
+            simplified_inputs = []
+            for input_value in test_case.inputs:
+                simplified_inputs.append(input_value.value)
+            test_case.inputs = simplified_inputs
+    
     try:
         async with httpx.AsyncClient(timeout=compiler_settings.COMPILATION_TIMEOUT) as client:
             json_data = request.model_dump(exclude_none=True)
+            print(f"Enviando solicitud al compilador: {json_data}")
             response = await client.post(
                 f"{compiler_url}/test-function",
                 json=json_data

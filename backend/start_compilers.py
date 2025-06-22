@@ -1,4 +1,4 @@
-import os
+import argparse
 import subprocess
 import time
 import requests
@@ -17,12 +17,16 @@ def find_docker_compose_dir() -> Path:
         
     return docker_services_dir
 
-def start_docker_services(docker_dir: Path) -> None:
+def start_docker_services(docker_dir: Path, rebuild: bool = False) -> None:
     """Inicia los servicios de Docker Compose"""
     try:
         print("Iniciando servicios Docker...")
+        cmd = ["docker","compose", "up", "-d"]
+        if rebuild:
+            cmd.insert(3, "--build")
+            print("Rebuild activado: reconstruyendo imágenes de Docker")
         subprocess.run(
-            ["docker-compose", "up", "-d"],
+            cmd,
             cwd=docker_dir,
             check=True
         )
@@ -63,13 +67,20 @@ def monitor_services() -> None:
         print("\n✨ Todos los servicios están activos y respondiendo")
 
 def main():
+    parser = argparse.ArgumentParser(description="Iniciar servicios de compiladores en Docker")
+    parser.add_argument(
+        "--rebuild", 
+        action="store_true", 
+        help="Reconstruye las imágenes de Docker antes de iniciar los servicios"
+    )
+    args = parser.parse_args()
     try:
         # Encontrar directorio de docker-compose
         docker_dir = find_docker_compose_dir()
         print(f"Directorio de servicios Docker encontrado: {docker_dir}")
         
         # Iniciar servicios
-        start_docker_services(docker_dir)
+        start_docker_services(docker_dir, args.rebuild)
         
         # Esperar a que los servicios se inicien
         print("\nEsperando a que los servicios se inicialicen...")

@@ -8,7 +8,7 @@ import time
 import sys
 from fastapi.middleware.cors import CORSMiddleware
 from schemas import ExecuteRequest, ExecuteResult, FunctionTestRequest
-from schemas import FunctionTestResult, TestResult, CompilerTestCase
+from schemas import FunctionTestResult, TestResult
 
 app = FastAPI(title="Python Compiler Service")
 
@@ -184,7 +184,7 @@ async def test_python_function(request: FunctionTestRequest):
             execution_time=time.time() - start_time
         )
 
-def generate_python_test_code(user_code: str, function_name: str, test_cases: List[CompilerTestCase]) -> str:
+def generate_python_test_code(user_code: str, function_name: str, test_cases: list) -> str:
     """
     Genera código Python que incluye la función del usuario y código de prueba
     """
