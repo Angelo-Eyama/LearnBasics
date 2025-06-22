@@ -216,7 +216,7 @@ export default function ProblemDetailPage() {
             return
         }
         newSubmissionMutation.mutateAsync({
-            code: JSON.stringify(code),
+            code: code,
             language,
             problemID: parseInt(id!),
             userID: userId!,

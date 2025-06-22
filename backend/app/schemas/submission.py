@@ -22,6 +22,10 @@ class SubmissionUpdate(BaseModel):
     language: Optional[str] = None
     status: Optional[str] = None
     suggestions: Optional[str] = None
+    passed_tests: Optional[int] = None
+    total_tests: Optional[int] = None
+    compilation_error: Optional[str] = None
+    execution_time: Optional[float] = None
 
 # Esquema de Lectura
 class SubmissionRead(SubmissionBase):
@@ -29,7 +33,11 @@ class SubmissionRead(SubmissionBase):
     timeSubmitted: datetime
     problemID: int
     userID: int 
-    problem: Optional[ProblemRead] = None  # Relación opcional con el problema
+    problem: Optional[ProblemRead] = None
+    passed_tests: Optional[int] = None
+    total_tests: Optional[int] = None
+    compilation_error: Optional[str] = None
+    execution_time: Optional[float] = None
 
     model_config = ConfigDict(
         from_attributes=True

@@ -121,7 +121,7 @@ async def compile_code( request: CodeRequest ):
         )
 
 @router.post("/test-function", response_model=FunctionTestResult)
-async def test_function(request: FunctionTestRequest):
+async def test_function(request: FunctionTestRequest) -> FunctionTestResult:
     """
     Prueba una función en el lenguaje especificado con casos de prueba
     """
@@ -152,7 +152,6 @@ async def test_function(request: FunctionTestRequest):
     try:
         async with httpx.AsyncClient(timeout=compiler_settings.COMPILATION_TIMEOUT) as client:
             json_data = request.model_dump(exclude_none=True)
-            print(f"Enviando solicitud al compilador: {json_data}")
             response = await client.post(
                 f"{compiler_url}/test-function",
                 json=json_data

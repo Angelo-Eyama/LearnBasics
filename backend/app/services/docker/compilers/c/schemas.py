@@ -1,6 +1,6 @@
 from enum import Enum
-from typing import Any, List
-from pydantic import BaseModel
+from typing import Any, List, Literal, Optional
+from pydantic import BaseModel, ValidationInfo, field_validator
 
 class CType(str, Enum):
     INT = "int"
@@ -8,12 +8,35 @@ class CType(str, Enum):
     CHAR_PTR = "char*"
     DOUBLE = "double"
 
+class TypedInput(BaseModel):
+    """Representa un argumento tipado para una función"""
+    type: Literal["int", "string", "float", "bool"]
+    value: Any
+    
+    @field_validator('value')
+    def validate_value_type(cls, v, info: ValidationInfo):
+        """Valida que el valor sea del tipo especificado"""
+        expected_type = info.data.get('type')
+        if expected_type == "int":
+            if not isinstance(v, int) or isinstance(v, bool):  # bool es subclase de int en Python
+                raise ValueError("El valor debe ser un entero")
+        elif expected_type == "string":
+            if not isinstance(v, str):
+                raise ValueError("El valor debe ser una cadena")
+        elif expected_type == "float":
+            if not isinstance(v, (int, float)) or isinstance(v, bool):
+                raise ValueError("El valor debe ser un número decimal")
+        elif expected_type == "bool":
+            if not isinstance(v, bool):
+                raise ValueError("El valor debe ser un booleano")
+        return v
+
 class CArgument(BaseModel):
     value: Any
     type: CType
 
 class TestCase(BaseModel):
-    inputs: List[CArgument]
+    inputs: Optional[List[TypedInput]] = None
     expected_output: str
     description: str = ""
 

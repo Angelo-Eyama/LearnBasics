@@ -99,6 +99,10 @@ class Submission(SQLModel, table=True):
         sa_column_kwargs={"nullable": True}
     )
     suggestions: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
+    passed_tests: Optional[int] = Field(default=0, sa_column_kwargs={"nullable": True})
+    total_tests: Optional[int] = Field(default=None, sa_column_kwargs={"nullable": True})
+    compilation_error: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
+    execution_time: Optional[float] = Field(default=None, sa_column_kwargs={"nullable": True})
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
     userID: int = Field(foreign_key="users.id")
     

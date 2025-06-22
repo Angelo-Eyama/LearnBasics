@@ -98,7 +98,7 @@ export type FunctionTestRequest = {
     /**
      * Nombre de la función a probar
      */
-    function_name: string;
+    function_name: string | null;
     /**
      * Casos de prueba
      */
@@ -258,6 +258,10 @@ export type SubmissionRead = {
     problemID: number;
     userID: number;
     problem?: ProblemRead | null;
+    passed_tests?: number | null;
+    total_tests?: number | null;
+    compilation_error?: string | null;
+    execution_time?: number | null;
 };
 
 export type SubmissionUpdate = {
@@ -265,6 +269,10 @@ export type SubmissionUpdate = {
     language?: string | null;
     status?: string | null;
     suggestions?: string | null;
+    passed_tests?: number | null;
+    total_tests?: number | null;
+    compilation_error?: string | null;
+    execution_time?: number | null;
 };
 
 export type TestCaseCreate = {

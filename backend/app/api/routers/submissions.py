@@ -1,8 +1,7 @@
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from app.api.deps import CurrentUser, SessionDep, get_current_user, verify_admin
+from app.api.routers.code import test_function
 
-from app.models import Submission
 from app.api.controllers import submissions as submissions_controller
 from app.schemas.submission import SubmissionCreate, SubmissionRead, SubmissionUpdate, SubmissionList
 from app.schemas.utils import ErrorResponse
@@ -88,8 +87,8 @@ def get_submission_by_id(submission_id: int, session: SessionDep, current_user: 
         400: {"model": ErrorResponse, "description": "Error en los datos enviados"},
     }
     )
-def create_submission(submission: SubmissionCreate, session: SessionDep):
-    new_submission = submissions_controller.create_submission(session, submission)
+def create_submission(submission: SubmissionCreate, session: SessionDep, background_tasks: BackgroundTasks):
+    new_submission = submissions_controller.create_submission(session, submission, background_tasks)
     return new_submission
 
 @router.patch(

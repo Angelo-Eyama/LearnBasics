@@ -1,3 +1,4 @@
+import uvicorn
 from fastapi import FastAPI, status
 import subprocess
 import tempfile
@@ -74,7 +75,7 @@ async def execute_c_code(request: ExecuteRequest):
         execution_time = time.time() - start_time
         
         return ExecuteResult(
-            success=execute_process.returncode == 0,
+            success=True,
             output=execute_process.stdout,
             error=execute_process.stderr if execute_process.stderr else "",
             execution_time=execution_time
@@ -286,5 +287,4 @@ int main() {{
     return test_code
 
 if __name__ == "__main__":
-    import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8002)

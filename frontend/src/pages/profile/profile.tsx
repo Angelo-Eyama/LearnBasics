@@ -170,7 +170,7 @@ export default function ProfilePage() {
                                         <AlertDialogHeader>
                                             <AlertDialogTitle>Historial de entregas</AlertDialogTitle>
                                         </AlertDialogHeader>
-                                        
+
                                         <div className="max-h-[80vh]  overflow-auto">
                                             <Table>
                                                 <TableHeader>
@@ -197,12 +197,13 @@ export default function ProfilePage() {
                                                             <TableCell>
                                                                 <Badge
                                                                     variant={
-                                                                        submission.status === "Solucion aceptada"
+                                                                        submission.status === "Correcto"
                                                                             ? "outline"
-                                                                            : submission.status === "Solucion incorrecta"
+                                                                            : submission.status === "Incorrecto"
                                                                                 ? "destructive"
                                                                                 : "secondary"
                                                                     }
+                                                                    className={submission.status === "Correcto" ? "bg-green-400" : submission.status === "Incorrecto" ? "bg-red-400" : ""}
                                                                 >
                                                                     {submission.status}
                                                                 </Badge>
@@ -245,7 +246,7 @@ export default function ProfilePage() {
                                                             variant={
                                                                 selectedSubmission.status === "Accepted"
                                                                     ? "outline"
-                                                                    : selectedSubmission.status === "Wrong Answer"
+                                                                    : selectedSubmission.status === "Incorrecto"
                                                                         ? "destructive"
                                                                         : "secondary"
                                                             }
@@ -256,16 +257,35 @@ export default function ProfilePage() {
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-medium">Lenguaje</p>
-                                                        <p className="mt-1">{selectedSubmission.language}</p>
+                                                        <Badge className="mt-1" variant={"outline"}>
+                                                            {selectedSubmission.language}
+                                                        </Badge>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium">Tests</p>
+                                                        {selectedSubmission.passed_tests} / {selectedSubmission.total_tests}
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-sm font-medium">Tiempo de ejecucion</p>
+                                                        {selectedSubmission.execution_time} s
                                                     </div>
                                                 </div>
 
                                                 <div>
                                                     <p className="text-sm font-medium mb-2">Codigo</p>
                                                     <div className="bg-muted p-4 rounded-md overflow-auto max-h-[400px]">
-                                                        <pre className="text-sm font-mono whitespace-pre-wrap">{JSON.parse(selectedSubmission.code)}</pre>
+                                                        {selectedSubmission.code}
                                                     </div>
                                                 </div>
+                                                {
+                                                    selectedSubmission.suggestions &&
+                                                    <div>
+                                                        <p className="text-sm font-medium mb-2">Sugerencias</p>
+                                                        <div className="bg-muted p-4 rounded-md overflow-auto max-h-[400px]">
+                                                            {selectedSubmission.suggestions}
+                                                        </div>
+                                                    </div>
+                                                }
                                             </div>
                                             <AlertDialogFooter>
                                                 <AlertDialogCancel>Cerrar</AlertDialogCancel>

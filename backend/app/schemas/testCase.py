@@ -72,7 +72,7 @@ class FunctionTestRequest(BaseModel):
     """Solicitud para probar una función"""
     code: str = Field(..., description="Código a evaluar")
     language: str = Field(..., description="Lenguaje de programación")
-    function_name: str = Field(..., description="Nombre de la función a probar")
+    function_name: Optional[str] = Field(..., description="Nombre de la función a probar")
     test_cases: List[CompilerTestCase] = Field(..., description="Casos de prueba")
     
     class Config:
