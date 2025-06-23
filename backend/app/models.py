@@ -25,7 +25,6 @@ class User(SQLModel, table=True):
     )
     bio: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     skills: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
-    profilePicture: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     github: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
     active: bool = Field(
         default=True, 

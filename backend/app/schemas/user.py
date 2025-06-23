@@ -36,7 +36,6 @@ class UserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     bio: Optional[str] = None
     github: Optional[str] = None
-    profilePicture: Optional[str] = None
     skills: Optional[str] = None
     model_config = ConfigDict(
         from_attributes=True
@@ -47,7 +46,6 @@ class UserPublic(UserBase):
     bio: Optional[str] = None
     github: Optional[str] = None
     skills: Optional[str] = None
-    profilePicture: Optional[str] = None
     roles: List[RoleNameBase]
     
     model_config = ConfigDict(

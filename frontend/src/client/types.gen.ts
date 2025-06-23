@@ -360,7 +360,6 @@ export type UserPublic = {
     bio?: string | null;
     github?: string | null;
     skills?: string | null;
-    profilePicture?: string | null;
     roles: Array<RoleNameBase>;
 };
 
@@ -375,7 +374,6 @@ export type UserRead = {
     bio?: string | null;
     github?: string | null;
     skills?: string | null;
-    profilePicture?: string | null;
     roles: Array<RoleNameBase>;
     id: number;
     creationDate: string | null;
@@ -395,7 +393,6 @@ export type UserUpdate = {
     email?: string | null;
     bio?: string | null;
     github?: string | null;
-    profilePicture?: string | null;
     skills?: string | null;
 };
 
