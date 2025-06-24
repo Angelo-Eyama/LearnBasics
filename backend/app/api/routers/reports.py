@@ -117,10 +117,10 @@ def delete_report(report_id: int, session: SessionDep):
 
 
 @router.patch(
-    "/reports/{report_id}",
+    "/reports/read/{report_id}",
     response_model=ReportRead,
-    summary="Cambiar estado de un reporte",
-    description="Cambia el estado de un reporte, de pendiente a resuelto y viceversa. Utilizando el ID para identificarlo.",
+    summary="Marcar un reporte como leído",
+    description="Utilizando el ID como parámetro, actualiza el estado del reporte a leído.",
     responses={
         200: {"description": "Reporte actualizado"},
         404: {"model": ErrorResponse, "description": "Reporte no encontrado"},
@@ -128,7 +128,6 @@ def delete_report(report_id: int, session: SessionDep):
     dependencies=[Depends(valid_role)]
 )
 def read_report(report_id: int, session: SessionDep):
-    print(f"Reading report with ID: {report_id}")
     report = reports_controller.get_report_by_id(session, report_id)
     if not report:
         raise HTTPException(status_code=404, detail="Reporte no encontrado")

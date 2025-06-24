@@ -3,7 +3,7 @@ from app.api.deps import CurrentUser, SessionDep, get_current_user, verify_admin
 from app.api.routers.code import test_function
 
 from app.api.controllers import submissions as submissions_controller
-from app.schemas.submission import SubmissionCreate, SubmissionRead, SubmissionUpdate, SubmissionList
+from app.schemas.submission import SubmissionBase, SubmissionCreate, SubmissionRead, SubmissionUpdate, SubmissionList
 from app.schemas.utils import ErrorResponse
 
 router = APIRouter(
@@ -42,7 +42,7 @@ def get_my_submissions(current_user: CurrentUser, session: SessionDep):
 
 @router.delete(
     "/submissions/user/me/{submission_id}",
-    response_model=SubmissionRead,
+    response_model=SubmissionBase,
     summary="Eliminar una entrega del usuario autenticado",
     description="Elimina una entrega del usuario autenticado utilizando su ID como clave.",
 )
@@ -53,7 +53,7 @@ def delete_my_submission(submission_id: int, current_user: CurrentUser, session:
     if submission.userID != current_user.id:
         raise HTTPException(status_code=403, detail="No tienes permiso para eliminar esta entrega")
     
-    deleted_submission = submissions_controller.delete_submission(session, submission)
+    deleted_submission = submissions_controller.delete_submission(session, submission.id)
     return deleted_submission
 
 @router.get(

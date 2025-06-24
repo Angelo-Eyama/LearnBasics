@@ -125,6 +125,12 @@ def update_submission(*, session: Session, db_submission: Submission, submission
 
 def delete_submission(session: Session, submission_id: int):
     submission = session.get(Submission, submission_id)
+    submission_data = {
+        "code": submission.code,
+        "language": submission.language,
+        "status": submission.status,
+        "suggestions": submission.suggestions,
+    }
     session.delete(submission)
     session.commit()
-    return submission
+    return submission_data

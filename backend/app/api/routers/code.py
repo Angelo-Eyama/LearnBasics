@@ -120,7 +120,6 @@ async def compile_code( request: CodeRequest ):
             execution_time=0.0
         )
 
-@router.post("/test-function", response_model=FunctionTestResult)
 async def test_function(request: FunctionTestRequest) -> FunctionTestResult:
     """
     Prueba una función en el lenguaje especificado con casos de prueba
