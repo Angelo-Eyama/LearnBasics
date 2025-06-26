@@ -71,7 +71,7 @@ class Problem(SQLModel, table=True):
     score: int
     tags: str
     functionName: Optional[str] = Field(default=None, sa_column_kwargs={"nullable": True})
-    authorID: Optional[int] = Field(foreign_key="users.id", ondelete="SET NULL", sa_column_kwargs={"nullable": True})
+    authorID: int = Field(foreign_key="users.id", ondelete="CASCADE")
     
     testCases: List["TestCase"] = Relationship(
         back_populates="problem",
@@ -143,7 +143,7 @@ class Comment(SQLModel, table=True):
     timePosted: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"nullable": True})
     isApproved: bool = Field(default=True, sa_column_kwargs={"comment": "Indica si el comentario ha sido aprobado o no"})
     problemID: int = Field(foreign_key="problems.id")
-    userID: Optional[int] = Field(foreign_key="users.id", ondelete="SET NULL", sa_column_kwargs={"nullable": True})
+    userID: int = Field(foreign_key="users.id", ondelete="CASCADE")
     
     user: User = Relationship(back_populates="comments")
     problem: Problem = Relationship(back_populates="comments")
@@ -168,7 +168,7 @@ class Report(SQLModel, table=True):
     timePosted: Optional[datetime] = Field(default_factory=lambda: datetime.now(timezone.utc), sa_column_kwargs={"nullable": True})
     read: bool = Field(default=False)
     problemID: int = Field(foreign_key="problems.id", ondelete="CASCADE")
-    userID: Optional[int] = Field(foreign_key="users.id", ondelete="SET NULL", sa_column_kwargs={"nullable": True})
+    userID: int = Field(foreign_key="users.id", ondelete="CASCADE")
 
 class TestCase(SQLModel, table=True):
     __tablename__ = "test_cases"
