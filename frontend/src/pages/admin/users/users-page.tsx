@@ -24,7 +24,7 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Search, MoreHorizontal, Shield, Ban, Eye, ArrowLeft } from "lucide-react"
+import { Search, MoreHorizontal, Shield, Ban, Eye, ArrowLeft, PlusCircle } from "lucide-react"
 import { toast } from "sonner"
 import useAdminUsers from "@/hooks/useAdminUsers"
 import { Loading } from "@/components/ui/loading"
@@ -86,10 +86,18 @@ export default function AdminUsersPage() {
                     <ArrowLeft className="h-4 w-4 mr-1" />
                     Volver
                 </Button>
-                <h1 className="text-3xl font-bold">Gestion de usuarios</h1>
+                <h1 className="text-3xl font-bold">Gestión de usuarios</h1>
             </div>
-            <div className="mb-6">
-                <p className="text-muted-foreground">Gestiona a los usuarios y sus permisos</p>
+            <div className="flex justify-between items-center mb-6">
+                <div className="mb-6 mx-4">
+                    <p className="text-muted-foreground">Gestiona a los usuarios y sus permisos</p>
+                </div>
+                <Button asChild>
+                    <Link to="/admin/users/new">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Crear nuevo usuario
+                    </Link>
+                </Button>
             </div>
 
             <Card>

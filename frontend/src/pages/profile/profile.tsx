@@ -23,7 +23,7 @@ import { FaGithub } from "react-icons/fa";
 import useAuth from "@/hooks/useAuth"
 import { parseServerString, decideRank, formatDate, getDiceBearAvatar } from "@/utils/utils"
 import { useNotifications } from "@/hooks/useNotifications"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { getMySubmissions, SubmissionRead, deleteMySubmission } from "@/client"
 import { toast } from "sonner"
 
@@ -36,6 +36,7 @@ export default function ProfilePage() {
     } = useNotifications()
     const [notificationsTab, setNotificationsTab] = useState("all")
     const [selectedSubmission, setSelectedSubmission] = useState<(SubmissionRead)>()
+    const queryClient = useQueryClient();
 
     // Query para obtener las entregas del usuario
     const {
@@ -64,8 +65,11 @@ export default function ProfilePage() {
                 })
                 throw new Error(`Error ${response.status} al eliminar la entrega`)
             }
-            toast.success("Entrega eliminada correctamente")
             return response.data
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries( { queryKey: ["submissions"]});
+            toast.success("Entrega eliminada correctamente");
         }
     })
 
