@@ -24,7 +24,7 @@ app = FastAPI(
         "url": "https://sqlmodel.tiangolo.com",
         "email": "custodioeyama@gmail.com",
     },
-    version="0.9",
+    version="0.1",
     openapi_tags=tags_metadata,
     generate_unique_id_function=custom_generate_unique_id,
     openapi_url=f"/{settings.API_VERSION}/openapi.json",
