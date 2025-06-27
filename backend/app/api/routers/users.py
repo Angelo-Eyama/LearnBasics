@@ -103,7 +103,7 @@ def create_user(user: UserCreate, session: SessionDep):
     if db_user:
         raise HTTPException(
             status_code=400, detail="Nombre de usuario ya existente")
-    new_user = users_controller.create_user(session, User.model_validate(user))
+    new_user = users_controller.create_user(session, user)
     return new_user
 
 @router.patch(

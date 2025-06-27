@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useEffect, useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -21,7 +21,8 @@ import {
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
-import { ArrowLeft, Save, Ban, CheckCircle, CircleX, Bell, Send } from "lucide-react"
+import { ArrowLeft, Save, CheckCircle, CircleX, Bell, Send, Lock, Trash } from "lucide-react"
+import { FiUnlock } from "react-icons/fi";
 import { toast } from "sonner"
 import { Textarea } from "@/components/ui/textarea"
 import { useParams } from "react-router-dom"
@@ -31,12 +32,14 @@ import NotFound from "@/pages/public/not-found"
 import BadgeClosable from "@/components/ui/badge-closable"
 import { formatDate, getDiceBearAvatar, getHighestRole } from "@/utils/utils"
 import { Loading } from "@/components/ui/loading"
+import useAdminUsers from "@/hooks/useAdminUsers"
 
 
 export default function UserDetailPage() {
     const { id } = useParams<{ id: string }>()
     const queryClient = useQueryClient()
     const navigate = useNavigate()
+    const { deleteUser } = useAdminUsers()
 
     // Query para obtener los datos del usuario seleccionado
     const { data: user, isLoading, isError } = useQuery({
@@ -59,7 +62,7 @@ export default function UserDetailPage() {
     // Estado local para almacenar los datos del formulario del usuario
     const [formData, setFormData] = useState<UserRead>(
         {
-            id: 0,
+            id: parseInt(id || "0"),
             username: "",
             firstName: "",
             lastName: "",
@@ -234,6 +237,13 @@ export default function UserDetailPage() {
         setFormData((prev) => ({ ...prev, isVerified: true }))
     }
 
+    const handleDeleteUser = () => {
+        if (!id) return;
+        deleteUser(parseInt(id!))
+        navigate("/admin/users")
+        toast.success("Usuario eliminado correctamente")
+    }
+
     const handleToggleStatus = () => {
         changeStatusMutation.mutateAsync()
         setFormData((prev) => ({ ...prev, active: !prev.active }))
@@ -310,8 +320,13 @@ export default function UserDetailPage() {
                         <div className="pt-4 border-t">
                             <h3 className="font-medium mb-2">Acciones rápidas</h3>
                             <div className="flex flex-col space-y-2">
-                                <Button variant="outline" className="justify-start cursor-pointer hover:bg-amber-800" onClick={handleToggleStatus}>
-                                    <Ban className="mr-2 h-4 w-4" />
+                                <Button variant="outline" className="justify-start cursor-pointer hover:bg-red-500 transition-colors" onClick={handleToggleStatus}>
+                                    {
+                                        formData.active ?
+                                            <Lock className="h-4 w-4" />
+                                            :
+                                            <FiUnlock className="h-4 w-4" />
+                                    }
                                     {formData.active === true ? "Bloquear cuenta" : "Desbloquear cuenta"}
                                 </Button>
                                 {!formData.isVerified && (
@@ -320,6 +335,7 @@ export default function UserDetailPage() {
                                         Verificar usuario
                                     </Button>
                                 )}
+                                { /* Botón para enviar notificación */}
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
                                         <Button variant="outline" className="justify-start">
@@ -365,6 +381,34 @@ export default function UserDetailPage() {
                                         </AlertDialogFooter>
                                     </AlertDialogContent>
                                 </AlertDialog>
+
+                                { /* Botón para eliminar usuario */}
+                                <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                        <Button variant="destructive" className="justify-start">
+                                            <Trash className="mr-2 h-4 w-4" />
+                                            Eliminar usuario
+                                        </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Eliminar usuario</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                                ¿Está seguro de querer eliminar a <span className="font-bold">{formData.firstName}</span>? Esta acción no se puede deshacer y eliminará todos los datos asociados a este usuario.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction
+                                                onClick={handleDeleteUser}
+                                                className="dark:text-white bg-red-500 hover:bg-red-700 transition-colors"
+                                            >
+                                                <Trash className="mr-2 h-4 w-4" />
+                                                {sendNotificationMutation.isPending ? "Procesando..." : "Eliminar"}
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                </AlertDialog>
                             </div>
                         </div>
                     </CardContent>
@@ -398,6 +442,10 @@ export default function UserDetailPage() {
                                     <div className="space-y-2">
                                         <Label htmlFor="username">Nombre de usuario</Label>
                                         <Input id="username" name="username" value={formData.username} onChange={handleFormChange} />
+                                    </div>
+                                    <div className="space-y-2 w-fit">
+                                        <Label htmlFor="bio">Puntuacion</Label>
+                                        <Input id="score" name="score" type="number" value={formData.score!} onChange={handleFormChange} />
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -435,10 +483,6 @@ export default function UserDetailPage() {
                                     <Save className="mr-2 h-4 w-4" />
                                     {updateUserMutation.isPending ? "Guardando..." : "Guardar cambios"}
                                 </Button>
-                                <Button className="mt-4 ml-2 hover:bg-gray-500" variant="secondary">
-                                    <Link to="/admin/users">Volver</Link>
-                                </Button>
-
                             </CardFooter>
                         </form>
                     </Card>

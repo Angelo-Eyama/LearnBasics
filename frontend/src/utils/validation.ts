@@ -36,7 +36,7 @@ export function validateRegister(
     confirmPassword: string
 ): string {
     if (!isValidName(firstName) || !isValidName(lastName)) {
-        return 'Los campos de nombre y apellido deben tener al menos 3 caracteres y no pueden contener números';
+        return 'Los campos de nombre y apellidos deben tener al menos 3 caracteres y no pueden contener números';
     }
     if (!isUsernameValid(username)) {
         return 'El nombre de usuario debe tener al menos 3 caracteres';

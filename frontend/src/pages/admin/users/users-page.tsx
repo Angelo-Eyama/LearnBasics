@@ -9,14 +9,6 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import {
     Dialog,
     DialogContent,
     DialogDescription,
@@ -24,8 +16,8 @@ import {
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog"
-import { Search, MoreHorizontal, Shield, Ban, Eye, ArrowLeft, PlusCircle } from "lucide-react"
-import { toast } from "sonner"
+import { Search, Eye, ArrowLeft, PlusCircle, Trash, Lock } from "lucide-react"
+import { FiUnlock } from "react-icons/fi";
 import useAdminUsers from "@/hooks/useAdminUsers"
 import { Loading } from "@/components/ui/loading"
 import { formatDate, getHighestRole, getDiceBearAvatar } from "@/utils/utils"
@@ -64,11 +56,8 @@ export default function AdminUsersPage() {
         )
     })
 
-    const handleStatusChange = (userId: number, newStatus: string) => {
+    const handleStatusChange = (userId: number) => {
         changeUserStatus(userId)
-        toast.success("Estado de usuario actualizado", {
-            description: `Se ha cambiado el estado del usuario a ${newStatus}.`,
-        })
     }
 
     const handleDeleteUser = () => {
@@ -128,7 +117,7 @@ export default function AdminUsersPage() {
                                 <TableHead>Rol</TableHead>
                                 <TableHead>Estado</TableHead>
                                 <TableHead>Registrado desde</TableHead>
-                                <TableHead className="text-right">Acciones</TableHead>
+                                <TableHead className="text-center">Acciones</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -157,42 +146,30 @@ export default function AdminUsersPage() {
                                         <Badge variant={user.active === true ? "default" : "destructive"}>{user.active ? "Desbloqueado" : "Bloqueado"}</Badge>
                                     </TableCell>
                                     <TableCell> {formatDate(user.creationDate, { year: '2-digit', month: 'short', day: 'numeric', weekday: 'short' })} </TableCell>
-                                    <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" className="h-8 w-8 p-0">
-                                                    <span className="sr-only">Abrir menu</span>
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-                                                <DropdownMenuItem asChild>
-                                                    <Link to={`/admin/users/${user.id}`}>
-                                                        <Eye className="mr-2 h-4 w-4" />
-                                                        Ver detalles
-                                                    </Link>
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem
-                                                    onClick={() => handleStatusChange(user.id, user.active === true ? "desbloqueado" : "bloqueado")}
-                                                >
-                                                    <Shield className="mr-2 h-4 w-4" />
-                                                    {user.active === true ? "Bloquear" : "Desbloquear"}
-                                                </DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem
-                                                    className="text-destructive focus:text-destructive"
-                                                    onClick={() => {
-                                                        setSelectedUser(user)
-                                                        setIsDeleteDialogOpen(true)
-                                                    }}
-                                                >
-                                                    <Ban className="mr-2 h-4 w-4" />
-                                                    Eliminar usuario
-                                                </DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
+                                    <TableCell className="text-center">
+                                        <Button variant={"ghost"} asChild>
+                                            <Link to={`/admin/users/${user.id}`}>
+                                                <Eye className="h-4 w-4" />
+                                            </Link>
+                                        </Button>
+                                        <Button onClick={() => handleStatusChange(user.id)} variant="ghost" className="ml-2" title="Bloquear/Desbloquear usuario">
+                                            {
+                                                user.active ?
+                                                    <Lock className="h-4 w-4" />
+                                                    :
+                                                    <FiUnlock className="h-4 w-4" />
+                                            }
+                                        </Button>
+                                        <Button
+                                            variant="destructive"
+                                            className="ml-2"
+                                            onClick={() => {
+                                                setSelectedUser(user)
+                                                setIsDeleteDialogOpen(true)
+                                            }}
+                                        >
+                                            <Trash className="h-4 w-4" />
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             ))}

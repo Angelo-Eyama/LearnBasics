@@ -5,7 +5,6 @@ import {
     registerUser,
     getCurrentUser,
     loginForAccessToken,
-    type UserPublic,
     type UserRegister,
 } from "@/client";
 import { toast } from "sonner"
@@ -33,16 +32,15 @@ const getUserId = () => {
 const useAuth = () => {
     const navigate = useNavigate();
     const queryClient = useQueryClient();
-    const { data: user, isLoading } = useQuery<UserPublic | null, Error>({
+    const { data: user, isLoading } = useQuery({
         queryKey: ["currentUser"],
         queryFn: async () => {
             const response = await getCurrentUser();
             if(response.status !== 200){
-                toast.error("Error al obtener el usuario actual") // Eliminar en produccion
                 logout();
-                throw new Error("Error al obtener el usuario actual");
+                throw new Error(`Error ${response.status} al obtener el usuario`);
             }
-            return response.data as UserPublic;
+            return response.data;
         },
         enabled: isLoggedIn(),
         retry: false
@@ -102,6 +100,7 @@ const useAuth = () => {
 
     const logout = () => {
         localStorage.removeItem("access_token");
+        console.log("Logout")
         queryClient.invalidateQueries({
             queryKey: ["currentUser"],
             refetchType: "none",
