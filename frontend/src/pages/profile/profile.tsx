@@ -56,7 +56,7 @@ export default function ProfilePage() {
     // Mutacion para eliminar una entrega
     const deleteSubmissionMutation = useMutation({
         mutationFn: async (submissionId: number) => {
-            const response = await deleteMySubmission({path: {submission_id: submissionId}})
+            const response = await deleteMySubmission({ path: { submission_id: submissionId } })
             if (response.status !== 200 || !("data" in response)) {
                 toast.error(`Error ${response.status}`, {
                     description: Array.isArray(response.error?.detail)
@@ -68,7 +68,7 @@ export default function ProfilePage() {
             return response.data
         },
         onSuccess: () => {
-            queryClient.invalidateQueries( { queryKey: ["submissions"]});
+            queryClient.invalidateQueries({ queryKey: ["submissions"] });
             toast.success("Entrega eliminada correctamente");
         }
     })
@@ -171,7 +171,7 @@ export default function ProfilePage() {
                         </CardHeader>
                         <CardContent>
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="flex flex-col items-center p-4 bg-muted rounded-lg">
+                                <div className="flex flex-col items-center p-4 border-2 bg-muted rounded-lg">
                                     <Award className="h-8 w-8 mb-2 text-primary" />
                                     <span className="text-2xl font-bold">{decideRank(userData.score)}</span>
                                     <span className="text-sm text-muted-foreground">Rango actual</span>
@@ -179,7 +179,7 @@ export default function ProfilePage() {
                                 </div>
                                 <AlertDialog>
                                     <AlertDialogTrigger asChild>
-                                        <div className="flex flex-col items-center p-4 bg-muted rounded-lg cursor-pointer hover:bg-muted/80 transition-colors">
+                                        <div className="flex flex-col items-center p-4 border-2 bg-muted rounded-lg cursor-pointer hover:bg-muted/25 transition-colors">
                                             <FileCode className="h-8 w-8 mb-2 text-primary" />
                                             <span className="text-2xl font-bold">{userSubmissions?.total}</span>
                                             <span className="text-sm text-muted-foreground">Total de entregas</span>
@@ -212,7 +212,11 @@ export default function ProfilePage() {
                                                                     {submission?.problem?.title || 'Sin título'}
                                                                 </Link>
                                                             </TableCell>
-                                                            <TableCell>{submission.language}</TableCell>
+                                                            <TableCell>
+                                                                <Badge className="mt-1" variant={"default"}>
+                                                                    {submission.language.charAt(0).toUpperCase() + submission.language.slice(1)}
+                                                                </Badge>
+                                                            </TableCell>
                                                             <TableCell>
                                                                 <Badge
                                                                     variant={
@@ -254,9 +258,9 @@ export default function ProfilePage() {
                                         open={!!selectedSubmission}
                                         onOpenChange={(open) => !open && setSelectedSubmission(undefined)}
                                     >
-                                        <AlertDialogContent className="max-w-4xl">
+                                        <AlertDialogContent className="min-w-3xl border-2 w-[95vw] max-h-[85vh] overflow-y-auto">
                                             <AlertDialogHeader>
-                                                <AlertDialogTitle>Detalles de entregas</AlertDialogTitle>
+                                                <AlertDialogTitle>Detalles de entrega</AlertDialogTitle>
                                                 <AlertDialogDescription>
                                                     {selectedSubmission?.problem?.title || 'Sin título'} - {formatDate(selectedSubmission.timeSubmitted)}
                                                 </AlertDialogDescription>
@@ -280,13 +284,13 @@ export default function ProfilePage() {
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-medium">Lenguaje</p>
-                                                        <Badge className="mt-1" variant={"outline"}>
-                                                            {selectedSubmission.language}
+                                                        <Badge className="mt-1" variant={"default"}>
+                                                            {selectedSubmission.language.charAt(0).toUpperCase() + selectedSubmission.language.slice(1)}
                                                         </Badge>
                                                     </div>
                                                     <div>
-                                                        <p className="text-sm font-medium">Tests</p>
-                                                        {selectedSubmission.passed_tests} / {selectedSubmission.total_tests}
+                                                        <p className="text-sm font-medium">Tests superados</p>
+                                                        {selectedSubmission.passed_tests} de {selectedSubmission.total_tests}
                                                     </div>
                                                     <div>
                                                         <p className="text-sm font-medium">Tiempo de ejecucion</p>
@@ -304,7 +308,7 @@ export default function ProfilePage() {
                                                     selectedSubmission.suggestions &&
                                                     <div>
                                                         <p className="text-sm font-medium mb-2">Sugerencias</p>
-                                                        <div className="bg-muted p-4 rounded-md overflow-auto max-h-[400px] whitespace-pre-line">
+                                                        <div className="bg-muted p-4 rounded-md whitespace-pre-line overflow-auto max-h-[400px] overflow-y-auto">
                                                             {selectedSubmission.suggestions}
                                                         </div>
                                                     </div>

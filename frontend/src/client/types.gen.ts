@@ -61,82 +61,8 @@ export type CompilationResult = {
     execution_time: number;
 };
 
-/**
- * Caso de prueba común para todos los compiladores
- */
-export type CompilerTestCase = {
-    /**
-     * Lista de argumentos para la función
-     */
-    inputs: Array<TypedInput> | null;
-    /**
-     * Salida esperada (serializada como string)
-     */
-    expected_output: string;
-    /**
-     * Descripción del caso de prueba
-     */
-    description?: string;
-};
-
 export type ErrorResponse = {
     detail: string;
-};
-
-/**
- * Solicitud para probar una función
- */
-export type FunctionTestRequest = {
-    /**
-     * Código a evaluar
-     */
-    code: string;
-    /**
-     * Lenguaje de programación
-     */
-    language: string;
-    /**
-     * Nombre de la función a probar
-     */
-    function_name: string | null;
-    /**
-     * Casos de prueba
-     */
-    test_cases: Array<CompilerTestCase>;
-};
-
-/**
- * Resultado completo de la prueba
- */
-export type FunctionTestResult = {
-    /**
-     * Indica si todas las pruebas pasaron
-     */
-    success: boolean;
-    /**
-     * Número total de pruebas
-     */
-    total_tests: number;
-    /**
-     * Número de pruebas exitosas
-     */
-    passed_tests: number;
-    /**
-     * Número de pruebas fallidas
-     */
-    failed_tests: number;
-    /**
-     * Resultados detallados
-     */
-    test_results: Array<TestResult>;
-    /**
-     * Error de compilación si existe
-     */
-    compilation_error?: string;
-    /**
-     * Tiempo de ejecución en ms
-     */
-    execution_time: number;
 };
 
 export type HttpValidationError = {
@@ -234,6 +160,13 @@ export type RoleUpdate = {
     description?: string | null;
 };
 
+export type SubmissionBase = {
+    code: string;
+    language: string;
+    status: string;
+    suggestions?: string | null;
+};
+
 export type SubmissionCreate = {
     code: string;
     language: string;
@@ -297,36 +230,6 @@ export type TestCaseUpdate = {
     description?: string | null;
     inputs?: Array<TypedInput> | null;
     expected_output?: string | null;
-};
-
-/**
- * Resultado de un caso de prueba individual
- */
-export type TestResult = {
-    /**
-     * Indica si la prueba pasó
-     */
-    test_passed: boolean;
-    /**
-     * Entrada utilizada
-     */
-    input_used: Array<unknown>;
-    /**
-     * Salida esperada
-     */
-    expected_output: string;
-    /**
-     * Salida obtenida
-     */
-    actual_output: string;
-    /**
-     * Descripción del caso de prueba
-     */
-    description?: string;
-    /**
-     * Mensaje de error si falló
-     */
-    error?: string;
 };
 
 /**
@@ -1057,7 +960,7 @@ export type DeleteMySubmissionResponses = {
     /**
      * Successful Response
      */
-    200: SubmissionRead;
+    200: SubmissionBase;
 };
 
 export type DeleteMySubmissionResponse = DeleteMySubmissionResponses[keyof DeleteMySubmissionResponses];
@@ -2196,13 +2099,44 @@ export type DeleteReportResponses = {
 
 export type DeleteReportResponse = DeleteReportResponses[keyof DeleteReportResponses];
 
+export type UpdateReportData = {
+    body: ReportUpdate;
+    path: {
+        report_id: number;
+    };
+    query?: never;
+    url: '/reports/{report_id}';
+};
+
+export type UpdateReportErrors = {
+    /**
+     * Reporte no encontrado
+     */
+    404: ErrorResponse;
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type UpdateReportError = UpdateReportErrors[keyof UpdateReportErrors];
+
+export type UpdateReportResponses = {
+    /**
+     * Reporte actualizado
+     */
+    200: ReportRead;
+};
+
+export type UpdateReportResponse = UpdateReportResponses[keyof UpdateReportResponses];
+
 export type ReadReportData = {
     body?: never;
     path: {
         report_id: number;
     };
     query?: never;
-    url: '/reports/{report_id}';
+    url: '/reports/read/{report_id}';
 };
 
 export type ReadReportErrors = {
@@ -2464,31 +2398,6 @@ export type CompileCodeResponses = {
 };
 
 export type CompileCodeResponse = CompileCodeResponses[keyof CompileCodeResponses];
-
-export type TestFunctionData = {
-    body: FunctionTestRequest;
-    path?: never;
-    query?: never;
-    url: '/code/test-function';
-};
-
-export type TestFunctionErrors = {
-    /**
-     * Validation Error
-     */
-    422: HttpValidationError;
-};
-
-export type TestFunctionError = TestFunctionErrors[keyof TestFunctionErrors];
-
-export type TestFunctionResponses = {
-    /**
-     * Successful Response
-     */
-    200: FunctionTestResult;
-};
-
-export type TestFunctionResponse = TestFunctionResponses[keyof TestFunctionResponses];
 
 export type ClientOptions = {
     baseURL: 'http://localhost:8000' | (string & {});

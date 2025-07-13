@@ -14,7 +14,9 @@ def get_comments_by_user_id(session: Session, user_id: int):
 def get_comments(session: Session):
     comments = session.exec(select(Comment)).all()
     count = session.exec(select(func.count(Comment.id))).one()
-    return CommentList(total=count, comments=comments)
+    # Filtrar comentarios con usuarios nulos
+    valid_comments = [comment for comment in comments if comment.user is not None]
+    return CommentList(total=len(valid_comments), comments=valid_comments)
 
 
 def get_comment_by_id(session: Session, comment_id: int):

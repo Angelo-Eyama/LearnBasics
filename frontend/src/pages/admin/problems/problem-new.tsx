@@ -144,34 +144,6 @@ export default function NewProblemPage() {
 
                         <Card>
                             <CardHeader>
-                                <CardTitle>Prototipo de código</CardTitle>
-                                <CardDescription>Proporcione un trozo de código en diferentes lenguajes de programación</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-4">
-                                <div className="space-y-2">
-                                    <Label htmlFor="javascript">JavaScript</Label>
-                                    <Textarea
-                                        id="javascript"
-                                        rows={6}
-                                        value={"formData.starterCode.javascript"}
-                                        onChange={(e) => handleCodeChange("javascript", e.target.value)}
-                                    />
-                                </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="python">Python</Label>
-                                    <Textarea
-                                        id="python"
-                                        rows={6}
-                                        value={"formData.starterCode.python}"}
-                                        onChange={(e) => handleCodeChange("python", e.target.value)}
-                                    />
-                                </div>
-                            </CardContent>
-                        </Card>
-
-                        <Card>
-                            <CardHeader>
                                 <CardTitle>Casos de prueba (tests)</CardTitle>
                                 <CardDescription>Añada las pruebas necesarias para validar la solución</CardDescription>
                             </CardHeader>
@@ -180,13 +152,7 @@ export default function NewProblemPage() {
                                     id="testCases"
                                     name="testCases"
                                     rows={6}
-                                    value={"formData.testCases"}
-
-                                    placeholder="Input: nums = [2,7,11,15], target = 9
-Output: [0,1]
-
-Input: nums = [3,2,4], target = 6
-Output: [1,2]"
+                                    placeholder="Input: nums = [2,7,11,15], target = 9, Output: [0,1]"
                                 />
                             </CardContent>
                         </Card>
